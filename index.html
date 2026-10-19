@@ -56,10 +56,91 @@ tr:hover td{background-color:rgba(224,173,53,.055)}
 .brand-main{margin:4px 0 2px}
 @media(max-width:480px){.brand img{height:44px;max-width:82px}.brand-login img{height:48px;max-width:90px}.brand-login h1{font-size:17px}.brand{gap:9px}}
 /* Warna interval servis .t200/.t400/.t1200/.t2400 sengaja dipertahankan agar tetap mudah dibedakan. */
+/* ==========================================
+   BACKGROUND BENGKEL FORKLIFT
+   TEMA PREMIUM HITAM & EMAS
+   ========================================== */
+
+/* LATAR BELAKANG HALAMAN UTAMA */
+body {
+    background-image:
+        linear-gradient(
+            rgba(0, 0, 0, 0.78),
+            rgba(0, 0, 0, 0.88)
+        ),
+        url("background-bengkel.jpg");
+
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: #080808;
+}
+
+/* LATAR BELAKANG HALAMAN LOGIN */
+#authGate {
+    background-image:
+        linear-gradient(
+            rgba(0, 0, 0, 0.35),
+            rgba(0, 0, 0, 0.65)
+        ),
+        url("background-bengkel.jpg");
+
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-color: #080808;
+}
+
+/* KOTAK LOGIN HITAM TRANSPARAN */
+.auth-card {
+    background: rgba(10, 10, 10, 0.92);
+    border: 1px solid #d4af37;
+    border-radius: 18px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+}
+
+/* PANEL HALAMAN UTAMA */
+.card,
+.topbar {
+    background: rgba(15, 15, 15, 0.94);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 12px;
+    backdrop-filter: blur(6px);
+}
+
+/* TAMPILAN HP */
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+    }
+
+    #authGate {
+        background-position: center center;
+    }
+
+    .auth-card {
+        padding: 18px;
+    }
 </style></head><body>
 
 <div id="authGate"><div class="auth-card">
-  <div class="brand brand-login"><img src="logo-bengkel.png" alt="Logo Bengkel"><h1>Master Plan PM Forklift 2027</h1></div>
+  <div class="brand brand-login">
+  <img src="logo-bengkel.png" alt="Logo Bengkel">
+
+  <div>
+    <div style="color:#e0ad35;font-size:14px;font-weight:bold;letter-spacing:2px;">
+      BENGKEL FORKLIFT
+    </div>
+
+    <h1>MASTER PLAN PM FORKLIFT 2027</h1>
+  </div>
+</div>
+
+<p style="text-align:center;color:#d4af37;">
+  Sistem Monitoring &amp; Perencanaan Preventive Maintenance Forklift
+</p>
   <p>Masuk dengan akun yang sudah didaftarkan oleh administrator. Aplikasi ini hanya dapat diakses oleh pengguna yang memiliki akun dan hak akses.</p>
   <form id="loginForm">
     <label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="nama@perusahaan.com">
@@ -72,7 +153,17 @@ tr:hover td{background-color:rgba(224,173,53,.055)}
 
 <div id="appShell" hidden>
 <div class="topbar"><span id="userBadge">Login aktif</span><button id="logoutBtn" type="button">Keluar</button></div>
-<div class="brand brand-main"><img src="logo-bengkel.png" alt="Logo Bengkel"><h1>Master Plan PM Forklift 2027</h1></div>
+<div class="brand brand-main">
+  <img src="logo-bengkel.png" alt="Logo Bengkel">
+
+  <div>
+    <div style="color:#e0ad35;font-size:14px;font-weight:bold;letter-spacing:2px;">
+      BENGKEL FORKLIFT
+    </div>
+
+    <h1>MASTER PLAN PM FORKLIFT 2027</h1>
+  </div>
+</div>
 <div class="sub">Servis berkala 200 / 400 / 1200 / 2400 HM · gabungan 26 departemen</div><div class="sub" id="sync"></div>
 <div class="card"><input id="q" list="dl" placeholder="Ketik kode forklift, contoh: A53" autocomplete="off"><datalist id="dl"></datalist><div id="st"></div></div>
 <div id="res" hidden>
