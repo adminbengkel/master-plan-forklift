@@ -43,7 +43,16 @@ button{padding:7px 12px;border-radius:6px;border:1px solid var(--bd);background:
 
 <div id="appShell" hidden>
 <div class="topbar"><span id="userBadge">Login aktif</span><button id="logoutBtn" type="button">Keluar</button></div>
-<h1>Master Plan PM Forklift 2027</h1>
+
+<div style="display:flex; align-items:center; gap:12px; margin:4px 0 8px;">
+  <img src="logo-bengkel.png"
+       alt="Logo Bengkel"
+       style="height:60px; width:auto; max-width:120px; object-fit:contain;">
+  <h1 style="font-size:18px; margin:4px 0; color:var(--ac);">
+    Master Plan PM Forklift 2027
+  </h1>
+</div>
+
 <div class="sub">Servis berkala 200 / 400 / 1200 / 2400 HM · gabungan 26 departemen</div><div class="sub" id="sync"></div>
 <div class="card"><input id="q" list="dl" placeholder="Ketik kode forklift, contoh: A53" autocomplete="off"><datalist id="dl"></datalist><div id="st"></div></div>
 <div id="res" hidden>
