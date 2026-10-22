@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Master Plan PM Forklift 2027 — Enterprise Grade</title>
+<title>Master Plan PM Forklift 2027 — Enterprise Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,16 +11,16 @@
 <style>
 :root {
   color-scheme: dark;
-  --bg: #0b0f17;
-  --card: #131b2e;
-  --card-hover: #17223b;
+  --bg: #070a0f;
+  --card: #0f172a;
+  --card-hover: #1e293b;
   --tx: #f8fafc;
   --mu: #94a3b8;
   --ac: #f59e0b;
   --ac-glow: rgba(245, 158, 11, 0.15);
   --bd: #1e293b;
   --bd-focus: #f59e0b;
-  --in: #0f172a;
+  --in: #0b0f17;
   
   /* Interval Colors */
   --c200: rgba(254, 243, 199, 0.12); --t200: #fbbf24;
@@ -34,137 +34,149 @@
 body {
   margin: 0;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at top, #111827 0%, #0b0f17 60%, #030712 100%);
+  background: var(--bg);
   color: var(--tx);
-  padding: 20px clamp(12px, 3vw, 32px);
-  max-width: 1320px;
+  padding: 16px clamp(12px, 2.5vw, 24px);
+  max-width: 1440px;
   margin: auto;
   min-height: 100vh;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
-h1, h2 { color: #fef3c7; font-weight: 700; letter-spacing: -0.025em; }
-h1 { font-size: clamp(20px, 2.2vw, 26px); margin: 0; }
-h2 { font-size: 16px; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
-h2::before {
-  content: "";
-  display: inline-block;
-  width: 4px;
-  height: 16px;
-  background: var(--ac);
-  border-radius: 4px;
-}
+h1, h2 { color: #fef3c7; font-weight: 700; letter-spacing: -0.02em; }
+h1 { font-size: clamp(18px, 2vw, 22px); margin: 0; }
+h2 { font-size: 15px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
 
-.sub { font-size: 13px; color: var(--mu); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .card {
   background: var(--card);
   border: 1px solid var(--bd);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(12px);
-  transition: border-color 0.2s ease;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
-.card:hover { border-color: rgba(245, 158, 11, 0.3); }
 
-/* Top Bar & Branding */
-.topbar {
+/* Top App Header Layout */
+.app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
-  padding: 12px 20px;
+  gap: 12px;
+}
+.brand-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.badge-tag {
+  background: #1e293b; color: #fef3c7; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px;
+  letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.sync-badge { color: #4ade80; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.sync-badge::before { content: ""; display: inline-block; width: 7px; height: 7px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; }
+
+.stats-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stat-pill {
+  background: #0b0f17; border: 1px solid var(--bd); border-radius: 8px; padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 6px;
+}
+.stat-pill b { color: var(--ac); }
+
+/* Main Title Bar */
+.main-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Control Toolbar & Search Row */
+.control-toolbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
   background: var(--card);
   border: 1px solid var(--bd);
   border-radius: 14px;
-  font-size: 13px;
+  padding: 14px;
+  margin-bottom: 14px;
 }
-#userBadge { font-weight: 600; color: #cbd5e1; display: flex; align-items: center; gap: 6px; }
-#userBadge::before { content: "\f2bd"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--ac); }
+@media(max-width: 900px) {
+  .control-toolbar { grid-template-columns: 1fr; }
+}
 
-.brand { display: flex; align-items: center; gap: 16px; }
-.brand img { height: 52px; width: auto; max-width: 120px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-.brand-login { justify-content: center; margin-bottom: 20px; gap: 16px; text-align: left; }
-.brand-login img { height: 60px; }
+.category-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.cat-btn {
+  background: #0b0f17; border: 1px solid var(--bd); color: var(--mu); padding: 8px 14px; border-radius: 8px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.cat-btn:hover { border-color: var(--ac); color: var(--tx); }
+.cat-btn.active { background: linear-gradient(135deg, #fbbf24, #d97706); color: #070a0f; border-color: #f59e0b; font-weight: 700; box-shadow: 0 4px 12px rgba(245,158,11,0.25); }
 
-/* Auth Gate & Modal */
-#authGate {
-  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
-  padding: 20px; background: radial-gradient(circle at center, #111827 0%, #030712 100%); overflow: auto;
-}
-#authGate[hidden], #appShell[hidden] { display: none !important; }
-.auth-card {
-  width: min(100%, 440px); background: var(--card); border: 1px solid var(--bd);
-  border-radius: 20px; padding: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-}
-.auth-card h1 { font-size: 22px; margin-bottom: 6px; }
-.auth-card p { font-size: 13px; color: var(--mu); line-height: 1.6; }
-.auth-card label { display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-.auth-card input, .bx input {
-  width: 100%; padding: 12px 14px; border: 1px solid var(--bd); border-radius: 10px;
-  background: var(--in); color: var(--tx); font-size: 14px; transition: all 0.2s;
-}
-.auth-card input:focus, .bx input:focus, #q:focus {
-  border-color: var(--ac); outline: none; box-shadow: 0 0 0 3px var(--ac-glow);
-}
-.auth-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
-.auth-actions button { flex: 1; min-width: 130px; font-weight: 700; padding: 12px; }
-#authMsg { min-height: 20px; color: #f87171; font-size: 12px; margin-top: 12px; white-space: pre-line; font-weight: 500; }
-.auth-foot { font-size: 11px !important; color: var(--mu); margin-top: 16px; text-align: center; }
-
-/* Search & Toolbar */
-#unitToolbar {
-  display: flex; align-items: stretch; gap: 16px; flex-wrap: wrap; margin: 16px 0;
-  padding: 18px; background: var(--card); border: 1px solid var(--bd); border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
-}
-#unitToolbar #menuKategoriUnit { flex: 0 1 auto; max-width: 100%; margin: 0; padding: 0; background: transparent; border: none; box-shadow: none; }
-#unitToolbar .unit-search-card { flex: 1 1 260px; min-width: 220px; padding: 0; margin: 0; background: transparent; border: none; box-shadow: none; }
-.unit-search-label { display: block; color: #cbd5e1; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 8px; text-transform: uppercase; }
+.search-box-wrapper { position: relative; }
+.search-label { display: block; font-size: 10px; font-weight: 700; color: var(--mu); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
 #q {
-  width: 100%; font-size: 15px; font-weight: 600; padding: 12px 16px; border: 1px solid var(--bd);
-  border-radius: 10px; background: var(--in); color: var(--tx); outline: none; transition: all 0.2s;
+  width: 100%; font-size: 14px; font-weight: 600; padding: 10px 14px; border: 1px solid var(--bd);
+  border-radius: 8px; background: var(--in); color: var(--tx); outline: none; transition: all 0.2s;
 }
-#st { font-size: 13px; margin-top: 8px; color: var(--mu); font-weight: 500; }
+#q:focus { border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac-glow); }
+#st { font-size: 12px; margin-top: 4px; color: var(--mu); }
 
-/* Kategori Unit Styling (from menu-kategori.js) */
-#menuKategoriUnit .kategori-title { color: #cbd5e1; font-weight: 700; font-size: 11px; letter-spacing: 0.05em; margin-bottom: 8px; text-transform: uppercase; }
-#menuKategoriUnit .kategori-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
-#menuKategoriUnit .kategori-buttons button {
-  padding: 10px 16px; border: 1px solid var(--bd); border-radius: 10px; background: var(--in);
-  color: #cbd5e1; font-weight: 600; font-size: 13px; cursor: pointer; min-height: 42px; transition: all 0.2s;
+.pdf-btn {
+  background: linear-gradient(135deg, #fbbf24, #d97706); color: #070a0f; border: none; font-weight: 700;
+  padding: 11px 18px; border-radius: 9px; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 12px rgba(245,158,11,0.2); transition: all 0.2s; height: fit-content;
 }
-#menuKategoriUnit .kategori-buttons button:hover { border-color: var(--ac); color: var(--tx); background: var(--card-hover); }
-#menuKategoriUnit .kategori-buttons button.active {
-  background: linear-gradient(135deg, #fbbf24, #d97706); border-color: #f59e0b; color: #030712; font-weight: 700; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-#menuKategoriUnit .kategori-caption { color: var(--mu); font-size: 12px; margin-top: 8px; }
+.pdf-btn:hover { background: linear-gradient(135deg, #fcd34d, #b45309); transform: translateY(-1px); }
 
-/* Info Grid / KPI Cards */
-.info { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+/* Status Bar Info */
+.status-bar-info {
+  display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--mu); margin-bottom: 14px; padding: 0 4px; flex-wrap: wrap; gap: 6px;
+}
+
+/* Detail Section Header */
+.section-header-title {
+  font-size: 12px; font-weight: 700; color: var(--ac); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+
+/* KPI Info Grid */
+.info { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
 .info div {
-  background: var(--in); border: 1px solid var(--bd); border-radius: 12px; padding: 14px;
-  transition: transform 0.2s, border-color 0.2s;
+  background: var(--in); border: 1px solid var(--bd); border-radius: 10px; padding: 12px;
+  position: relative; overflow: hidden;
 }
-.info div:hover { transform: translateY(-2px); border-color: rgba(245, 158, 11, 0.3); }
-.info b { display: block; font-size: 11px; color: var(--mu); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-.info span { font-size: 16px; font-weight: 700; color: var(--tx); }
+.info div::after {
+  content: ""; position: absolute; bottom: 0; left: 0; width: 100px; height: 2px; background: linear-gradient(90deg, var(--ac), transparent); opacity: 0.4;
+}
+.info b { display: block; font-size: 10px; color: var(--mu); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.info span { font-size: 15px; font-weight: 700; color: var(--tx); }
+
+/* Grid Layout for Simulator & Schedule */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 14px;
+}
+@media(max-width: 1024px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
 
 /* Tables & Wrappers */
-.wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--bd); background: var(--in); }
-table { border-collapse: collapse; width: 100%; font-size: 13px; text-align: left; }
-th { background: #1e293b; color: #fef3c7; padding: 12px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; border-bottom: 2px solid var(--bd); }
-td { border-bottom: 1px solid var(--bd); padding: 10px; text-align: center; white-space: nowrap; color: #cbd5e1; }
-td.l { text-align: left; white-space: normal; min-width: 200px; color: var(--tx); font-weight: 500; }
-tr.out td { color: var(--mu); font-style: italic; background: rgba(0,0,0,0.1); }
-tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
+.wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--bd); background: var(--in); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; text-align: left; }
+th { background: #162032; color: #fef3c7; padding: 10px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; border-bottom: 2px solid var(--bd); }
+td { border-bottom: 1px solid var(--bd); padding: 8px; text-align: center; white-space: nowrap; color: #cbd5e1; }
+td.l { text-align: left; white-space: normal; color: var(--tx); font-weight: 500; }
+tr.out td { color: var(--mu); font-style: italic; background: rgba(0,0,0,0.15); }
+tr:hover td { background-color: rgba(255, 255, 255, 0.015); }
 
 td input {
-  width: 70px; text-align: center; padding: 6px; background: var(--card); color: var(--tx);
-  border: 1px solid var(--bd); border-radius: 6px; font-weight: 700; font-size: 13px;
+  width: 60px; text-align: center; padding: 5px; background: var(--card); color: var(--tx);
+  border: 1px solid var(--bd); border-radius: 6px; font-weight: 700; font-size: 12px;
 }
 td input:focus { border-color: var(--ac); outline: none; box-shadow: 0 0 0 2px var(--ac-glow); }
 
@@ -174,147 +186,170 @@ td input:focus { border-color: var(--ac); outline: none; box-shadow: 0 0 0 2px v
 .t1200 { background: var(--c1200); color: var(--t1200); border: 1px solid rgba(251, 146, 60, 0.2); }
 .t2400 { background: var(--c2400); color: var(--t2400); border: 1px solid rgba(248, 113, 113, 0.2); }
 .t100 { background: var(--c100); color: var(--t100); border: 1px solid rgba(74, 222, 128, 0.2); }
-.t200, .t400, .t1200, .t2400, .t100 { font-weight: 700; border-radius: 6px; padding: 2px 6px; display: inline-block; }
+.t200, .t400, .t1200, .t2400, .t100 { font-weight: 700; border-radius: 5px; padding: 2px 6px; display: inline-block; }
 
 .mx td:first-child { text-align: left; font-weight: 700; color: var(--tx); }
 
 /* Buttons & Controls */
 button {
-  padding: 10px 16px; border-radius: 10px; border: 1px solid var(--bd);
-  background: var(--card); color: var(--tx); cursor: pointer; font-weight: 600; font-size: 13px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 8px 14px; border-radius: 8px; border: 1px solid var(--bd);
+  background: var(--card); color: var(--tx); cursor: pointer; font-weight: 600; font-size: 12px;
+  transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
 }
-button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0.5); transform: translateY(-1px); }
-button:active { transform: translateY(0); }
+button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0.4); }
 
-.auth-actions button[type="submit"], #my {
-  background: linear-gradient(135deg, #fbbf24, #d97706); color: #030712; border: none; font-weight: 700;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+/* Auth Gate & Modal */
+#authGate {
+  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: radial-gradient(circle at center, #111827 0%, #030712 100%); overflow: auto;
 }
-.auth-actions button[type="submit"]:hover, #my:hover {
-  background: linear-gradient(135deg, #fcd34d, #b45309); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+#authGate[hidden], #appShell[hidden] { display: none !important; }
+.auth-card {
+  width: min(100%, 420px); background: var(--card); border: 1px solid var(--bd);
+  border-radius: 16px; padding: 24px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
 }
+.auth-card h1 { font-size: 20px; margin-bottom: 6px; }
+.auth-card p { font-size: 12px; color: var(--mu); line-height: 1.5; }
+.auth-card label { display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin: 12px 0 4px; text-transform: uppercase; }
+.auth-card input, .bx input {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--bd); border-radius: 8px;
+  background: var(--in); color: var(--tx); font-size: 13px;
+}
+.auth-card input:focus, .bx input:focus { border-color: var(--ac); outline: none; }
+.auth-actions { display: flex; gap: 8px; margin-top: 16px; }
+.auth-actions button { flex: 1; font-weight: 700; }
+#authMsg { min-height: 18px; color: #f87171; font-size: 11px; margin-top: 10px; }
+.auth-foot { font-size: 11px !important; color: var(--mu); margin-top: 12px; text-align: center; }
 
 /* Modal Overlay */
 .ov {
-  position: fixed; inset: 0; background: rgba(3, 7, 18, 0.8); backdrop-filter: blur(8px);
-  display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 100;
+  position: fixed; inset: 0; background: rgba(3, 7, 18, 0.75); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 100;
 }
 .ov[hidden] { display: none; }
 .bx {
-  background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 20px;
-  padding: 24px; max-width: 440px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+  background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 16px;
+  padding: 20px; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
-.bx #mt { white-space: pre-line; font-size: 14px; line-height: 1.6; margin-bottom: 16px; color: #cbd5e1; }
-.bx input { margin-bottom: 12px; }
-.bx .bt { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
-#my { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; border: none; }
-#me { color: #f87171; font-size: 12px; min-height: 18px; margin-bottom: 8px; font-weight: 500; }
-.note { font-size: 12px; color: var(--mu); margin-top: 10px; line-height: 1.5; }
-
-/* Sync status badge */
-#sync { font-weight: 500; font-size: 12px; }
-
-@media(max-width: 768px) {
-  body { padding: 12px; }
-  #unitToolbar { padding: 14px; gap: 12px; }
-  .card { padding: 14px; }
-  .topbar { padding: 10px 14px; }
-}
+.bx #mt { white-space: pre-line; font-size: 13px; line-height: 1.5; margin-bottom: 12px; color: #cbd5e1; }
+.bx input { margin-bottom: 10px; }
+.bx .bt { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+#my { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; border: none; font-weight: 700; }
+#me { color: #f87171; font-size: 11px; min-height: 16px; margin-bottom: 6px; }
+.note { font-size: 11px; color: var(--mu); margin-top: 8px; line-height: 1.4; }
 </style>
 </head>
 <body>
 
 <div id="authGate">
   <div class="auth-card">
-    <div class="brand brand-login">
-      <img src="logo-bengkel.png" alt="Logo Bengkel">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+      <div style="background:var(--ac); color:#070a0f; width:38px; height:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px;">MBK</div>
       <div>
-        <div style="color:var(--ac);font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;">
-          BENGKEL FORKLIFT
-        </div>
+        <div style="color:var(--ac); font-size:10px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase;">BENGKEL MBK</div>
         <h1>MASTER PLAN 2027</h1>
       </div>
     </div>
-
-    <p style="text-align:center;color:var(--ac);font-weight:600;margin-bottom:16px;">
-      Sistem Monitoring &amp; Perencanaan Preventive Maintenance
-    </p>
-    <p>Silakan masuk menggunakan akun resmi perusahaan yang telah didaftarkan oleh administrator sistem.</p>
-    
+    <p>Silakan masuk menggunakan akun resmi perusahaan yang telah didaftarkan.</p>
     <form id="loginForm">
       <label for="loginEmail">Email Perusahaan</label>
       <input id="loginEmail" type="email" autocomplete="username" required placeholder="nama@perusahaan.com">
-      
       <label for="loginPassword">Password Akun</label>
       <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="••••••••">
-      
       <div class="auth-actions">
-        <button type="submit" id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> Masuk</button>
-        <button type="button" class="secondary" id="resetPasswordBtn"><i class="fa-solid fa-key"></i> Reset Password</button>
+        <button type="submit" id="loginBtn" style="background:linear-gradient(135deg,#fbbf24,#d97706); color:#070a0f; border:none;">Masuk</button>
+        <button type="button" class="secondary" id="resetPasswordBtn">Reset Password</button>
       </div>
     </form>
-    
     <div id="authMsg" role="status" aria-live="polite"></div>
-    <div class="auth-foot">Hak akses dikelola sepenuhnya oleh Administrator Bengkel. Hubungi admin jika mengalami kendala login.</div>
+    <div class="auth-foot">Hak akses dikelola sepenuhnya oleh Administrator.</div>
   </div>
 </div>
 
 <div id="appShell" hidden>
-  <div class="topbar">
-    <span id="userBadge">Login aktif</span>
-    <button id="logoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
-  </div>
-
-  <div class="card brand brand-main" style="padding: 16px 20px; display:flex; align-items:center; gap:16px;">
-    <img src="logo-bengkel.png" alt="Logo Bengkel" style="height:48px; width:auto;">
-    <div>
-      <div style="color:var(--ac); font-size:11px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase;">
-        BENGKEL FORKLIFT — ENTERPRISE DASHBOARD
-      </div>
-      <h1 style="margin:2px 0 0;">MASTER PLAN PM FORKLIFT 2027</h1>
+  <!-- Top App Header -->
+  <div class="app-header">
+    <div class="brand-left">
+      <div class="badge-tag"><i class="fa-solid fa-wrench"></i> BENGKEL MBK</div>
+      <div class="sync-badge" id="sync">Tersinkron Database</div>
+    </div>
+    <div class="stats-right">
+      <div class="stat-pill"><i class="fa-solid fa- forklifts"></i> TOTAL UNIT <b>176 Unit</b></div>
+      <div class="stat-pill">DIESEL <b>103</b> <span style="color:var(--mu); font-size:10px;">(200/400/1200/2400 HM)</span></div>
+      <div class="stat-pill">BATERAI <b>73</b> <span style="color:var(--mu); font-size:10px;">(100/176 HM)</span></div>
+      <button id="logoutBtn" type="button" style="padding:6px 10px; font-size:11px;"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
     </div>
   </div>
 
-  <div class="sub">
-    <span><i class="fa-solid fa-circle-info text-amber-400"></i> Diesel: 200 / 400 / 1200 / 2400 HM</span>
-    <span>•</span>
-    <span>Baterai: 100 HM</span>
-    <span>•</span>
-    <span>Total 176 Unit</span>
+  <!-- Main Title Bar -->
+  <div class="main-title-bar">
+    <div>
+      <h1>MASTER PLAN PM FORKLIFT 2027</h1>
+      <div style="font-size:11px; color:var(--mu); margin-top:2px;" id="userBadge">Sistem Monitoring & Perencanaan Preventive Maintenance</div>
+    </div>
   </div>
-  
-  <div class="sub" id="sync"></div>
 
-  <div class="card" style="padding: 0; border: none; background: transparent; box-shadow: none;">
-    <input id="q" list="dl" placeholder="Ketik kode forklift, contoh: A53" autocomplete="off">
-    <datalist id="dl"></datalist>
-    <div id="st"></div>
+  <!-- Control Toolbar (Kategori + Search + PDF Export Button) -->
+  <div class="control-toolbar">
+    <div class="category-group" role="group">
+      <button type="button" class="cat-btn active" data-cat="ALL">Semua Unit (176)</button>
+      <button type="button" class="cat-btn" data-cat="D">Diesel (103)</button>
+      <button type="button" class="cat-btn" data-cat="B">Baterai (73)</button>
+    </div>
+    <div class="search-box-wrapper">
+      <label class="search-label" for="q">Cari &amp; Pilih Kode Unit</label>
+      <input id="q" list="dl" placeholder="Cari unit, contoh: A71 atau Forklift A53" autocomplete="off">
+      <datalist id="dl"></datalist>
+    </div>
+    <div>
+      <button type="button" class="pdf-btn" id="exportPdfBtnMain"><i class="fa-solid fa-file-pdf"></i> Unduh Laporan PDF (A4)</button>
+    </div>
+  </div>
+
+  <!-- Status Bar Info -->
+  <div class="status-bar-info">
+    <div id="st">Pilih atau ketik kode forklift untuk menampilkan rincian master plan.</div>
+    <div>Master Plan Preventive Maintenance • Tahun 2027</div>
   </div>
 
   <div id="res" hidden>
-    <div class="card"><div class="info" id="info"></div></div>
-    
+    <!-- Informasi Detail Unit Terpilih -->
     <div class="card">
-      <h2>Laju Kerja (HM/hari)</h2>
-      <div id="lj"></div>
-      <div class="note">Laju baru berlaku mulai tanggal yang dipilih. Servis sesudah tanggal itu dihitung ulang: servis berikutnya jatuh ketika akumulasi interval HM unit tercapai dengan laju yang berlaku. Servis sebelum tanggal itu tidak berubah.</div>
+      <div class="section-header-title"><i class="fa-solid fa-circle-info"></i> Informasi Detail Unit Terpilih</div>
+      <div class="info" id="info"></div>
     </div>
 
-    <div class="card">
-      <h2>Matriks 2027 (HM)</h2>
-      <div class="wrap"><table class="mx" id="mx"></table></div>
-    </div>
+    <!-- Dashboard Grid: Simulator Laju Kerja & Jadwal/Matrix -->
+    <div class="dashboard-grid">
+      <!-- Left Column: Simulator Laju Kerja -->
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h2>Simulator Laju Kerja</h2>
+          <span style="background:rgba(245,158,11,0.1); color:var(--ac); border:1px solid rgba(245,158,11,0.2); font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px;">Interactive</span>
+        </div>
+        <div id="lj" style="font-size:12px;"></div>
+        <div class="note" style="margin-top:12px;">Laju baru berlaku mulai tanggal yang dipilih. Servis sesudah tanggal itu dihitung ulang secara otomatis.</div>
+      </div>
 
-    <div class="card">
-      <h2>Jadwal Servis</h2>
-      <div class="wrap"><table id="tb"></table></div>
-      <div class="note" id="upd"></div>
-      <div class="note">Isi kolom Downtime CM (hari) untuk menggeser servis tersebut dan semua servis sesudahnya. Perubahan langsung tersimpan dan terlihat oleh semua pengguna. Baris abu-abu = jatuh di luar 2027.</div>
-      <p style="margin-top:16px;"><button id="rs"><i class="fa-solid fa-rotate-left"></i> Reset downtime forklift ini</button></p>
+      <!-- Right Column: Schedule & Matrix -->
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="card" style="margin-bottom:0;">
+          <h2>Jadwal &amp; Estimasi PM Forklift 2027</h2>
+          <div class="wrap"><table id="tb"></table></div>
+          <div class="note" id="upd"></div>
+          <div class="note">Isi kolom Downtime CM (hari) untuk menggeser servis tersebut dan semua servis sesudahnya. Baris abu-abu = jatuh di luar 2027.</div>
+          <p style="margin-top:12px;"><button id="rs"><i class="fa-solid fa-rotate-left"></i> Reset downtime forklift ini</button></p>
+        </div>
+
+        <div class="card" style="margin-bottom:0;">
+          <h2>Matriks Bulanan 2027 (HM)</h2>
+          <div class="wrap"><table class="mx" id="mx"></table></div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Modal Dialog -->
   <div id="md" class="ov" hidden>
     <div class="bx">
       <div id="mt"></div>
@@ -367,40 +402,49 @@ function lsave(r,o){const id=did(r.c),at=new Date().toISOString();o.ch.sort((a,b
  if(db){lshared[id]={base:o.base,ch:o.ch,at};render();db.doc('laju/'+id).set({base:o.base,ch:o.ch,at}).catch(e=>{delete lshared[id];render();info('Gagal menyimpan: Anda tidak punya akses mengisi.')})}
  else{try{localStorage.setItem('lj_'+r.c,JSON.stringify(o))}catch(e){}render()}}
 function stepDays(start,rate,interval=200){let rem=interval,n=0;while(n<400){n++;const rt=rate(start+n*864e5);rem-=rt;if(rem<=rt/2)break}return n}
-function banner(){const e=$('sync');e.textContent=!db?'● Database belum tersambung':canWrite===false?'● Mode lihat saja — perubahan dinonaktifkan':'● Tersinkron — perubahan tersimpan di database bersama';e.style.color=db&&canWrite!==false?'#4ade80':'#fbbf24'}
+function banner(){
+  const e=$('sync');
+  if(!db) e.textContent='● Database belum tersambung';
+  else if(canWrite===false) e.textContent='● Mode lihat saja';
+  else e.textContent='Tersinkron Database';
+  e.style.color=db&&canWrite!==false?'#4ade80':'#fbbf24';
+}
 function showAuth(message=''){ $('authGate').hidden=false; $('appShell').hidden=true; $('authMsg').textContent=message; }
 function showApp(user,role){
  currentUser=user; currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false;
  $('userBadge').textContent=(user.email||user.uid)+' · '+({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja'}[role]||role);
  banner(); render();
 }
-function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.','auth/weak-password':'Password terlalu lemah.','auth/operation-not-allowed':'Login email/password belum diaktifkan di Firebase.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
+function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('authMsg').textContent='Memeriksa akun…';$('loginBtn').disabled=true;
  try{if(!firebaseConfigReady)throw new Error('Konfigurasi Firebase belum diisi.');await auth.signInWithEmailAndPassword($('loginEmail').value.trim(),$('loginPassword').value)}catch(err){$('authMsg').textContent=friendlyAuthError(err)}finally{$('loginBtn').disabled=false}
 });
-$('resetPasswordBtn').addEventListener('click',async()=>{const email=$('loginEmail').value.trim();if(!email){$('authMsg').textContent='Isi email terlebih dahulu, lalu klik Reset password.';return}try{await auth.sendPasswordResetEmail(email);$('authMsg').textContent='Jika email terdaftar, instruksi reset password akan dikirim.'}catch(e){$('authMsg').textContent=friendlyAuthError(e)}});
+$('resetPasswordBtn').addEventListener('click',async()=>{const email=$('loginEmail').value.trim();if(!email){$('authMsg').textContent='Isi email terlebih dahulu.';return}try{await auth.sendPasswordResetEmail(email);$('authMsg').textContent='Instruksi reset password dikirim.'}catch(e){$('authMsg').textContent=friendlyAuthError(e)}});
 $('logoutBtn').addEventListener('click',()=>auth.signOut());
+
 if(!firebaseConfigReady){showAuth('Setup diperlukan: konfigurasi Firebase belum diisi.');banner();}
 else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
  auth.onAuthStateChanged(async user=>{
   if(!user){currentUser=null;currentRole=null;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
   try{const profile=await db.collection('users').doc(user.uid).get();const role=profile.exists?profile.data().role:null;
-   if(!['admin','technician','viewer'].includes(role)){showAuth('Akun berhasil dikenali, tetapi belum diberi peran akses.');return}
+   if(!['admin','technician','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
    showApp(user,role);
-   db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error(err);info('Tidak dapat membaca data downtime.')});
-   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error(err);info('Tidak dapat membaca data laju kerja.')});
+   db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error(err)});
+   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error(err)});
   }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses.')}
  });
  }catch(err){showAuth('Firebase gagal dimulai: '+err.message)}}
 banner();render();
+
 const fmt=d=>d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
 function jenis(p){return p%12==0?2400:p%12==6?1200:p%2==1?200:400}
-const KJ={100:'Servis berkala forklift baterai (100 HM)',2400:'SERVICE BESAR: oli mesin, oli filter, fuel filter, oli hidrolis, filter hidrolis, filter udara inner+outer, oli gardan, oli transmisi',1200:'Oli mesin + oli filter + fuel filter',400:'Oli mesin + oli filter',200:'Oli mesin'};
+const KJ={100:'Servis berkala forklift baterai (100 HM)',2400:'SERVICE BESAR: oli mesin, filter, hidrolis, gardan, transmisi',1200:'Oli mesin + oli filter + fuel filter',400:'Oli mesin + oli filter',200:'Oli mesin'};
 function find(v){v=v.trim().toLowerCase();if(!v)return null;return by[v]||by['forklift '+v]||null}
+
 function render(){
  const r=find($('q').value),res=$('res');
  if(!r){res.hidden=true;$('st').textContent=$('q').value.trim()?'✗ Kode tidak ditemukan — cek kembali penulisannya':'Pilih atau ketik kode forklift';return}
- $('st').textContent='✓ Data ditemukan · '+(r.t==='B'?'Baterai':'Diesel');res.hidden=false;
+ $('st').innerHTML='✓ Data ditemukan: <b>'+r.c+'</b> ('+(r.t==='B'?'Baterai':'Diesel')+')';res.hidden=false;
  const dt=load(r),lj=lget(r),f0=new Date(r.f+'T00:00:00Z'),rows=[];
  const chs=lj.ch.map(c=>({t:Date.parse(c.f+'T00:00:00Z'),l:+c.l})).filter(c=>c.t==c.t&&c.l>0).sort((a,b)=>a.t-b.t);
  const rate=ms=>{let l=lj.base==r.l?(r.h||200)/r.i:lj.base;for(const c of chs){if(c.t<=ms)l=c.l}return l};
@@ -410,26 +454,66 @@ function render(){
   rows.push({k,norm:new Date(nm),d,n,rv:new Date(cur),p:r.p+k})}
  rows.forEach(x=>{const in27=x.rv.getUTCFullYear()==2027;x.m=in27?x.rv.getUTCMonth()+1:0;x.w=in27?Math.min(4,Math.floor((x.rv.getUTCDate()-1)/7)+1):0;x.j=r.t==='B'?100:jenis(x.p)});
  const tot=dt.reduce((a,b)=>a+(+b||0),0),n27=rows.filter(x=>x.m>0).length;
- $('info').innerHTML=[['Kode',r.c],['Jenis',r.t==='B'?'Baterai':'Diesel'],['Interval PM',(r.h||200)+' HM'],['Departemen',r.d],['Laju awal',(+lj.base).toFixed(1)+' HM/hari'],['Laju sekarang',rate(Date.now()).toFixed(1)+' HM/hari'],['Total downtime CM',tot+' hari'],['Servis di 2027',n27]].map(a=>'<div><b>'+a[0]+'</b><span>'+a[1]+'</span></div>').join('');
+
+ $('info').innerHTML=[
+  ['Kode Unit', r.c],
+  ['Jenis Machine', (r.t==='B'?'Baterai':'Diesel') + ' Engine Fuel'],
+  ['Interval PM', (r.h||200)+' HM'],
+  ['Departemen', r.d],
+  ['Laju Awal', (+lj.base).toFixed(1)+' HM/hr'],
+  ['Laju Sekarang', rate(Date.now()).toFixed(1)+' HM/hr'],
+  ['Downtime CM', tot+' Hari'],
+  ['Est. Servis 2027', n27+'x']
+ ].map(a=>'<div><b>'+a[0]+'</b><span>'+a[1]+'</span></div>').join('');
+
  let h='<tr><th>Bulan</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th></tr>';
  for(let m=1;m<=12;m++){h+='<tr><td>'+BL[m-1]+'</td>';for(let w=1;w<=4;w++){const x=rows.find(y=>y.m==m&&y.w==w);h+=x?'<td class="t'+x.j+'">'+x.j+'</td>':'<td></td>'}h+='</tr>'}
  $('mx').innerHTML=h;
- h='<tr><th>No</th><th>Urutan Servis</th><th>Jadwal Normal</th><th>Interval (hari)</th><th>Downtime CM (hari)</th><th>Tanggal Revisi</th><th>Hari</th><th>Bulan</th><th>Mgg</th><th>Servis (HM)</th><th>Pekerjaan</th></tr>';
- rows.forEach(x=>{h+='<tr'+(x.m?'':' class="out"')+'><td>'+(x.k+1)+'</td><td>Servis 200HM Ke-'+(x.k+1)+'</td><td>'+fmt(x.norm)+'</td><td>'+(x.k?x.n:'–')+'</td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td><b>'+fmt(x.rv)+'</b></td><td>'+HR[x.rv.getUTCDay()]+'</td><td>'+BL[x.rv.getUTCMonth()]+'</td><td>'+(x.w||'–')+'</td><td class="t'+x.j+'">'+x.j+'</td><td class="l">'+KJ[x.j]+'</td></tr>'});
+
+ h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
+ rows.forEach(x=>{h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+x.j+' HM</td><td><b>'+fmt(x.rv)+'</b></td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+KJ[x.j]+'</td></tr>'});
  $('tb').innerHTML=h;
+
  $('tb').querySelectorAll('input').forEach(i=>i.onchange=()=>{const k=+i.dataset.k,nv=Math.max(0,+i.value||0),old=+dt[k]||0;if(nv===old){render();return}
-  ask('Ubah downtime '+r.c+' — Servis ke-'+(k+1)+'\n\nDari '+old+' hari menjadi '+nv+' hari?\nTanggal servis ini dan sesudahnya akan bergeser.',()=>{const a=load(r);a[k]=nv;save(r,a)},{cancel:()=>render()})});
- {const ro=canWrite===false?' disabled':'';let q='Laju awal: <input id="lb" type="number" step="0.1" min="0.1" value="'+lj.base+'"'+ro+'> HM/hari';
- lj.ch.forEach((c,i)=>{q+='<div style="margin-top:6px">Mulai <b>'+c.f+'</b> → <b>'+c.l+'</b> HM/hari <button data-i="'+i+'"'+ro+'><i class="fa-solid fa-trash"></i> Hapus</button></div>'});
- q+='<div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">Perubahan baru: <input id="ld" type="date" value="'+fmt(new Date())+'"'+ro+'> <input id="ll" type="number" step="0.1" min="0.1" placeholder="HM/hari" style="width:110px"'+ro+'> <button id="la"'+ro+'><i class="fa-solid fa-plus"></i> Tambah</button></div>';
+  ask('Ubah downtime '+r.c+' — Servis ke-'+(k+1)+'\n\nDari '+old+' hari menjadi '+nv+' hari?',()=>{const a=load(r);a[k]=nv;save(r,a)},{cancel:()=>render()})});
+
+ {const ro=canWrite===false?' disabled':'';let q='<div style="margin-bottom:8px">Laju Awal (HM/hari)<br><input id="lb" type="number" step="0.1" min="0.1" value="'+lj.base+'"'+ro+' style="width:100%; margin-top:4px;"></div>';
+ lj.ch.forEach((c,i)=>{q+='<div style="margin-top:6px; font-size:11px;">Mulai <b>'+c.f+'</b> → <b>'+c.l+'</b> HM/hari <button data-i="'+i+'"'+ro+' style="padding:2px 6px; font-size:10px;">Hapus</button></div>'});
+ q+='<div style="margin-top:12px; border-top:1px solid var(--bd); pt:10px;"><div style="font-weight:600; margin-bottom:6px;">Simulasi Laju Kerja Sekarang (HM/hari)</div><input id="ll" type="number" step="0.1" min="0.1" placeholder="HM/hari" value="'+rate(Date.now()).toFixed(1)+'" style="width:100%; margin-bottom:6px;"'+ro+'><div style="font-size:11px; margin-bottom:6px;">Tanggal Berlaku:</div><input id="ld" type="date" value="'+fmt(new Date())+'" style="width:100%; margin-bottom:8px;"'+ro+'><button id="la"'+ro+' style="width:100%; background:var(--card-hover);"><i class="fa-solid fa-plus"></i> Terapkan Simulasi</button></div>';
  $('lj').innerHTML=q;
- $('lb').onchange=()=>{const v=+$('lb').value;if(!(v>0)||v===+lj.base){render();return}ask('Ubah laju awal '+r.c+' dari '+lj.base+' menjadi '+v+' HM/hari?',()=>{const o=lget(r);o.base=v;lsave(r,o)},{cancel:()=>render()})};
- $('lj').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const c=lj.ch[+b.dataset.i];ask('Hapus perubahan laju mulai '+c.f+'?',()=>{const o=lget(r);o.ch.splice(+b.dataset.i,1);lsave(r,o)})});
- $('la').onclick=()=>{const v=+$('ll').value,d=$('ld').value;if(!(v>0)||!d){info('Isi tanggal dan laju (HM/hari).');return}ask('Tambah perubahan laju '+r.c+'?',()=>{const o=lget(r);o.ch=o.ch.filter(c=>c.f!=d);o.ch.push({f:d,l:v});lsave(r,o)})}}
+ $('lb').onchange=()=>{const v=+$('lb').value;if(!(v>0)||v===+lj.base){render();return}ask('Ubah laju awal '+r.c+'?',()=>{const o=lget(r);o.base=v;lsave(r,o)},{cancel:()=>render()})};
+ $('lj').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const c=lj.ch[+b.dataset.i];ask('Hapus perubahan laju?',()=>{const o=lget(r);o.ch.splice(+b.dataset.i,1);lsave(r,o)})});
+ $('la').onclick=()=>{const v=+$('ll').value,d=$('ld').value;if(!(v>0)||!d){alert('Isi tanggal dan laju.');return}ask('Simpan perubahan laju kerja?',()=>{const o=lget(r);o.ch=o.ch.filter(c=>c.f!=d);o.ch.push({f:d,l:v});lsave(r,o)})}}
+
  $('rs').disabled=canWrite===false;$('rs').onclick=()=>ask('RESET semua downtime '+r.c+' menjadi 0 hari?\nKetik kode forklift untuk konfirmasi.',()=>save(r,r.dt.slice()),{need:r.c,yes:'Ya, reset'});
  const u=shared[did(r.c)];$('upd').textContent=u&&u.at?'Terakhir diubah: '+new Date(u.at).toLocaleString('id-ID'):'';
 }
-$('q').addEventListener('input',render);banner();render();
+
+// Category filter buttons behavior
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    const dl = $('dl');
+    dl.innerHTML = '';
+    const filtered = cat === 'ALL' ? DATA : DATA.filter(r => (cat === 'B' ? r.t === 'B' : r.t !== 'B'));
+    filtered.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.c;
+      opt.label = r.d || '';
+      dl.appendChild(opt);
+    });
+    $('st.textContent') = filtered.length + ' unit tersedia dalam kategori ini.';
+  });
+});
+
+$('exportPdfBtnMain').onclick = () => {
+  window.print();
+};
+
+$('q').addEventListener('input', render);
+banner(); render();
 </script>
 <script src="menu-kategori.js?v=4"></script>
 <script src="export-pdf-unit.js?v=2"></script>
