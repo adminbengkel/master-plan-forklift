@@ -78,10 +78,15 @@ h2 { font-size: 15px; margin: 0 0 12px; display: flex; align-items: center; gap:
 .sync-badge::before { content: ""; display: inline-block; width: 7px; height: 7px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; }
 
 .stats-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.stat-pill {
-  background: #0b0f17; border: 1px solid var(--bd); border-radius: 8px; padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 6px;
-}
-.stat-pill b { color: var(--ac); }
+
+/* Logo & judul utama */
+.title-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo { height: 96px; width: auto; aspect-ratio: 5 / 3; object-fit: cover; object-position: center; flex: none; } /* area kosong PNG dipotong via CSS */
+.brand-logo-fallback { flex: none; width: 76px; height: 76px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: var(--ac); color: #070a0f; font-weight: 800; font-size: 22px; }
+.main-title-bar h1 { font-size: clamp(30px, 5.2vw, 48px); line-height: 1; font-weight: 800; letter-spacing: -0.01em; margin: 0; color: #fff; }
+.title-sub { font-size: clamp(11px, 1.7vw, 17px); font-weight: 700; color: #fff; text-transform: uppercase; margin-top: 7px; }
+.user-line { font-size: 12px; color: var(--mu); margin-top: 4px; min-height: 16px; }
+@media (max-width: 600px) { .brand-logo { height: 58px; } .brand-logo-fallback { width: 52px; height: 52px; font-size: 16px; } .title-brand { gap: 10px; } }
 
 /* Main Title Bar */
 .main-title-bar {
@@ -274,18 +279,19 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
       <div class="sync-badge" id="sync">Tersinkron Database</div>
     </div>
     <div class="stats-right">
-      <div class="stat-pill"><i class="fa-solid fa-forklifts"></i> TOTAL UNIT <b>176 Unit</b></div>
-      <div class="stat-pill">DIESEL <b>103</b> <span style="color:var(--mu); font-size:10px;">(200/400/1200/2400 HM)</span></div>
-      <div class="stat-pill">BATERAI <b>73</b> <span style="color:var(--mu); font-size:10px;">(100/176 HM)</span></div>
       <button id="logoutBtn" type="button" style="padding:6px 10px; font-size:11px;"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
     </div>
   </div>
 
   <!-- Main Title Bar -->
   <div class="main-title-bar">
-    <div>
-      <h1>MASTER PLAN PM FORKLIFT 2027</h1>
-      <div style="font-size:11px; color:var(--mu); margin-top:2px;" id="userBadge">Sistem Monitoring & Perencanaan Preventive Maintenance</div>
+    <div class="title-brand">
+      <img class="brand-logo" src="logo-bengkel.png" alt="Logo MBK" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>MBK</div>'">
+      <div class="title-text">
+        <h1>MASTER PLAN</h1>
+        <div class="title-sub">MAINTENANCE BENGKEL KENDARAAN (MBK)</div>
+        <div class="user-line" id="userBadge"></div>
+      </div>
     </div>
   </div>
 
