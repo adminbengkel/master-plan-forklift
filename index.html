@@ -274,7 +274,7 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
       <div class="sync-badge" id="sync">Tersinkron Database</div>
     </div>
     <div class="stats-right">
-      <div class="stat-pill"><i class="fa-solid fa- forklifts"></i> TOTAL UNIT <b>176 Unit</b></div>
+      <div class="stat-pill"><i class="fa-solid fa-forklifts"></i> TOTAL UNIT <b>176 Unit</b></div>
       <div class="stat-pill">DIESEL <b>103</b> <span style="color:var(--mu); font-size:10px;">(200/400/1200/2400 HM)</span></div>
       <div class="stat-pill">BATERAI <b>73</b> <span style="color:var(--mu); font-size:10px;">(100/176 HM)</span></div>
       <button id="logoutBtn" type="button" style="padding:6px 10px; font-size:11px;"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
@@ -383,7 +383,6 @@ if(!Array.isArray(DATA)||DATA.length!==176) throw new Error('File data-forklift-
 const HR=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],BL=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const $=id=>document.getElementById(id),by={};DATA.forEach(r=>by[r.c.toLowerCase()]=r);
 
-// Populate initial datalist
 function updateDatalist(cat = 'ALL') {
   const dl = $('dl');
   dl.innerHTML = '';
@@ -465,7 +464,6 @@ function find(v){
   const unit = by[v] || by['forklift ' + v] || null;
   if(!unit) return null;
   
-  // Validasi kategori aktif
   const currentCat = getActiveCategory();
   if(currentCat !== 'ALL') {
     const isBattery = unit.t === 'B';
@@ -553,13 +551,11 @@ banner(); render();
  function init(){
   const q=document.getElementById('q'),res=document.getElementById('res'),info=document.getElementById('info'),mx=document.getElementById('mx'),tb=document.getElementById('tb');
   if(!q||!res||!info||!mx||!tb)return;
-  if(document.getElementById('exportPdfBar'))return;
-  const bar=document.createElement('div');bar.id='exportPdfBar';bar.style.cssText='margin:10px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center';
-  const btn=document.createElement('button');btn.type='button';btn.textContent='📄 Unduh Laporan PDF (A4)';btn.style.cssText='background:linear-gradient(135deg,#f2cf72,#c69219);color:#17130a;border:1px solid #d5a32e;font-weight:800;padding:12px 16px;border-radius:9px';
-  const hint=document.createElement('span');hint.textContent='Pilih unit dahulu, lalu simpan sebagai PDF dari jendela cetak.';hint.style.cssText='font-size:12px;color:#c9c9c9';
-  bar.append(btn,hint);res.insertBefore(bar,res.firstChild);
   const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  btn.addEventListener('click',()=>{
+  const exportBtn = document.getElementById('exportPdfBtnMain');
+  if(!exportBtn) return;
+  
+  exportBtn.addEventListener('click',()=>{
    if(res.hidden){alert('Silakan pilih satu unit terlebih dahulu.');return;}
    const code=q.value.trim();
    if(!code||typeof DATA==='undefined'||!DATA.some(r=>r.c.toLowerCase()===code.toLowerCase()||r.c.toLowerCase()==='forklift '+code.toLowerCase())){alert('Pilih unit valid dari daftar.');return;}
