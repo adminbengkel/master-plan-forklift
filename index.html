@@ -504,7 +504,7 @@ document.querySelectorAll('.cat-btn').forEach(btn => {
       opt.label = r.d || '';
       dl.appendChild(opt);
     });
-    $('st.textContent') = filtered.length + ' unit tersedia dalam kategori ini.';
+    $('st').textContent = filtered.length + ' unit tersedia dalam kategori ini.';
   });
 });
 
@@ -515,7 +515,5 @@ $('exportPdfBtnMain').onclick = () => {
 $('q').addEventListener('input', render);
 banner(); render();
 </script>
-<script src="menu-kategori.js?v=4"></script>
-<script src="export-pdf-unit.js?v=2"></script>
 </body>
 </html>
