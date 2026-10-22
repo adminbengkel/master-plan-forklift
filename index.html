@@ -467,9 +467,12 @@ function render(){
  let h='<tr><th>Bulan</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th></tr>';
  for(let m=1;m<=12;m++){h+='<tr><td>'+BL[m-1]+'</td>';for(let w=1;w<=4;w++){const x=rows.find(y=>y.m==m&&y.w==w);h+=x?'<td class="t'+x.j+'">'+x.j+'</td>':'<td></td>'}h+='</tr>'}
  $('mx').innerHTML=h;
-
- h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
- rows.forEach(x=>{h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+x.j+' HM</td><td><b>'+fmt(x.rv)+'</b></td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+KJ[x.j]+'</td></tr>'});
+h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
+ rows.forEach(x=>{
+  const targetHM = (x.k + 1) * (r.h || 200);
+  const intervalVal = x.k === 0 ? '-' : x.n + ' hari';
+  h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+targetHM+' HM</td><td><b>'+fmt(x.rv)+'</b></td><td>'+intervalVal+'</td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+KJ[x.j]+'</td></tr>';
+ });
  $('tb').innerHTML=h;
 
  $('tb').querySelectorAll('input').forEach(i=>i.onchange=()=>{const k=+i.dataset.k,nv=Math.max(0,+i.value||0),old=+dt[k]||0;if(nv===old){render();return}
