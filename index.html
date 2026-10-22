@@ -301,7 +301,9 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
       <input id="q" list="dl" placeholder="Cari unit, contoh: A71 atau Forklift A53" autocomplete="off">
       <datalist id="dl"></datalist>
     </div>
-    <!-- Tombol unduh PDF dibuat di dalam panel detail unit setelah unit dipilih. -->
+    <div>
+      <button type="button" class="pdf-btn" id="exportPdfBtnMain"><i class="fa-solid fa-file-pdf"></i> Unduh Laporan PDF (A4)</button>
+    </div>
   </div>
 
   <!-- Status Bar Info -->
@@ -380,7 +382,21 @@ const DATA=window.FORKLIFT_DATA_2027;
 if(!Array.isArray(DATA)||DATA.length!==176) throw new Error('File data-forklift-2027.js tidak berhasil dimuat.');
 const HR=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],BL=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const $=id=>document.getElementById(id),by={};DATA.forEach(r=>by[r.c.toLowerCase()]=r);
-$('dl').innerHTML=DATA.map(r=>'<option value="'+r.c+'">'+r.d+'</option>').join('');
+
+// Populate initial datalist
+function updateDatalist(cat = 'ALL') {
+  const dl = $('dl');
+  dl.innerHTML = '';
+  const filtered = cat === 'ALL' ? DATA : DATA.filter(r => (cat === 'B' ? r.t === 'B' : r.t !== 'B'));
+  filtered.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.c;
+    opt.label = r.d || '';
+    dl.appendChild(opt);
+  });
+}
+updateDatalist('ALL');
+
 const key=c=>'dt_'+c;
 function ask(msg,ok,o){o=o||{};const md=$('md'),mi=$('mi');$('mt').textContent=msg;$('me').textContent='';mi.hidden=!o.need;mi.value='';mi.placeholder=o.need?'Ketik: '+o.need:'';$('my').textContent=o.yes||'Ya, simpan';$('mn').hidden=!!o.only;md.hidden=false;
  const norm=v=>String(v).trim().toLowerCase().replace(/^forklift\s+/,'');
@@ -388,6 +404,7 @@ function ask(msg,ok,o){o=o||{};const md=$('md'),mi=$('mi');$('mt').textContent=m
  $('mn').onclick=()=>{close();o.cancel&&o.cancel()};
  $('my').onclick=()=>{if(o.need&&norm(mi.value)!==norm(o.need)){$('me').textContent='Kode tidak sesuai.';return}close();ok&&ok()};
  if(o.need)mi.focus()}
+
 let db=null,canWrite=null,shared={},auth=null,currentUser=null,currentRole=null;
 const did=c=>'dt_'+c.replace(/[^A-Za-z0-9_.:@+~-]/g,'_');
 function load(r){const x=shared[did(r.c)];if(x&&Array.isArray(x.dt))return x.dt.concat(r.dt.slice(x.dt.length));if(!db){try{const l=JSON.parse(localStorage.getItem(key(r.c)));if(l)return l}catch(e){}}return r.dt.slice()}
@@ -417,8 +434,7 @@ function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-crede
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('authMsg').textContent='Memeriksa akun…';$('loginBtn').disabled=true;
  try{if(!firebaseConfigReady)throw new Error('Konfigurasi Firebase belum diisi.');await auth.signInWithEmailAndPassword($('loginEmail').value.trim(),$('loginPassword').value)}catch(err){$('authMsg').textContent=friendlyAuthError(err)}finally{$('loginBtn').disabled=false}
 });
-$('resetPasswordBtn').addEventListener('click',async()=>{const email=$('loginEmail').value.trim();if(!email){$('authMsg').textContent='Isi email terlebih dahulu.';return}try{await auth.sendPasswordResetEmail(email);$('authMsg').textContent='Instruksi reset password dikirim.'}catch(e){$('authMsg').textContent=friendlyAuthError(e)}});
-$('logoutBtn').addEventListener('click',()=>auth.signOut());
+$('resetPasswordBtn').addEventListener('click',async()=>{const email=$('loginEmail').value.trim();if(!email){$('authMsg').textContent='Isi email terlebih dahulu.';return}try{await auth.sendPasswordResetEmail(email);$('authMsg').textContent='Instruksi reset password dikirim.'}catch(e){$('authMsg').textContent=friendlyAuthError(e)}});$('logoutBtn').addEventListener('click',()=>auth.signOut());
 
 if(!firebaseConfigReady){showAuth('Setup diperlukan: konfigurasi Firebase belum diisi.');banner();}
 else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
@@ -437,11 +453,31 @@ banner();render();
 const fmt=d=>d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
 function jenis(p){return p%12==0?2400:p%12==6?1200:p%2==1?200:400}
 const KJ={100:'Servis berkala forklift baterai (100 HM)',2400:'SERVICE BESAR: oli mesin, filter, hidrolis, gardan, transmisi',1200:'Oli mesin + oli filter + fuel filter',400:'Oli mesin + oli filter',200:'Oli mesin'};
-function find(v){v=v.trim().toLowerCase();if(!v)return null;return by[v]||by['forklift '+v]||null}
+
+function getActiveCategory() {
+  const activeBtn = document.querySelector('.cat-btn.active');
+  return activeBtn ? activeBtn.dataset.cat : 'ALL';
+}
+
+function find(v){
+  v = v.trim().toLowerCase();
+  if(!v) return null;
+  const unit = by[v] || by['forklift ' + v] || null;
+  if(!unit) return null;
+  
+  // Validasi kategori aktif
+  const currentCat = getActiveCategory();
+  if(currentCat !== 'ALL') {
+    const isBattery = unit.t === 'B';
+    if(currentCat === 'B' && !isBattery) return null;
+    if(currentCat === 'D' && isBattery) return null;
+  }
+  return unit;
+}
 
 function render(){
  const r=find($('q').value),res=$('res');
- if(!r){res.hidden=true;$('st').textContent=$('q').value.trim()?'✗ Kode tidak ditemukan — cek kembali penulisannya':'Pilih atau ketik kode forklift';return}
+ if(!r){res.hidden=true;$('st').textContent=$('q').value.trim()?'✗ Kode tidak ditemukan atau berada di luar kategori filter yang dipilih — cek kembali':'Pilih atau ketik kode forklift';return}
  $('st').innerHTML='✓ Data ditemukan: <b>'+r.c+'</b> ('+(r.t==='B'?'Baterai':'Diesel')+')';res.hidden=false;
  const dt=load(r),lj=lget(r),f0=new Date(r.f+'T00:00:00Z'),rows=[];
  const chs=lj.ch.map(c=>({t:Date.parse(c.f+'T00:00:00Z'),l:+c.l})).filter(c=>c.t==c.t&&c.l>0).sort((a,b)=>a.t-b.t);
@@ -467,7 +503,8 @@ function render(){
  let h='<tr><th>Bulan</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th></tr>';
  for(let m=1;m<=12;m++){h+='<tr><td>'+BL[m-1]+'</td>';for(let w=1;w<=4;w++){const x=rows.find(y=>y.m==m&&y.w==w);h+=x?'<td class="t'+x.j+'">'+x.j+'</td>':'<td></td>'}h+='</tr>'}
  $('mx').innerHTML=h;
-h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
+
+ h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
  rows.forEach(x=>{
   const targetHM = (x.k + 1) * (r.h || 200);
   const intervalVal = x.k === 0 ? '-' : x.n + ' hari';
@@ -483,8 +520,7 @@ h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th
  q+='<div style="margin-top:12px; border-top:1px solid var(--bd); pt:10px;"><div style="font-weight:600; margin-bottom:6px;">Simulasi Laju Kerja Sekarang (HM/hari)</div><input id="ll" type="number" step="0.1" min="0.1" placeholder="HM/hari" value="'+rate(Date.now()).toFixed(1)+'" style="width:100%; margin-bottom:6px;"'+ro+'><div style="font-size:11px; margin-bottom:6px;">Tanggal Berlaku:</div><input id="ld" type="date" value="'+fmt(new Date())+'" style="width:100%; margin-bottom:8px;"'+ro+'><button id="la"'+ro+' style="width:100%; background:var(--card-hover);"><i class="fa-solid fa-plus"></i> Terapkan Simulasi</button></div>';
  $('lj').innerHTML=q;
  $('lb').onchange=()=>{const v=+$('lb').value;if(!(v>0)||v===+lj.base){render();return}ask('Ubah laju awal '+r.c+'?',()=>{const o=lget(r);o.base=v;lsave(r,o)},{cancel:()=>render()})};
- $('lj').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const c=lj.ch[+b.dataset.i];ask('Hapus perubahan laju?',()=>{const o=lget(r);o.ch.splice(+b.dataset.i,1);lsave(r,o)})});
- $('la').onclick=()=>{const v=+$('ll').value,d=$('ld').value;if(!(v>0)||!d){alert('Isi tanggal dan laju.');return}ask('Simpan perubahan laju kerja?',()=>{const o=lget(r);o.ch=o.ch.filter(c=>c.f!=d);o.ch.push({f:d,l:v});lsave(r,o)})}}
+ $('lj').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const c=lj.ch[+b.dataset.i];ask('Hapus perubahan laju?',()=>{const o=lget(r);o.ch.splice(+b.dataset.i,1);lsave(r,o)})});$('la').onclick=()=>{const v=+$('ll').value,d=$('ld').value;if(!(v>0)||!d){alert('Isi tanggal dan laju.');return}ask('Simpan perubahan laju kerja?',()=>{const o=lget(r);o.ch=o.ch.filter(c=>c.f!=d);o.ch.push({f:d,l:v});lsave(r,o)})}}
 
  $('rs').disabled=canWrite===false;$('rs').onclick=()=>ask('RESET semua downtime '+r.c+' menjadi 0 hari?\nKetik kode forklift untuk konfirmasi.',()=>save(r,r.dt.slice()),{need:r.c,yes:'Ya, reset'});
  const u=shared[did(r.c)];$('upd').textContent=u&&u.at?'Terakhir diubah: '+new Date(u.at).toLocaleString('id-ID'):'';
@@ -496,18 +532,16 @@ document.querySelectorAll('.cat-btn').forEach(btn => {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const cat = btn.dataset.cat;
-    const dl = $('dl');
-    dl.innerHTML = '';
-    const filtered = cat === 'ALL' ? DATA : DATA.filter(r => (cat === 'B' ? r.t === 'B' : r.t !== 'B'));
-    filtered.forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = r.c;
-      opt.label = r.d || '';
-      dl.appendChild(opt);
-    });
-    $('st').textContent = filtered.length + ' unit tersedia dalam kategori ini.';
+    updateDatalist(cat);
+    const filteredCount = cat === 'ALL' ? DATA.length : DATA.filter(r => (cat === 'B' ? r.t === 'B' : r.t !== 'B')).length;
+    $('st').textContent = filteredCount + ' unit tersedia dalam kategori ini.';$('q').value = '';
+    render();
   });
 });
+
+$('exportPdfBtnMain').onclick = () => {
+  window.print();
+};
 
 $('q').addEventListener('input', render);
 banner(); render();
@@ -530,8 +564,8 @@ banner(); render();
    const code=q.value.trim();
    if(!code||typeof DATA==='undefined'||!DATA.some(r=>r.c.toLowerCase()===code.toLowerCase()||r.c.toLowerCase()==='forklift '+code.toLowerCase())){alert('Pilih unit valid dari daftar.');return;}
    const unit=DATA.find(r=>r.c.toLowerCase()===code.toLowerCase()||r.c.toLowerCase()==='forklift '+code.toLowerCase());
-   const cat=document.querySelector('.cat-btn.active');
-   if(cat && cat.dataset.cat !== 'ALL' && cat.dataset.cat !== (unit.t==='B'?'B':'D')){alert('Pilih kategori unit yang sesuai.');return;}
+   const currentCat=getActiveCategory();
+   if(currentCat !== 'ALL' && currentCat !== (unit.t==='B'?'B':'D')){alert('Unit ini berada di luar kategori filter yang sedang aktif.');return;}
    const infoRows=[...info.querySelectorAll('div')].map(d=>[d.querySelector('b')?.textContent||'',d.querySelector('span')?.textContent||'']);
    const details=infoRows.map(([k,v])=>`<div class="field"><small>${escape(k)}</small><strong>${escape(v)}</strong></div>`).join('');
    function tableCopy(source){
