@@ -627,7 +627,7 @@ function render(){
  rows.forEach(x=>{
   const targetHM = (x.k + 1) * (r.h || 200);
   const intervalVal = x.k === 0 ? '-' : x.n + ' hari';
-  const pekerjaan=r.t==='T'?(x.j===100?'Servis berkala traktor (100 HM)':'Servis berkala traktor (200 HM)'):KJ[x.j];
+  const pekerjaan=r.t==='T'?(x.j===100?'Ganti oli mesin, cleaning + greasing, cek unit':'Ganti oli mesin, ganti filter oli, cleaning + greasing, cek unit'):KJ[x.j];
   h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+targetHM+' HM</td><td><b>'+fmt(x.rv)+'</b></td><td>'+intervalVal+'</td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+pekerjaan+'</td></tr>';
  });
  $('tb').innerHTML=h;
