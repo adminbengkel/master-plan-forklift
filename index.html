@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Master Plan PM Forklift 2027 — Enterprise Dashboard</title>
+<title>Master Plan PM Traktor 2027 — 25 Unit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -365,7 +365,7 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
         <div class="glass">
           <div class="who">
             <img src="logo-bengkel.png" alt="" onerror="this.style.display='none'">
-            <div><small>Divisi Maintenance</small><b>Forklift &amp; Heavy Equipment</b></div>
+            <div><small>Divisi Maintenance</small><b>Traktor &amp; Heavy Equipment</b></div>
           </div>
           <span class="live">Active</span>
         </div>
@@ -406,16 +406,14 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
     </div>
   </div>
 
-  <!-- Control Toolbar (Kategori + Search + PDF Export Button) -->
+  <!-- Control Toolbar (Filter unit + Search + PDF Export Button) -->
   <div class="control-toolbar">
     <div class="category-group" role="group">
-      <button type="button" class="cat-btn active" data-cat="ALL">Semua Unit (176)</button>
-      <button type="button" class="cat-btn" data-cat="D">Diesel (103)</button>
-      <button type="button" class="cat-btn" data-cat="B">Baterai (73)</button>
+      <button type="button" class="cat-btn active" data-cat="ALL">Semua Traktor (25)</button>
     </div>
     <div class="search-box-wrapper">
-      <label class="search-label" for="q">Cari &amp; Pilih Kode Unit</label>
-      <input id="q" list="dl" placeholder="Cari unit, contoh: A71 atau Forklift A53" autocomplete="off">
+      <label class="search-label" for="q">Cari &amp; Pilih Kode Traktor</label>
+      <input id="q" list="dl" placeholder="Cari traktor, contoh: T1 atau T25" autocomplete="off">
       <datalist id="dl"></datalist>
     </div>
     <div>
@@ -425,8 +423,8 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
 
   <!-- Status Bar Info -->
   <div class="status-bar-info">
-    <div id="st">Pilih atau ketik kode forklift untuk menampilkan rincian master plan.</div>
-    <div>Master Plan Preventive Maintenance • Tahun 2027</div>
+    <div id="st">Pilih atau ketik kode traktor untuk menampilkan rincian master plan.</div>
+    <div>Master Plan Preventive Maintenance Traktor • Tahun 2027</div>
   </div>
 
   <div id="res" hidden>
@@ -451,11 +449,11 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
       <!-- Right Column: Schedule & Matrix -->
       <div style="display:flex; flex-direction:column; gap:14px;">
         <div class="card" style="margin-bottom:0;">
-          <h2>Jadwal &amp; Estimasi PM Forklift 2027</h2>
+          <h2>Jadwal &amp; Estimasi PM Traktor 2027</h2>
           <div class="wrap"><table id="tb"></table></div>
           <div class="note" id="upd"></div>
           <div class="note">Isi kolom Downtime CM (hari) untuk menggeser servis tersebut dan semua servis sesudahnya. Baris abu-abu = jatuh di luar 2027.</div>
-          <p style="margin-top:12px;"><button id="rs"><i class="fa-solid fa-rotate-left"></i> Reset downtime forklift ini</button></p>
+          <p style="margin-top:12px;"><button id="rs"><i class="fa-solid fa-rotate-left"></i> Reset downtime traktor ini</button></p>
         </div>
 
         <div class="card" style="margin-bottom:0;">
@@ -493,10 +491,9 @@ const firebaseConfig = {
 };
 const firebaseConfigReady = !Object.values(firebaseConfig).some(v => String(v).includes("GANTI_DENGAN"));
 </script>
-<script src="data-forklift-2027.js?v=4"></script>
 <script>
-const DATA=window.FORKLIFT_DATA_2027;
-if(!Array.isArray(DATA)||DATA.length!==176) throw new Error('File data-forklift-2027.js tidak berhasil dimuat.');
+const DATA = [{"c":"T1","d":"Gd Kemas Noodle","t":"T","l":3.5,"i":29,"f":"2027-01-15","n":14,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T2","d":"G.PR. NOODLE 1","t":"T","l":3.6,"i":28,"f":"2027-01-15","n":14,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T3","d":"G. FG N (WM)","t":"T","l":3.8,"i":26,"f":"2027-01-17","n":15,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T4","d":"G. FG N (WM)","t":"T","l":4.4,"i":23,"f":"2027-01-22","n":16,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T5","d":"G.PR.FG.SBL KCP","t":"T","l":2.7,"i":37,"f":"2027-01-24","n":11,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"T6","d":"G. FG N (WM)","t":"T","l":2.5,"i":40,"f":"2027-01-06","n":10,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0]},{"c":"T7","d":"Gd BS 1","t":"T","l":5.4,"i":19,"f":"2027-01-13","n":20,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T8","d":"G.PR.FG.SBL KCP","t":"T","l":2.3,"i":43,"f":"2027-01-02","n":10,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0]},{"c":"T9","d":"G.PR. NOODLE 1","t":"T","l":3.8,"i":27,"f":"2027-01-10","n":15,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T10","d":"Gd Kemas Noodle","t":"T","l":5.8,"i":17,"f":"2027-01-11","n":22,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T11","d":"Gd Kemas Noodle","t":"T","l":2.7,"i":37,"f":"2027-02-06","n":10,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0]},{"c":"T12","d":"G. FG N (WM)","t":"T","l":3.7,"i":27,"f":"2027-01-10","n":15,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T13","d":"G.PR.FG.SBL KCP","t":"T","l":1.3,"i":75,"f":"2027-02-24","n":6,"h":100,"p":1,"dt":[0,0,0,0,0,0]},{"c":"T14","d":"Gd Kemas Noodle","t":"T","l":4.7,"i":21,"f":"2027-01-02","n":19,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T15","d":"G. FG N (WM)","t":"T","l":3.4,"i":29,"f":"2027-01-15","n":14,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T16","d":"G. FG N (WM)","t":"T","l":2.4,"i":42,"f":"2027-01-28","n":10,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0]},{"c":"T17","d":"EKSPEDISI","t":"T","l":2.3,"i":43,"f":"2027-01-22","n":9,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0]},{"c":"T18","d":"G. FG N (WM)","t":"T","l":4.0,"i":25,"f":"2027-01-04","n":16,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T19","d":"G. FG N (WM)","t":"T","l":1.6,"i":64,"f":"2027-02-21","n":6,"h":100,"p":1,"dt":[0,0,0,0,0,0]},{"c":"T20","d":"Gd Kemas Noodle","t":"T","l":4.4,"i":23,"f":"2027-01-21","n":16,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T21","d":"Gd Kemas Noodle","t":"T","l":4.9,"i":20,"f":"2027-01-11","n":19,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T22","d":"G.PR.FG.SBL KCP","t":"T","l":4.3,"i":23,"f":"2027-01-20","n":17,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T23","d":"G. FG. SSN 4","t":"T","l":3.9,"i":26,"f":"2027-01-17","n":15,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T24","d":"EKSPEDISI","t":"T","l":4.0,"i":25,"f":"2027-01-16","n":15,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T25","d":"G. FG. SSN 4","t":"T","l":2.5,"i":39,"f":"2027-01-24","n":10,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0]}];
+
 const HR=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],BL=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const $=id=>document.getElementById(id),by={};DATA.forEach(r=>by[r.c.toLowerCase()]=r);
 
@@ -515,7 +512,7 @@ updateDatalist('ALL');
 
 const key=c=>'dt_'+c;
 function ask(msg,ok,o){o=o||{};const md=$('md'),mi=$('mi');$('mt').textContent=msg;$('me').textContent='';mi.hidden=!o.need;mi.value='';mi.placeholder=o.need?'Ketik: '+o.need:'';$('my').textContent=o.yes||'Ya, simpan';$('mn').hidden=!!o.only;md.hidden=false;
- const norm=v=>String(v).trim().toLowerCase().replace(/^forklift\s+/,'');
+ const norm=v=>String(v).trim().toLowerCase().replace(/^traktor\s+/,'');
  const close=()=>{md.hidden=true};
  $('mn').onclick=()=>{close();o.cancel&&o.cancel()};
  $('my').onclick=()=>{if(o.need&&norm(mi.value)!==norm(o.need)){$('me').textContent='Kode tidak sesuai.';return}close();ok&&ok()};
@@ -567,8 +564,8 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
 banner();render();
 
 const fmt=d=>d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
-function jenis(p){return p%12==0?2400:p%12==6?1200:p%2==1?200:400}
-const KJ={100:'Servis berkala forklift baterai (100 HM)',2400:'SERVICE BESAR: oli mesin, filter, hidrolis, gardan, transmisi',1200:'Oli mesin + oli filter + fuel filter',400:'Oli mesin + oli filter',200:'Oli mesin'};
+function jenis(p){return p%2===1?100:200}
+const KJ={100:'Servis berkala 100 HM',200:'Servis berkala 200 HM'};
 
 function getActiveCategory() {
   const activeBtn = document.querySelector('.cat-btn.active');
@@ -578,7 +575,7 @@ function getActiveCategory() {
 function find(v){
   v = v.trim().toLowerCase();
   if(!v) return null;
-  const unit = by[v] || by['forklift ' + v] || null;
+  const unit = by[v] || by['traktor ' + v] || null;
   if(!unit) return null;
   
   const currentCat = getActiveCategory();
@@ -592,21 +589,21 @@ function find(v){
 
 function render(){
  const r=find($('q').value),res=$('res');
- if(!r){res.hidden=true;$('st').textContent=$('q').value.trim()?'✗ Kode tidak ditemukan atau berada di luar kategori filter yang dipilih — cek kembali':'Pilih atau ketik kode forklift';return}
- $('st').innerHTML='✓ Data ditemukan: <b>'+r.c+'</b> ('+(r.t==='B'?'Baterai':'Diesel')+')';res.hidden=false;
+ if(!r){res.hidden=true;$('st').textContent=$('q').value.trim()?'✗ Kode traktor tidak ditemukan — cek kembali':'Pilih atau ketik kode traktor';return}
+ $('st').innerHTML='✓ Data ditemukan: <b>'+r.c+'</b> (Traktor)';res.hidden=false;
  const dt=load(r),lj=lget(r),f0=new Date(r.f+'T00:00:00Z'),rows=[];
  const chs=lj.ch.map(c=>({t:Date.parse(c.f+'T00:00:00Z'),l:+c.l})).filter(c=>c.t==c.t&&c.l>0).sort((a,b)=>a.t-b.t);
- const rate=ms=>{let l=lj.base==r.l?(r.h||200)/r.i:lj.base;for(const c of chs){if(c.t<=ms)l=c.l}return l};
+ const rate=ms=>{let l=lj.base;for(const c of chs){if(c.t<=ms)l=c.l}return l};
  let cur=0,nm=+f0;
  for(let k=0;k<r.n;k++){const d=+dt[k]||0;let n=0;
   if(k==0){cur=+f0+d*864e5}else{n=stepDays(cur,rate,r.h||200);nm=nm+stepDays(nm,rate,r.h||200)*864e5;cur=cur+(n+d)*864e5}
   rows.push({k,norm:new Date(nm),d,n,rv:new Date(cur),p:r.p+k})}
- rows.forEach(x=>{const in27=x.rv.getUTCFullYear()==2027;x.m=in27?x.rv.getUTCMonth()+1:0;x.w=in27?Math.min(4,Math.floor((x.rv.getUTCDate()-1)/7)+1):0;x.j=r.t==='B'?100:jenis(x.p)});
+ rows.forEach(x=>{const in27=x.rv.getUTCFullYear()==2027;x.m=in27?x.rv.getUTCMonth()+1:0;x.w=in27?Math.min(4,Math.floor((x.rv.getUTCDate()-1)/7)+1):0;x.j=jenis(x.p)});
  const tot=dt.reduce((a,b)=>a+(+b||0),0),n27=rows.filter(x=>x.m>0).length;
 
  $('info').innerHTML=[
   ['Kode Unit', r.c],
-  ['Jenis Machine', (r.t==='B'?'Baterai':'Diesel') + ' Engine Fuel'],
+  ['Jenis Machine', 'Traktor'],
   ['Interval PM', (r.h||200)+' HM'],
   ['Departemen', r.d],
   ['Laju Awal', (+lj.base).toFixed(1)+' HM/hr'],
@@ -619,11 +616,11 @@ function render(){
  for(let m=1;m<=12;m++){h+='<tr><td>'+BL[m-1]+'</td>';for(let w=1;w<=4;w++){const x=rows.find(y=>y.m==m&&y.w==w);h+=x?'<td class="t'+x.j+'">'+x.j+'</td>':'<td></td>'}h+='</tr>'}
  $('mx').innerHTML=h;
 
- h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
+ h='<tr><th>No</th><th>Jenis Servis</th><th>Target Servis</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
  rows.forEach(x=>{
-  const targetHM = (x.k + 1) * (r.h || 200);
+  const targetHM = x.j + ' HM';
   const intervalVal = x.k === 0 ? '-' : x.n + ' hari';
-  h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+targetHM+' HM</td><td><b>'+fmt(x.rv)+'</b></td><td>'+intervalVal+'</td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+KJ[x.j]+'</td></tr>';
+  h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+targetHM+'</td><td><b>'+fmt(x.rv)+'</b></td><td>'+intervalVal+'</td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+KJ[x.j]+'</td></tr>';
  });
  $('tb').innerHTML=h;
 
@@ -637,7 +634,7 @@ function render(){
  $('lb').onchange=()=>{const v=+$('lb').value;if(!(v>0)||v===+lj.base){render();return}ask('Ubah laju awal '+r.c+'?',()=>{const o=lget(r);o.base=v;lsave(r,o)},{cancel:()=>render()})};
  $('lj').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const c=lj.ch[+b.dataset.i];ask('Hapus perubahan laju?',()=>{const o=lget(r);o.ch.splice(+b.dataset.i,1);lsave(r,o)})});$('la').onclick=()=>{const v=+$('ll').value,d=$('ld').value;if(!(v>0)||!d){alert('Isi tanggal dan laju.');return}ask('Simpan perubahan laju kerja?',()=>{const o=lget(r);o.ch=o.ch.filter(c=>c.f!=d);o.ch.push({f:d,l:v});lsave(r,o)})}}
 
- $('rs').disabled=canWrite===false;$('rs').onclick=()=>ask('RESET semua downtime '+r.c+' menjadi 0 hari?\nKetik kode forklift untuk konfirmasi.',()=>save(r,r.dt.slice()),{need:r.c,yes:'Ya, reset'});
+ $('rs').disabled=canWrite===false;$('rs').onclick=()=>ask('RESET semua downtime '+r.c+' menjadi 0 hari?\nKetik kode traktor untuk konfirmasi.',()=>save(r,r.dt.slice()),{need:r.c,yes:'Ya, reset'});
  const u=shared[did(r.c)];$('upd').textContent=u&&u.at?'Terakhir diubah: '+new Date(u.at).toLocaleString('id-ID'):'';
 }
 
@@ -648,8 +645,8 @@ document.querySelectorAll('.cat-btn').forEach(btn => {
     btn.classList.add('active');
     const cat = btn.dataset.cat;
     updateDatalist(cat);
-    const filteredCount = cat === 'ALL' ? DATA.length : DATA.filter(r => (cat === 'B' ? r.t === 'B' : r.t !== 'B')).length;
-    $('st').textContent = filteredCount + ' unit tersedia dalam kategori ini.';$('q').value = '';
+    const filteredCount = DATA.length;
+    $('st').textContent = filteredCount + ' traktor tersedia.';$('q').value = '';
     render();
   });
 });
