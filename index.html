@@ -322,13 +322,14 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .kpi-value { font-size:34px; line-height:1.15; font-weight:800; margin-top:4px; color:#fff; }
 .kpi-sub { font-size:11px; color:#94a3b8; margin-top:3px; }
 .kpi-icon { position:absolute; right:16px; top:24px; font-size:25px; color:#cbd5e1; opacity:.75; }
-.control-toolbar { grid-template-columns:minmax(190px,1.05fr) minmax(220px,1fr) minmax(190px,.8fr) auto; gap:9px; padding:10px; background:#64748b; border-color:#94a3b8; }
-.control-toolbar .category-group { min-width:0; }
-.control-toolbar .cat-btn { flex:1; min-width:0; padding:10px 9px; font-size:11px; white-space:nowrap; }
-.control-toolbar .search-label { display:none; }
+.control-toolbar { grid-template-columns:minmax(190px,.9fr) minmax(220px,1.2fr) minmax(190px,.9fr) auto; gap:10px; padding:12px; background:#64748b; border-color:#94a3b8; }
+.control-toolbar .search-label { display:block; color:#f1f5f9; }
+#categoryFilter { width:100%; min-width:0; padding:10px 12px; border:1px solid var(--bd); border-radius:8px; background:var(--in); color:var(--tx); font-size:13px; font-weight:600; outline:none; }
+#categoryFilter:focus { border-color:var(--ac); box-shadow:0 0 0 3px var(--ac-glow); }
 #q { min-height:40px; background:#e2e8f0; color:#0f172a; border-color:#94a3b8; }
 #q::placeholder { color:#64748b; }
-.toolbar-date { display:flex; min-width:0; }
+.toolbar-date { display:flex; flex-direction:column; min-width:0; gap:4px; }
+.toolbar-date input { width:100%; min-width:0; padding:10px 12px; border:1px solid var(--bd); border-radius:8px; background:var(--in); color:var(--tx); }
 #serviceDate { width:100%; min-width:0; min-height:40px; background:#e2e8f0; color:#0f172a; border:1px solid #94a3b8; border-radius:8px; padding:8px 10px; font:inherit; font-size:12px; }
 #serviceDate:focus { outline:2px solid #f59e0b; }
 #searchServiceDate { white-space:nowrap; padding:11px 14px; }
@@ -354,8 +355,8 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #appShell.date-results #serviceDateResults { display:block !important; }
 #appShell.date-results #serviceDateResults[hidden] { display:none !important; }
 #appShell.date-results #serviceDateStatus { display:block !important; }
-@media(max-width:1050px) { .control-toolbar { grid-template-columns:1fr 1fr; } .control-toolbar .category-group { grid-column:1/-1; } }
-@media(max-width:650px) { .kpi-grid { grid-template-columns:1fr; gap:8px; } .kpi-card { min-height:80px; } .control-toolbar { grid-template-columns:1fr; } .control-toolbar .category-group { grid-column:auto; display:grid; grid-template-columns:repeat(2,1fr); } .main-title-bar::after { width:100%; text-align:left; } }
+@media(max-width:1050px) { .control-toolbar { grid-template-columns:1fr 1fr; } .control-toolbar > div:last-child { grid-column:1/-1; } }
+@media(max-width:650px) { .kpi-grid { grid-template-columns:1fr; gap:8px; } .kpi-card { min-height:80px; } .control-toolbar { grid-template-columns:1fr; } .control-toolbar > div:last-child { grid-column:auto; } .main-title-bar::after { width:100%; text-align:left; } }
 
 /* Navigasi dua tampilan: halaman utama tetap seperti dashboard semula; hasil tanggal menjadi halaman tersendiri */
 #appShell.date-home #serviceDateSearchCard { display: block; max-width: 980px; margin: 26px auto; }
@@ -496,18 +497,21 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
   <!-- Control Toolbar: kategori, kode unit, tanggal servis, laporan -->
   <div class="control-toolbar">
-    <div class="category-group" role="group" aria-label="Filter kategori unit">
-      <button type="button" class="cat-btn active" data-cat="ALL">Semua Unit (201)</button>
-      <button type="button" class="cat-btn" data-cat="D">Diesel (103)</button>
-      <button type="button" class="cat-btn" data-cat="B">Baterai (73)</button>
-      <button type="button" class="cat-btn" data-cat="T">Traktor (25)</button>
+    <div class="search-box-wrapper category-select-wrapper">
+      <label class="search-label" for="categoryFilter">Kategori Kendaraan</label>
+      <select id="categoryFilter" aria-label="Kategori Kendaraan">
+        <option value="ALL">Semua Unit (201)</option>
+        <option value="D">Diesel (103)</option>
+        <option value="T">Traktor (25)</option>
+      </select>
     </div>
     <div class="search-box-wrapper">
       <label class="search-label" for="q">Cari kode unit</label>
       <input id="q" list="dl" placeholder="Cari kode, contoh: A71 atau T1" autocomplete="off">
       <datalist id="dl"></datalist>
     </div>
-    <div class="toolbar-date">
+    <div class="toolbar-date search-box-wrapper">
+      <label class="search-label" for="serviceDate">Tanggal servis</label>
       <input type="date" id="serviceDate" aria-label="Pilih tanggal servis" min="2027-01-01" max="2027-12-31" value="" title="Pilih tanggal servis">
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -522,10 +526,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div>Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</div>
   </div>
 
-  <div class="card overview-card">
-    <div class="overview-head"><h2><i class="fa-solid fa-table-list"></i> Jadwal Preventive Maintenance</h2><div class="overview-meta" id="overviewMeta">Jadwal tahun 2027</div></div>
-    <div id="overviewTable"></div>
-  </div>
+
 
   <!-- Pencarian semua unit berdasarkan tanggal servis -->
   <div class="card" id="serviceDateSearchCard">
@@ -734,8 +735,7 @@ $('serviceDateHomeBtn').addEventListener('click',()=>{
 });
 
 function getActiveCategory() {
-  const activeBtn = document.querySelector('.cat-btn.active');
-  return activeBtn ? activeBtn.dataset.cat : 'ALL';
+  return $('categoryFilter') ? $('categoryFilter').value : 'ALL';
 }
 
 function find(v){
@@ -758,29 +758,8 @@ function renderOverview(){
  DATA.forEach(r=>getScheduleRowsForDateSearch(r).forEach(x=>{
    if(x.rv.getUTCFullYear()===2027) rows.push({r,...x});
  }));
- rows.sort((a,b)=>a.rv-b.rv || a.r.c.localeCompare(b.r.c,undefined,{numeric:true}));
  $('kpiUnits').textContent=DATA.length.toLocaleString('id-ID');
  $('kpiServices').textContent=rows.length.toLocaleString('id-ID');
- const cat=getActiveCategory();
- const q=$('q').value.trim().toLowerCase();
- const filtered=rows.filter(x=>{
-   const catOk=cat==='ALL'||(cat==='T'?x.r.t==='T':cat==='B'?x.r.t==='B':cat==='D'?x.r.t!=='B'&&x.r.t!=='T':true);
-   const qOk=!q||x.r.c.toLowerCase().includes(q)||String(x.r.d||'').toLowerCase().includes(q);
-   return catOk&&qOk;
- });
- $('overviewMeta').textContent=filtered.length.toLocaleString('id-ID')+' jadwal ditampilkan';
- const shown=filtered.slice(0,150);
- let h='<div class="wrap" style="border:0;border-radius:0"><table><thead><tr><th>Due Date</th><th>Unit</th><th>Model / Departemen</th><th>Category</th><th>Maintenance Type</th><th>Priority</th><th>Actions</th></tr></thead><tbody>';
- shown.forEach(x=>{
-   const kind=x.r.t==='T'?'Traktor':x.r.t==='B'?'Baterai':'Diesel';
-   const date=fmt(x.rv), pri=x.j>=1000?'Critical':'High';
-   h+='<tr><td>'+date+'</td><td><span class="overview-unit">'+x.r.c+'</span></td><td class="l">'+(x.r.d||'-')+'</td><td>'+kind+'</td><td>Preventive · PM '+x.j+' HM</td><td><span class="priority '+(pri==='Critical'?'critical':'high')+'">'+pri+'</span></td><td><button type="button" class="unit-open" data-unit="'+x.r.c+'" title="Lihat unit"><i class="fa-solid fa-ellipsis-vertical"></i></button></td></tr>';
- });
- h+='</tbody></table></div>';
- if(filtered.length>shown.length) h+='<div style="padding:10px 14px;color:var(--mu);font-size:11px;">Menampilkan 150 dari '+filtered.length+' jadwal. Gunakan pencarian kode atau filter kategori untuk mempersempit hasil.</div>';
- if(!filtered.length) h+='<div style="padding:18px;color:var(--mu);font-size:12px;">Tidak ada jadwal yang cocok dengan filter saat ini.</div>';
- $('overviewTable').innerHTML=h;
- $('overviewTable').querySelectorAll('[data-unit]').forEach(b=>b.addEventListener('click',()=>{$('q').value=b.dataset.unit;render();window.scrollTo({top:0,behavior:'smooth'});}));
 }
 
 function render(){
@@ -836,17 +815,14 @@ function render(){
  const u=shared[did(r.c)];$('upd').textContent=u&&u.at?'Terakhir diubah: '+new Date(u.at).toLocaleString('id-ID'):'';
 }
 
-// Category filter buttons behavior
-document.querySelectorAll('.cat-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const cat = btn.dataset.cat;
-    updateDatalist(cat);
-    const filteredCount = cat === 'ALL' ? DATA.length : DATA.filter(r => cat === 'T' ? r.t === 'T' : cat === 'B' ? r.t === 'B' : cat === 'D' ? r.t !== 'B' && r.t !== 'T' : true).length;
-    $('st').textContent = filteredCount + ' unit tersedia dalam kategori ini.';$('q').value = '';
-    render();
-  });
+// Filter kategori terintegrasi dengan pencarian kode dan tanggal servis
+$('categoryFilter').addEventListener('change', () => {
+  updateDatalist(getActiveCategory());
+  $('q').value = '';
+  const cat = getActiveCategory();
+  const filteredCount = cat === 'ALL' ? DATA.length : DATA.filter(r => cat === 'T' ? r.t === 'T' : cat === 'D' ? r.t !== 'B' && r.t !== 'T' : true).length;
+  $('st').textContent = filteredCount + ' unit tersedia dalam kategori ini.';
+  render();
 });
 
 $('q').addEventListener('input', render);
