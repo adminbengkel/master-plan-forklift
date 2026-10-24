@@ -330,8 +330,15 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #q::placeholder { color:#64748b; }
 .toolbar-date { display:flex; flex-direction:column; min-width:0; gap:4px; }
 .toolbar-date input { width:100%; min-width:0; padding:10px 12px; border:1px solid var(--bd); border-radius:8px; background:var(--in); color:var(--tx); }
-#serviceDate { width:100%; min-width:0; min-height:40px; background:#e2e8f0; color:#0f172a; border:1px solid #94a3b8; border-radius:8px; padding:8px 10px; font:inherit; font-size:12px; }
+.service-date-input-wrap { position:relative; display:flex; align-items:center; width:100%; }
+#serviceDate { width:100%; min-width:0; min-height:40px; background:#e2e8f0; color:#0f172a; border:1px solid #94a3b8; border-radius:8px; padding:8px 46px 8px 10px; font:inherit; font-size:12px; }
 #serviceDate:focus { outline:2px solid #f59e0b; }
+#openServiceDatePicker { position:absolute; right:4px; top:4px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; padding:0; border:1px solid #475569; border-radius:6px; background:#1e293b; color:#f8fafc; cursor:pointer; z-index:4; }
+#openServiceDatePicker:hover { background:#334155; border-color:#f59e0b; }
+#serviceDatePicker { position:absolute; right:4px; top:4px; width:32px; height:32px; opacity:0; cursor:pointer; z-index:3; }
+#serviceDatePicker:focus-visible { opacity:.12; outline:2px solid #f59e0b; }
+.service-date-input-wrap:focus-within #openServiceDatePicker { border-color:#f59e0b; }
+
 #searchServiceDate { white-space:nowrap; padding:11px 14px; }
 .overview-card { padding:0; overflow:hidden; }
 .overview-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 16px; border-bottom:1px solid var(--bd); }
@@ -552,7 +559,11 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div class="toolbar-date search-box-wrapper">
       <label class="search-label" for="serviceDate">Tanggal servis</label>
-      <input type="text" id="serviceDate" aria-label="Pilih tanggal servis" inputmode="numeric" autocomplete="off" value="" title="Masukkan tanggal DD/MM/YYYY" placeholder="DD/MM/YYYY">
+      <div class="service-date-input-wrap">
+        <input type="text" id="serviceDate" aria-label="Tanggal servis (DD/MM/YYYY)" inputmode="numeric" autocomplete="off" value="" title="Ketik tanggal dengan format DD/MM/YYYY atau klik ikon kalender" placeholder="DD/MM/YYYY">
+        <button type="button" id="openServiceDatePicker" aria-label="Buka kalender tanggal servis" title="Pilih tanggal dari kalender"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i></button>
+        <input type="date" id="serviceDatePicker" aria-label="Kalender tanggal servis" min="2027-01-01" max="2027-12-31" tabindex="-1">
+      </div>
     </div>
     <div class="toolbar-actions">
       <button type="button" class="pdf-btn reset-btn" id="resetFiltersBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
@@ -767,6 +778,13 @@ function renderServiceDateSearch(){
 }
 $('searchServiceDate').addEventListener('click',()=>{upcomingPage=1;renderUpcomingTable();});
 $('serviceDate').addEventListener('change',()=>{upcomingPage=1;renderUpcomingTable();});
+// Kalender native: pengguna tetap dapat mengetik DD/MM/YYYY atau memilih tanggal lewat ikon.
+function isoToIndonesianDate(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))return '';const [y,m,d]=iso.split('-');return d+'/'+m+'/'+y;}
+function indonesianToIsoDate(value){const m=String(value||'').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return '';const d=+m[1],mo=+m[2],y=+m[3],dt=new Date(Date.UTC(y,mo-1,d));return dt.getUTCFullYear()===y&&dt.getUTCMonth()===mo-1&&dt.getUTCDate()===d?y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'):'';}
+const serviceDateInput=$('serviceDate'),serviceDatePicker=$('serviceDatePicker');
+$('openServiceDatePicker').addEventListener('click',()=>{const current=indonesianToIsoDate(serviceDateInput.value);serviceDatePicker.value=current||'';if(typeof serviceDatePicker.showPicker==='function'){try{serviceDatePicker.showPicker();return;}catch(e){}}serviceDatePicker.focus();serviceDatePicker.click();});
+serviceDatePicker.addEventListener('change',()=>{if(serviceDatePicker.value){serviceDateInput.value=isoToIndonesianDate(serviceDatePicker.value);serviceDateInput.dispatchEvent(new Event('change',{bubbles:true}));}});
+serviceDateInput.addEventListener('input',()=>{const iso=indonesianToIsoDate(serviceDateInput.value);if(iso)serviceDatePicker.value=iso;else if(!serviceDateInput.value.trim())serviceDatePicker.value='';});
 $('resetFiltersBtn').addEventListener('click',resetSearchFilters);
 $('emptyResetBtn').addEventListener('click',resetSearchFilters);
 
@@ -839,7 +857,7 @@ function renderUpcomingTable(){
  $('pagePrev').onclick=()=>{upcomingPage--;renderUpcomingTable()};$('pageNext').onclick=()=>{upcomingPage++;renderUpcomingTable()};
  $('overviewTable').querySelectorAll('button[data-unit]').forEach(b=>b.onclick=()=>{$('q').value=b.dataset.unit;render();if(b.classList.contains('history-btn')){setTimeout(()=>$('tb').scrollIntoView({behavior:'smooth',block:'start'}),50);}else{window.scrollTo({top:0,behavior:'smooth'});}});
 }
-function resetSearchFilters(){ $('q').value='';$('serviceDate').value='';$('categoryFilter').value='ALL';upcomingPage=1;$('res').hidden=true;$('st').textContent='Pilih atau ketik kode unit untuk menampilkan rincian master plan.';$('emptyState').hidden=true;updateDatalist('ALL');render(); }
+function resetSearchFilters(){ $('q').value='';$('serviceDate').value='';if($('serviceDatePicker'))$('serviceDatePicker').value='';$('categoryFilter').value='ALL';upcomingPage=1;$('res').hidden=true;$('st').textContent='Pilih atau ketik kode unit untuk menampilkan rincian master plan.';$('emptyState').hidden=true;updateDatalist('ALL');render(); }
 
 function render(){
  renderOverview();
