@@ -141,6 +141,19 @@ h2 { font-size: 15px; margin: 0 0 12px; display: flex; align-items: center; gap:
 }
 .pdf-btn:hover { background: linear-gradient(135deg, #fcd34d, #b45309); transform: translateY(-1px); }
 
+/* Pencarian jadwal servis berdasarkan tanggal */
+.date-search-controls { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; }
+.date-search-controls .field { display: flex; flex-direction: column; gap: 5px; min-width: 190px; }
+.date-search-controls label { font-size: 11px; color: var(--mu); font-weight: 700; }
+.date-search-controls input[type="date"] { background: var(--in); color: var(--tx); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 12px; min-height: 38px; }
+.date-search-controls input[type="date"]:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac-glow); }
+#serviceDateStatus { color: var(--mu); font-size: 12px; margin: 10px 0; }
+.date-search-table { overflow-x: auto; border: 1px solid var(--bd); border-radius: 10px; background: var(--in); }
+.date-search-table table { min-width: 780px; }
+.date-search-table td.l { min-width: 250px; }
+.date-search-table .unit-open { white-space: nowrap; }
+@media(max-width: 600px) { .date-search-controls .field { flex: 1 1 100%; } .date-search-controls button { width: 100%; } }
+
 /* Status Bar Info */
 .status-bar-info {
   display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--mu); margin-bottom: 14px; padding: 0 4px; flex-wrap: wrap; gap: 6px;
@@ -436,6 +449,21 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
     <div>Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</div>
   </div>
 
+  <!-- Pencarian semua unit berdasarkan tanggal servis -->
+  <div class="card" id="serviceDateSearchCard">
+    <div class="section-header-title"><i class="fa-solid fa-calendar-days"></i> Pencarian Unit Berdasarkan Tanggal Servis</div>
+    <p style="font-size:12px;color:var(--mu);margin:0 0 12px;">Pilih tanggal untuk melihat semua forklift dan traktor yang dijadwalkan melakukan PM pada tanggal tersebut. Pencarian mencakup semua kategori dan mengikuti perubahan laju kerja serta downtime yang tersimpan.</p>
+    <div class="date-search-controls">
+      <div class="field">
+        <label for="serviceDate">Tanggal servis</label>
+        <input type="date" id="serviceDate" min="2027-01-01" max="2027-12-31" value="2027-01-01">
+      </div>
+      <button type="button" class="pdf-btn" id="searchServiceDate"><i class="fa-solid fa-magnifying-glass"></i> Cari Jadwal</button>
+    </div>
+    <div id="serviceDateStatus" aria-live="polite">Pilih tanggal lalu klik “Cari Jadwal”.</div>
+    <div class="date-search-table" id="serviceDateResults" hidden></div>
+  </div>
+
   <div id="res" hidden>
     <!-- Informasi Detail Unit Terpilih -->
     <div class="card">
@@ -574,12 +602,51 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
   }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses.')}
  });
  }catch(err){showAuth('Firebase gagal dimulai: '+err.message)}}
-banner();render();
+banner();
 
 const fmt=d=>d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
 function jenis(p,r){if(r.t==='T') return p%20===0?2000:p%10===0?1000:p%5===0?500:p%2===0?200:100; return p%12==0?2400:p%12==6?1200:p%2==1?200:400}
 const KJ={100:'Servis berkala forklift baterai (100 HM)',2400:'SERVICE BESAR: oli mesin, filter, hidrolis, gardan, transmisi',1200:'Oli mesin + oli filter + fuel filter',400:'Oli mesin + oli filter',200:'Oli mesin'};
 const TRACTOR_JOBS={100:'Ganti oli mesin, cleaning+greasing, cek unit',200:'Ganti oli mesin, ganti filter oli, cleaning+greasing, cek unit',500:'Ganti oli mesin, ganti filter oli, ganti fuel filter, cleaning+greasing, cek unit',1000:'Ganti oli mesin, ganti filter oli, ganti fuel filter, ganti air filter (IN)+(OUT), ganti oli gardan, ganti oli transmisi, cleaning+greasing, cek unit',2000:'Ganti oli mesin, ganti filter oli, ganti fuel filter, ganti air filter (IN)+(OUT), ganti oli gardan, ganti oli transmisi, ganti filter transmisi, ganti v belt, cleaning+greasing, cek unit'};
+
+// Menghitung tanggal PM menggunakan aturan yang sama dengan tabel jadwal tiap unit.
+function getScheduleRowsForDateSearch(r){
+ const dt=load(r),lj=lget(r),f0=new Date(r.f+'T00:00:00Z'),rows=[];
+ const chs=lj.ch.map(c=>({t:Date.parse(c.f+'T00:00:00Z'),l:+c.l})).filter(c=>c.t===c.t&&c.l>0).sort((a,b)=>a.t-b.t);
+ const rate=ms=>{let l=lj.base==r.l?(r.h||200)/r.i:lj.base;for(const c of chs){if(c.t<=ms)l=c.l}return l};
+ let cur=0,nm=+f0;
+ for(let k=0;k<r.n;k++){
+  const d=+dt[k]||0;let n=0;
+  if(k===0){cur=+f0+d*864e5}else{n=stepDays(cur,rate,r.h||200);nm=nm+stepDays(nm,rate,r.h||200)*864e5;cur=cur+(n+d)*864e5}
+  const rv=new Date(cur),norm=new Date(nm),p=r.p+k,j=r.t==='B'?100:jenis(p,r);
+  rows.push({k,rv,norm,p,j,targetHM:r.t==='T'?p*100:(k+1)*(r.h||200),d,pekerjaan:r.t==='T'?TRACTOR_JOBS[j]:KJ[j]});
+ }
+ return rows;
+}
+function renderServiceDateSearch(){
+ const date=$('serviceDate').value,box=$('serviceDateResults'),status=$('serviceDateStatus');
+ if(!date){status.textContent='Silakan pilih tanggal servis terlebih dahulu.';box.hidden=true;return;}
+ if(date<'2027-01-01'||date>'2027-12-31'){status.textContent='Pencarian ini menggunakan jadwal master plan tahun 2027.';box.hidden=true;return;}
+ const found=[];
+ DATA.forEach(r=>getScheduleRowsForDateSearch(r).forEach(x=>{if(fmt(x.rv)===date)found.push({r,...x});}));
+ found.sort((a,b)=>a.r.c.localeCompare(b.r.c,undefined,{numeric:true}));
+ const displayDate=new Date(date+'T00:00:00Z').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+ if(!found.length){status.textContent='Tidak ditemukan jadwal PM untuk '+displayDate+' berdasarkan estimasi saat ini.';box.hidden=true;return;}
+ status.textContent=found.length+' unit dijadwalkan servis pada '+displayDate+'.';
+ let h='<table><thead><tr><th>Kode Unit</th><th>Jenis</th><th>Departemen</th><th>PM</th><th>Target HM</th><th>Pekerjaan</th><th>Detail</th></tr></thead><tbody>';
+ found.forEach(x=>{
+  const kind=x.r.t==='T'?'Traktor':x.r.t==='B'?'Baterai':'Diesel';
+  h+='<tr><td><b>'+x.r.c+'</b></td><td>'+kind+'</td><td class="l">'+(x.r.d||'-')+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+x.targetHM.toLocaleString('id-ID')+' HM</td><td class="l">'+(x.pekerjaan||'-')+'</td><td><button type="button" class="unit-open" data-open-unit="'+x.r.c+'">Lihat unit</button></td></tr>';
+ });
+ h+='</tbody></table>';box.innerHTML=h;box.hidden=false;
+ box.querySelectorAll('[data-open-unit]').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat==='ALL'));
+  updateDatalist('ALL');$('q').value=btn.dataset.openUnit;render();
+  $('res').scrollIntoView({behavior:'smooth',block:'start'});
+ }));
+}
+$('searchServiceDate').addEventListener('click',renderServiceDateSearch);
+$('serviceDate').addEventListener('change',renderServiceDateSearch);
 
 function getActiveCategory() {
   const activeBtn = document.querySelector('.cat-btn.active');
@@ -602,6 +669,7 @@ function find(v){
 }
 
 function render(){
+ if($('serviceDate') && $('serviceDate').value) renderServiceDateSearch();
  const r=find($('q').value),res=$('res');
  if(!r){res.hidden=true;$('st').textContent=$('q').value.trim()?'✗ Kode tidak ditemukan atau berada di luar kategori filter yang dipilih — cek kembali':'Pilih atau ketik kode forklift';return}
  $('st').innerHTML='✓ Data ditemukan: <b>'+r.c+'</b> ('+(r.t==='T'?'Traktor':r.t==='B'?'Baterai':'Diesel')+')';res.hidden=false;
