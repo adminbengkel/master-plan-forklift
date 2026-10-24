@@ -311,6 +311,52 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
 #me { color: #f87171; font-size: 11px; min-height: 16px; margin-bottom: 6px; }
 .note { font-size: 11px; color: var(--mu); margin-top: 8px; line-height: 1.4; }
 
+/* Dashboard overview ala Master Plan MBK */
+body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235 0%, #080c13 48%, #070a0f 100%); }
+.main-title-bar { min-height: 112px; }
+.main-title-bar::after { content: "Master Plan Preventive Maintenance Forklift & Traktor • Tahun 2027"; color: #cbd5e1; font-size: 12px; margin-left: auto; text-align: right; }
+.kpi-grid { display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:14px; margin: 4px 0 18px; }
+.kpi-card { position:relative; min-height:96px; padding:16px 18px; overflow:hidden; border:1px solid #334155; border-radius:14px; background:linear-gradient(120deg,rgba(51,65,85,.9),rgba(15,23,42,.95)); box-shadow:0 8px 24px rgba(0,0,0,.22); }
+.kpi-card::after { content:""; position:absolute; width:110px;height:110px;right:-25px;top:-35px;border-radius:50%;background:rgba(245,158,11,.09);filter:blur(2px); }
+.kpi-label { font-size:11px; font-weight:800; color:#cbd5e1; letter-spacing:.04em; text-transform:uppercase; }
+.kpi-value { font-size:34px; line-height:1.15; font-weight:800; margin-top:4px; color:#fff; }
+.kpi-sub { font-size:11px; color:#94a3b8; margin-top:3px; }
+.kpi-icon { position:absolute; right:16px; top:24px; font-size:25px; color:#cbd5e1; opacity:.75; }
+.control-toolbar { grid-template-columns:minmax(190px,1.05fr) minmax(220px,1fr) minmax(190px,.8fr) auto; gap:9px; padding:10px; background:#64748b; border-color:#94a3b8; }
+.control-toolbar .category-group { min-width:0; }
+.control-toolbar .cat-btn { flex:1; min-width:0; padding:10px 9px; font-size:11px; white-space:nowrap; }
+.control-toolbar .search-label { display:none; }
+#q { min-height:40px; background:#e2e8f0; color:#0f172a; border-color:#94a3b8; }
+#q::placeholder { color:#64748b; }
+.toolbar-date { display:flex; min-width:0; }
+#serviceDate { width:100%; min-width:0; min-height:40px; background:#e2e8f0; color:#0f172a; border:1px solid #94a3b8; border-radius:8px; padding:8px 10px; font:inherit; font-size:12px; }
+#serviceDate:focus { outline:2px solid #f59e0b; }
+#searchServiceDate { white-space:nowrap; padding:11px 14px; }
+.overview-card { padding:0; overflow:hidden; }
+.overview-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 16px; border-bottom:1px solid var(--bd); }
+.overview-head h2 { margin:0; color:#f8fafc; }
+.overview-meta { color:var(--mu); font-size:11px; }
+#overviewTable { overflow-x:auto; }
+#overviewTable table { min-width:850px; }
+#overviewTable th { background:#263244; color:#f1f5f9; }
+#overviewTable td { padding:9px 10px; }
+.priority { display:inline-block; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:700; }
+.priority.high { background:rgba(52,211,153,.22); color:#6ee7b7; }
+.priority.critical { background:rgba(248,113,113,.22); color:#fca5a5; }
+.overview-unit { font-weight:800; color:#f8fafc; }
+#appShell.date-home #serviceDateSearchCard { display:none !important; }
+#appShell.date-home .date-search-controls { display:none !important; }
+#appShell.date-results .kpi-grid, #appShell.date-results .overview-card { display:none !important; }
+#appShell.date-results .main-title-bar { margin-bottom:24px; }
+#appShell.date-results #serviceDateSearchCard { display:block; max-width:none; margin:0 0 18px; }
+#appShell.date-results #serviceDateSearchCard > p, #appShell.date-results .date-search-controls { display:none !important; }
+#appShell.date-results .control-toolbar, #appShell.date-results .status-bar-info, #appShell.date-results #res { display:none !important; }
+#appShell.date-results #serviceDateResults { display:block !important; }
+#appShell.date-results #serviceDateResults[hidden] { display:none !important; }
+#appShell.date-results #serviceDateStatus { display:block !important; }
+@media(max-width:1050px) { .control-toolbar { grid-template-columns:1fr 1fr; } .control-toolbar .category-group { grid-column:1/-1; } }
+@media(max-width:650px) { .kpi-grid { grid-template-columns:1fr; gap:8px; } .kpi-card { min-height:80px; } .control-toolbar { grid-template-columns:1fr; } .control-toolbar .category-group { grid-column:auto; display:grid; grid-template-columns:repeat(2,1fr); } .main-title-bar::after { width:100%; text-align:left; } }
+
 /* Navigasi dua tampilan: halaman utama tetap seperti dashboard semula; hasil tanggal menjadi halaman tersendiri */
 #appShell.date-home #serviceDateSearchCard { display: block; max-width: 980px; margin: 26px auto; }
 #appShell.date-home #serviceDateResults { display: none !important; }
@@ -442,21 +488,31 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
     </div>
   </div>
 
-  <!-- Control Toolbar (Kategori + Search + PDF Export Button) -->
+  <div class="kpi-grid" aria-label="Ringkasan master plan">
+    <div class="kpi-card"><div class="kpi-label">Total Units</div><div class="kpi-value" id="kpiUnits">201</div><div class="kpi-sub">Forklift diesel, baterai & traktor</div><i class="fa-solid fa-truck-monster kpi-icon"></i></div>
+    <div class="kpi-card"><div class="kpi-label">Jadwal PM Tahun 2027</div><div class="kpi-value" id="kpiServices">—</div><div class="kpi-sub">Total estimasi jadwal servis</div><i class="fa-solid fa-calendar-check kpi-icon"></i></div>
+    <div class="kpi-card"><div class="kpi-label">Kategori Unit</div><div class="kpi-value">3</div><div class="kpi-sub">Diesel • Baterai • Traktor</div><i class="fa-solid fa-chart-pie kpi-icon"></i></div>
+  </div>
+
+  <!-- Control Toolbar: kategori, kode unit, tanggal servis, laporan -->
   <div class="control-toolbar">
-    <div class="category-group" role="group">
+    <div class="category-group" role="group" aria-label="Filter kategori unit">
       <button type="button" class="cat-btn active" data-cat="ALL">Semua Unit (201)</button>
       <button type="button" class="cat-btn" data-cat="D">Diesel (103)</button>
       <button type="button" class="cat-btn" data-cat="B">Baterai (73)</button>
       <button type="button" class="cat-btn" data-cat="T">Traktor (25)</button>
     </div>
     <div class="search-box-wrapper">
-      <label class="search-label" for="q">Cari &amp; Pilih Kode Forklift / Traktor</label>
+      <label class="search-label" for="q">Cari kode unit</label>
       <input id="q" list="dl" placeholder="Cari kode, contoh: A71 atau T1" autocomplete="off">
       <datalist id="dl"></datalist>
     </div>
-    <div>
-      <button type="button" class="pdf-btn" id="exportPdfBtnMain"><i class="fa-solid fa-file-pdf"></i> Unduh Laporan PDF (A4)</button>
+    <div class="toolbar-date">
+      <input type="date" id="serviceDate" aria-label="Pilih tanggal servis" min="2027-01-01" max="2027-12-31" value="" title="Pilih tanggal servis">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="pdf-btn" id="searchServiceDate"><i class="fa-solid fa-magnifying-glass"></i> Cari Jadwal</button>
+      <button type="button" class="pdf-btn" id="exportPdfBtnMain"><i class="fa-solid fa-file-pdf"></i> Unduh PDF (A4)</button>
     </div>
   </div>
 
@@ -466,22 +522,19 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
     <div>Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</div>
   </div>
 
+  <div class="card overview-card">
+    <div class="overview-head"><h2><i class="fa-solid fa-table-list"></i> Jadwal Preventive Maintenance</h2><div class="overview-meta" id="overviewMeta">Jadwal tahun 2027</div></div>
+    <div id="overviewTable"></div>
+  </div>
+
   <!-- Pencarian semua unit berdasarkan tanggal servis -->
   <div class="card" id="serviceDateSearchCard">
     <div class="date-card-heading-row">
       <div class="section-header-title"><i class="fa-solid fa-calendar-days"></i> Pencarian Unit Berdasarkan Tanggal Servis</div>
       <button type="button" class="pdf-btn" id="serviceDateHomeBtn" title="HOME" aria-label="HOME" hidden><i class="fa-solid fa-house"></i></button>
     </div>
-    <h2 class="date-page-heading">Jadwal Preventive Maintenance 2027</h2>
-    <p class="date-page-subtitle">Tentukan tanggal servis, lalu tekan Cari Jadwal untuk melihat unit yang dijadwalkan pada tanggal tersebut.</p>
-    <p style="font-size:12px;color:var(--mu);margin:0 0 12px;">Pencarian mencakup seluruh forklift dan traktor serta mengikuti perubahan laju kerja dan downtime yang tersimpan.</p>
-    <div class="date-search-controls">
-      <div class="field">
-        <label for="serviceDate">Tanggal servis</label>
-        <input type="date" id="serviceDate" min="2027-01-01" max="2027-12-31" value="">
-      </div>
-      <button type="button" class="pdf-btn" id="searchServiceDate"><i class="fa-solid fa-magnifying-glass"></i> Cari Jadwal</button>
-    </div>
+    <h2 class="date-page-heading">Hasil Pencarian Jadwal Servis</h2>
+    <p class="date-page-subtitle">Unit yang dijadwalkan servis pada tanggal yang dipilih.</p>
     <div id="serviceDateStatus" aria-live="polite">Tentukan tanggal lalu klik “Cari Jadwal”.</div>
     <div class="date-search-table" id="serviceDateResults" hidden></div>
   </div>
@@ -700,7 +753,38 @@ function find(v){
   return unit;
 }
 
+function renderOverview(){
+ const rows=[];
+ DATA.forEach(r=>getScheduleRowsForDateSearch(r).forEach(x=>{
+   if(x.rv.getUTCFullYear()===2027) rows.push({r,...x});
+ }));
+ rows.sort((a,b)=>a.rv-b.rv || a.r.c.localeCompare(b.r.c,undefined,{numeric:true}));
+ $('kpiUnits').textContent=DATA.length.toLocaleString('id-ID');
+ $('kpiServices').textContent=rows.length.toLocaleString('id-ID');
+ const cat=getActiveCategory();
+ const q=$('q').value.trim().toLowerCase();
+ const filtered=rows.filter(x=>{
+   const catOk=cat==='ALL'||(cat==='T'?x.r.t==='T':cat==='B'?x.r.t==='B':cat==='D'?x.r.t!=='B'&&x.r.t!=='T':true);
+   const qOk=!q||x.r.c.toLowerCase().includes(q)||String(x.r.d||'').toLowerCase().includes(q);
+   return catOk&&qOk;
+ });
+ $('overviewMeta').textContent=filtered.length.toLocaleString('id-ID')+' jadwal ditampilkan';
+ const shown=filtered.slice(0,150);
+ let h='<div class="wrap" style="border:0;border-radius:0"><table><thead><tr><th>Due Date</th><th>Unit</th><th>Model / Departemen</th><th>Category</th><th>Maintenance Type</th><th>Priority</th><th>Actions</th></tr></thead><tbody>';
+ shown.forEach(x=>{
+   const kind=x.r.t==='T'?'Traktor':x.r.t==='B'?'Baterai':'Diesel';
+   const date=fmt(x.rv), pri=x.j>=1000?'Critical':'High';
+   h+='<tr><td>'+date+'</td><td><span class="overview-unit">'+x.r.c+'</span></td><td class="l">'+(x.r.d||'-')+'</td><td>'+kind+'</td><td>Preventive · PM '+x.j+' HM</td><td><span class="priority '+(pri==='Critical'?'critical':'high')+'">'+pri+'</span></td><td><button type="button" class="unit-open" data-unit="'+x.r.c+'" title="Lihat unit"><i class="fa-solid fa-ellipsis-vertical"></i></button></td></tr>';
+ });
+ h+='</tbody></table></div>';
+ if(filtered.length>shown.length) h+='<div style="padding:10px 14px;color:var(--mu);font-size:11px;">Menampilkan 150 dari '+filtered.length+' jadwal. Gunakan pencarian kode atau filter kategori untuk mempersempit hasil.</div>';
+ if(!filtered.length) h+='<div style="padding:18px;color:var(--mu);font-size:12px;">Tidak ada jadwal yang cocok dengan filter saat ini.</div>';
+ $('overviewTable').innerHTML=h;
+ $('overviewTable').querySelectorAll('[data-unit]').forEach(b=>b.addEventListener('click',()=>{$('q').value=b.dataset.unit;render();window.scrollTo({top:0,behavior:'smooth'});}));
+}
+
 function render(){
+ renderOverview();
  const r=find($('q').value),res=$('res');
  if(!r){res.hidden=true;$('st').textContent=$('q').value.trim()?'✗ Kode tidak ditemukan atau berada di luar kategori filter yang dipilih — cek kembali':'Pilih atau ketik kode forklift';return}
  $('st').innerHTML='✓ Data ditemukan: <b>'+r.c+'</b> ('+(r.t==='T'?'Traktor':r.t==='B'?'Baterai':'Diesel')+')';res.hidden=false;
