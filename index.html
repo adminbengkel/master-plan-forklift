@@ -310,6 +310,25 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
 #my { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; border: none; font-weight: 700; }
 #me { color: #f87171; font-size: 11px; min-height: 16px; margin-bottom: 6px; }
 .note { font-size: 11px; color: var(--mu); margin-top: 8px; line-height: 1.4; }
+
+/* Navigasi dua halaman: pencarian tanggal dan hasil jadwal */
+#appShell.date-home .control-toolbar,
+#appShell.date-home .status-bar-info,
+#appShell.date-home #res { display: none !important; }
+#appShell.date-home #serviceDateSearchCard { display: block; max-width: 980px; margin: 26px auto; }
+#appShell.date-home #serviceDateResults { display: none !important; }
+#appShell.date-results .control-toolbar,
+#appShell.date-results .status-bar-info,
+#appShell.date-results #res { display: none !important; }
+#appShell.date-results #serviceDateSearchCard { display: block; max-width: 1200px; margin: 26px auto; }
+#appShell.date-results #serviceDateSearchCard > p,
+#appShell.date-results .date-search-controls { display: none !important; }
+#appShell.date-results #serviceDateResults { display: block !important; }
+#appShell.date-results #serviceDateResults[hidden] { display: none !important; }
+#appShell.date-results #serviceDateStatus { display: block !important; }
+#serviceDateHomeBtn { margin-bottom: 14px; }
+.date-page-heading { margin: 0 0 8px; font-size: clamp(20px, 3vw, 28px); font-weight: 800; }
+.date-page-subtitle { margin: 0 0 18px; color: var(--mu); font-size: 12px; }
 </style>
 </head>
 <body>
@@ -401,7 +420,7 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
   </div>
 </div>
 
-<div id="appShell" hidden>
+<div id="appShell" class="date-home" hidden>
   <!-- Top App Header -->
   <div class="app-header">
     <div class="brand-left">
@@ -452,15 +471,18 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
   <!-- Pencarian semua unit berdasarkan tanggal servis -->
   <div class="card" id="serviceDateSearchCard">
     <div class="section-header-title"><i class="fa-solid fa-calendar-days"></i> Pencarian Unit Berdasarkan Tanggal Servis</div>
-    <p style="font-size:12px;color:var(--mu);margin:0 0 12px;">Pilih tanggal untuk melihat semua forklift dan traktor yang dijadwalkan melakukan PM pada tanggal tersebut. Pencarian mencakup semua kategori dan mengikuti perubahan laju kerja serta downtime yang tersimpan.</p>
+    <h2 class="date-page-heading">Jadwal Preventive Maintenance 2027</h2>
+    <p class="date-page-subtitle">Tentukan tanggal servis, lalu tekan Cari Jadwal untuk melihat unit yang dijadwalkan pada tanggal tersebut.</p>
+    <p style="font-size:12px;color:var(--mu);margin:0 0 12px;">Pencarian mencakup seluruh forklift dan traktor serta mengikuti perubahan laju kerja dan downtime yang tersimpan.</p>
     <div class="date-search-controls">
       <div class="field">
         <label for="serviceDate">Tanggal servis</label>
-        <input type="date" id="serviceDate" min="2027-01-01" max="2027-12-31" value="2027-01-01">
+        <input type="date" id="serviceDate" min="2027-01-01" max="2027-12-31" value="">
       </div>
       <button type="button" class="pdf-btn" id="searchServiceDate"><i class="fa-solid fa-magnifying-glass"></i> Cari Jadwal</button>
     </div>
-    <div id="serviceDateStatus" aria-live="polite">Pilih tanggal lalu klik “Cari Jadwal”.</div>
+    <button type="button" class="pdf-btn" id="serviceDateHomeBtn" hidden><i class="fa-solid fa-house"></i> Kembali ke Halaman Awal (HOME)</button>
+    <div id="serviceDateStatus" aria-live="polite">Tentukan tanggal lalu klik “Cari Jadwal”.</div>
     <div class="date-search-table" id="serviceDateResults" hidden></div>
   </div>
 
@@ -633,20 +655,29 @@ function renderServiceDateSearch(){
  const displayDate=new Date(date+'T00:00:00Z').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
  if(!found.length){status.textContent='Tidak ditemukan jadwal PM untuk '+displayDate+' berdasarkan estimasi saat ini.';box.hidden=true;return;}
  status.textContent=found.length+' unit dijadwalkan servis pada '+displayDate+'.';
- let h='<table><thead><tr><th>Kode Unit</th><th>Jenis</th><th>Departemen</th><th>PM</th><th>Target HM</th><th>Pekerjaan</th><th>Detail</th></tr></thead><tbody>';
+ let h='<table><thead><tr><th>Kode Unit</th><th>Jenis</th><th>Departemen</th><th>PM</th><th>Target HM</th><th>Pekerjaan</th></tr></thead><tbody>'; 
  found.forEach(x=>{
   const kind=x.r.t==='T'?'Traktor':x.r.t==='B'?'Baterai':'Diesel';
-  h+='<tr><td><b>'+x.r.c+'</b></td><td>'+kind+'</td><td class="l">'+(x.r.d||'-')+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+x.targetHM.toLocaleString('id-ID')+' HM</td><td class="l">'+(x.pekerjaan||'-')+'</td><td><button type="button" class="unit-open" data-open-unit="'+x.r.c+'">Lihat unit</button></td></tr>';
+  h+='<tr><td><b>'+x.r.c+'</b></td><td>'+kind+'</td><td class="l">'+(x.r.d||'-')+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+x.targetHM.toLocaleString('id-ID')+' HM</td><td class="l">'+(x.pekerjaan||'-')+'</td></tr>'; 
  });
  h+='</tbody></table>';box.innerHTML=h;box.hidden=false;
- box.querySelectorAll('[data-open-unit]').forEach(btn=>btn.addEventListener('click',()=>{
-  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat==='ALL'));
-  updateDatalist('ALL');$('q').value=btn.dataset.openUnit;render();
-  $('res').scrollIntoView({behavior:'smooth',block:'start'});
- }));
+
 }
-$('searchServiceDate').addEventListener('click',renderServiceDateSearch);
-$('serviceDate').addEventListener('change',renderServiceDateSearch);
+$('searchServiceDate').addEventListener('click',()=>{
+ const date=$('serviceDate').value;
+ if(!date){$('serviceDateStatus').textContent='Silakan tentukan tanggal servis terlebih dahulu.';return;}
+ renderServiceDateSearch();
+ $('appShell').classList.remove('date-home');$('appShell').classList.add('date-results');
+ $('serviceDateHomeBtn').hidden=false;
+ window.scrollTo({top:0,behavior:'smooth'});
+});
+$('serviceDateHomeBtn').addEventListener('click',()=>{
+ $('appShell').classList.remove('date-results');$('appShell').classList.add('date-home');
+ $('serviceDateResults').hidden=true;
+ $('serviceDateHomeBtn').hidden=true;
+ $('serviceDateStatus').textContent='Tentukan tanggal lalu klik “Cari Jadwal”.';
+ window.scrollTo({top:0,behavior:'smooth'});
+});
 
 function getActiveCategory() {
   const activeBtn = document.querySelector('.cat-btn.active');
@@ -669,7 +700,6 @@ function find(v){
 }
 
 function render(){
- if($('serviceDate') && $('serviceDate').value) renderServiceDateSearch();
  const r=find($('q').value),res=$('res');
  if(!r){res.hidden=true;$('st').textContent=$('q').value.trim()?'✗ Kode tidak ditemukan atau berada di luar kategori filter yang dipilih — cek kembali':'Pilih atau ketik kode forklift';return}
  $('st').innerHTML='✓ Data ditemukan: <b>'+r.c+'</b> ('+(r.t==='T'?'Traktor':r.t==='B'?'Baterai':'Diesel')+')';res.hidden=false;
