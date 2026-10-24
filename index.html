@@ -311,10 +311,7 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
 #me { color: #f87171; font-size: 11px; min-height: 16px; margin-bottom: 6px; }
 .note { font-size: 11px; color: var(--mu); margin-top: 8px; line-height: 1.4; }
 
-/* Navigasi dua halaman: pencarian tanggal dan hasil jadwal */
-#appShell.date-home .control-toolbar,
-#appShell.date-home .status-bar-info,
-#appShell.date-home #res { display: none !important; }
+/* Navigasi dua tampilan: halaman utama tetap seperti dashboard semula; hasil tanggal menjadi halaman tersendiri */
 #appShell.date-home #serviceDateSearchCard { display: block; max-width: 980px; margin: 26px auto; }
 #appShell.date-home #serviceDateResults { display: none !important; }
 #appShell.date-results .control-toolbar,
@@ -326,7 +323,8 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
 #appShell.date-results #serviceDateResults { display: block !important; }
 #appShell.date-results #serviceDateResults[hidden] { display: none !important; }
 #appShell.date-results #serviceDateStatus { display: block !important; }
-#serviceDateHomeBtn { margin-bottom: 14px; }
+.date-card-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#serviceDateHomeBtn { width: 34px; height: 32px; min-width: 34px; padding: 0; justify-content: center; border-radius: 8px; margin-left: auto; }
 .date-page-heading { margin: 0 0 8px; font-size: clamp(20px, 3vw, 28px); font-weight: 800; }
 .date-page-subtitle { margin: 0 0 18px; color: var(--mu); font-size: 12px; }
 </style>
@@ -470,7 +468,10 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
 
   <!-- Pencarian semua unit berdasarkan tanggal servis -->
   <div class="card" id="serviceDateSearchCard">
-    <div class="section-header-title"><i class="fa-solid fa-calendar-days"></i> Pencarian Unit Berdasarkan Tanggal Servis</div>
+    <div class="date-card-heading-row">
+      <div class="section-header-title"><i class="fa-solid fa-calendar-days"></i> Pencarian Unit Berdasarkan Tanggal Servis</div>
+      <button type="button" class="pdf-btn" id="serviceDateHomeBtn" title="HOME" aria-label="HOME" hidden><i class="fa-solid fa-house"></i></button>
+    </div>
     <h2 class="date-page-heading">Jadwal Preventive Maintenance 2027</h2>
     <p class="date-page-subtitle">Tentukan tanggal servis, lalu tekan Cari Jadwal untuk melihat unit yang dijadwalkan pada tanggal tersebut.</p>
     <p style="font-size:12px;color:var(--mu);margin:0 0 12px;">Pencarian mencakup seluruh forklift dan traktor serta mengikuti perubahan laju kerja dan downtime yang tersimpan.</p>
@@ -481,7 +482,6 @@ button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0
       </div>
       <button type="button" class="pdf-btn" id="searchServiceDate"><i class="fa-solid fa-magnifying-glass"></i> Cari Jadwal</button>
     </div>
-    <button type="button" class="pdf-btn" id="serviceDateHomeBtn" hidden><i class="fa-solid fa-house"></i> Kembali ke Halaman Awal (HOME)</button>
     <div id="serviceDateStatus" aria-live="polite">Tentukan tanggal lalu klik “Cari Jadwal”.</div>
     <div class="date-search-table" id="serviceDateResults" hidden></div>
   </div>
@@ -675,6 +675,7 @@ $('serviceDateHomeBtn').addEventListener('click',()=>{
  $('appShell').classList.remove('date-results');$('appShell').classList.add('date-home');
  $('serviceDateResults').hidden=true;
  $('serviceDateHomeBtn').hidden=true;
+ $('serviceDate').value='';
  $('serviceDateStatus').textContent='Tentukan tanggal lalu klik “Cari Jadwal”.';
  window.scrollTo({top:0,behavior:'smooth'});
 });
