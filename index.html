@@ -327,6 +327,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #categoryFilter { width:100%; min-width:0; padding:10px 12px; border:1px solid var(--bd); border-radius:8px; background:var(--in); color:var(--tx); font-size:13px; font-weight:600; outline:none; }
 #categoryFilter:focus { border-color:var(--ac); box-shadow:0 0 0 3px var(--ac-glow); }
 #q { min-height:40px; background:#e2e8f0; color:#0f172a; border-color:#94a3b8; }
+#q { background:var(--in)!important; color:var(--tx)!important; border:1px solid var(--bd)!important; color-scheme:dark; }
 #q::placeholder { color:#64748b; }
 .toolbar-date { display:flex; flex-direction:column; min-width:0; gap:4px; }
 .toolbar-date input { width:100%; min-width:0; padding:10px 12px; border:1px solid var(--bd); border-radius:8px; background:var(--in); color:var(--tx); }
@@ -339,7 +340,6 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #serviceDatePicker:focus-visible { opacity:.12; outline:2px solid #f59e0b; }
 .service-date-input-wrap:focus-within #openServiceDatePicker { border-color:#f59e0b; }
 
-#searchServiceDate { white-space:nowrap; padding:11px 14px; }
 .overview-card { padding:0; overflow:hidden; }
 .overview-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 16px; border-bottom:1px solid var(--bd); }
 .overview-head h2 { margin:0; color:#f8fafc; }
@@ -428,6 +428,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .workflow-form .field{display:flex;flex-direction:column;gap:5px;min-width:0}
 .workflow-form .field.full{grid-column:1/-1}
 .workflow-form label{font-size:11px;color:var(--mu);font-weight:700}
+.export-controls{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}.export-controls select{background:var(--in);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px;font:inherit;font-size:11px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .workflow-form input,.workflow-form select,.workflow-form textarea{width:100%;min-width:0;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--in);color:var(--tx);font:inherit;font-size:12px}
 .workflow-form textarea{min-height:70px;resize:vertical}
 .unit-select-search{margin-bottom:5px}.workflow-item .actions .delete-breakdown{background:#7f1d1d;border-color:#991b1b;color:#fee2e2}.unit-search-hint{display:block;font-size:10px;color:var(--mu);margin-top:4px}
@@ -464,7 +465,10 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .sidebar-brand{display:flex;align-items:center;gap:10px;padding:8px 8px 16px;border-bottom:1px solid var(--bd);margin-bottom:12px}
 .sidebar-mark{width:38px;height:38px;display:grid;place-items:center;background:var(--ac);color:#070a0f;border-radius:10px;font-weight:900}
 .sidebar-brand strong{display:block;font-size:12px}.sidebar-brand small{display:block;color:var(--mu);font-size:10px;margin-top:2px}
-.sidebar-label{color:#64748b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;padding:8px 10px}
+.sidebar-label{color:#64748b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;padding:8px 10px;text-align:left}
+#mainNavigation{justify-items:stretch;align-items:stretch}
+#mainNavigation button{justify-content:flex-start!important;text-align:left!important;margin:0}
+#mainNavigation button i{flex:0 0 17px;text-align:center}
 .sidebar-nav{display:grid;gap:5px}
 .sidebar-nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 10px;background:transparent;border:1px solid transparent;color:#cbd5e1;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer}
 .sidebar-nav button i{width:17px;text-align:center;color:#94a3b8}
@@ -623,6 +627,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
         <button type="button" data-view-target="schedule"><i class="fa-solid fa-calendar-days"></i> Jadwal PM</button>
         <button type="button" data-view-target="breakdown"><i class="fa-solid fa-triangle-exclamation"></i> Laporan Breakdown</button>
         <button type="button" data-view-target="reschedule"><i class="fa-solid fa-clipboard-check"></i> Pengajuan Perubahan PM</button>
+        <button type="button" data-view-target="dailyService"><i class="fa-solid fa-list-check"></i> Rekap Servis Harian</button>
         <button type="button" data-view-target="units"><i class="fa-solid fa-truck"></i> Data Unit</button>
         <button type="button" data-view-target="history"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat &amp; Laporan</button>
         <button type="button" data-view-target="unitReports"><i class="fa-solid fa-file-lines"></i> Laporan per Unit</button>
@@ -680,7 +685,6 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div class="toolbar-actions">
       <button type="button" class="pdf-btn reset-btn" id="resetFiltersBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-      <button type="button" class="pdf-btn" id="searchServiceDate"><i class="fa-solid fa-magnifying-glass"></i> Terapkan Tanggal</button>
       <button type="button" class="pdf-btn" id="exportPdfBtnMain"><i class="fa-solid fa-file-pdf"></i> Unduh PDF (A4)</button>
     </div>
   </div>
@@ -757,7 +761,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div>
         <h2>Catat Breakdown</h2>
         <form id="breakdownForm" class="workflow-form">
-          <div class="field"><label for="bdUnitSearch">Cari kode/nama unit</label><input id="bdUnitSearch" type="search" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><label for="bdUnit">Pilih Kode Unit</label><select id="bdUnit" required></select></div>
+          <div class="field"><label for="bdUnitSearch">Cari kode/nama unit</label><input id="bdUnitSearch" type="search" list="bdUnitChoices" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><datalist id="bdUnitChoices"></datalist><label for="bdUnit">Pilih Kode Unit</label><select id="bdUnit" required></select></div>
           <div class="field"><label for="bdDate">Tanggal Kejadian</label><input id="bdDate" type="date" required></div>
           <div class="field"><label for="bdMeter">HM / Odometer saat kejadian</label><input id="bdMeter" type="number" min="0" step="0.1" required placeholder="Masukkan meter"></div>
           <div class="field"><label for="bdSeverity">Tingkat Keparahan</label><select id="bdSeverity"><option value="Rendah">Rendah</option><option value="Sedang" selected>Sedang</option><option value="Tinggi">Tinggi</option><option value="Kritis">Kritis</option></select></div>
@@ -768,7 +772,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
         <div class="firestore-message" id="breakdownDbStatus" role="status" aria-live="polite"></div>
       </div>
       <div>
-        <div class="overview-head"><div><h2>Daftar Laporan Breakdown</h2><div class="overview-meta">Laporan terbaru yang tersimpan</div></div><button type="button" class="reset-btn" id="bdRefresh" title="Muat ulang daftar"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div>
+        <div class="overview-head"><div><h2>Daftar Laporan Breakdown</h2><div class="overview-meta">Laporan terbaru yang tersimpan</div></div><div class="export-controls"><label class="sr-only" for="bdExportFormat">Format ekspor breakdown</label><select id="bdExportFormat" aria-label="Pilihan format ekspor"><option value="pdf">PDF</option><option value="excel">Excel</option></select><button type="button" class="reset-btn" id="bdExport"><i class="fa-solid fa-file-export"></i> Export File</button><button type="button" class="reset-btn" id="bdRefresh" title="Muat ulang daftar"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div></div>
         <div id="breakdownList" class="workflow-list"><div class="workflow-empty">Memuat data breakdown…</div></div>
       </div>
     </div>
@@ -782,7 +786,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div>
         <h2>Ajukan Perubahan Jadwal PM</h2>
         <form id="rescheduleForm" class="workflow-form">
-          <div class="field"><label for="rsUnitSearch">Cari kode/nama unit</label><input id="rsUnitSearch" type="search" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><label for="rsUnit">Pilih Kode Unit</label><select id="rsUnit" required></select></div>
+          <div class="field"><label for="rsUnitSearch">Cari kode/nama unit</label><input id="rsUnitSearch" type="search" list="rsUnitChoices" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><datalist id="rsUnitChoices"></datalist><label for="rsUnit">Pilih Kode Unit</label><select id="rsUnit" required></select></div>
           <div class="field"><label for="rsCurrentDate">Jadwal Saat Ini</label><input id="rsCurrentDate" type="date" required></div>
           <div class="field"><label for="rsProposedDate">Usulan Jadwal Baru</label><input id="rsProposedDate" type="date" required></div>
           <div class="field"><label for="rsMeter">HM / Odometer terkini</label><input id="rsMeter" type="number" min="0" step="0.1" placeholder="Opsional"></div>
@@ -793,8 +797,32 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
         <div class="firestore-message" id="rescheduleDbStatus" role="status" aria-live="polite"></div>
       </div>
       <div>
-        <div class="overview-head"><div><h2>Daftar Pengajuan Perubahan PM</h2><div class="overview-meta">Status pengajuan dan tindakan persetujuan</div></div><button type="button" class="reset-btn" id="rsRefresh" title="Muat ulang daftar"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div>
+        <div class="overview-head"><div><h2>Daftar Pengajuan Perubahan PM</h2><div class="overview-meta">Status pengajuan dan tindakan persetujuan</div></div><div class="export-controls"><label class="sr-only" for="rsExportFormat">Format ekspor perubahan PM</label><select id="rsExportFormat" aria-label="Pilihan format ekspor"><option value="pdf">PDF</option><option value="excel">Excel</option></select><button type="button" class="reset-btn" id="rsExport"><i class="fa-solid fa-file-export"></i> Export File</button><button type="button" class="reset-btn" id="rsRefresh" title="Muat ulang daftar"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div></div>
         <div id="rescheduleList" class="workflow-list"><div class="workflow-empty">Memuat pengajuan…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rekap Servis Harian: mencatat pekerjaan PM dan breakdown aktual -->
+  <section class="card workflow-page" id="dailyServicePage" data-view="dailyService" hidden aria-labelledby="dailyServiceTitle">
+    <div class="overview-head"><div><h2 id="dailyServiceTitle"><i class="fa-solid fa-list-check"></i> Rekap Servis Harian</h2><div class="overview-meta">Catat servis PM dan breakdown yang dikerjakan pada hari tertentu.</div></div></div>
+    <p class="workflow-note">Status selesai adalah bukti pekerjaan dicatat, bukan perubahan otomatis pada jadwal PM. Teknisi dan admin dapat menambahkan catatan serta memperbarui status.</p>
+    <div class="workflow-grid">
+      <div><h2>Catat Pekerjaan Servis</h2>
+        <form id="dailyServiceForm" class="workflow-form">
+          <div class="field"><label for="dsDate">Tanggal servis</label><input id="dsDate" type="date" required></div>
+          <div class="field"><label for="dsUnitSearch">Cari kode/nama unit</label><input id="dsUnitSearch" type="search" list="dsUnitChoices" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><datalist id="dsUnitChoices"></datalist><label for="dsUnit">Pilih unit</label><select id="dsUnit" required></select></div>
+          <div class="field"><label for="dsType">Jenis pekerjaan</label><select id="dsType" required><option value="PM">PM / Preventive Maintenance</option><option value="breakdown">Breakdown / Perbaikan</option></select></div>
+          <div class="field"><label for="dsStatus">Status pekerjaan</label><select id="dsStatus" required><option value="completed">Selesai</option><option value="in_progress">Dalam proses</option><option value="pending">Belum dikerjakan</option></select></div>
+          <div class="field"><label for="dsTechnician">Teknisi/pelaksana</label><input id="dsTechnician" placeholder="Nama teknisi atau tim" required></div>
+          <div class="field"><label for="dsMeter">HM / Odometer aktual</label><input id="dsMeter" type="number" min="0" step="0.1" placeholder="Opsional"></div>
+          <div class="field full"><label for="dsNotes">Keterangan pekerjaan</label><textarea id="dsNotes" placeholder="Pekerjaan yang dilakukan, temuan, atau kendala"></textarea></div>
+          <div class="form-actions"><button type="submit" id="dsSubmit"><i class="fa-solid fa-floppy-disk"></i> Simpan Rekap</button><button type="button" class="reset-btn" id="dsReset"><i class="fa-solid fa-rotate-left"></i> Reset Form</button></div>
+        </form><div class="firestore-message" id="dailyServiceStatus" role="status" aria-live="polite"></div>
+      </div>
+      <div><div class="overview-head"><div><h2>Daftar Rekap Servis</h2><div class="overview-meta">Filter berdasarkan tanggal dan status.</div></div><div class="export-controls"><input id="dsFilterDate" type="date" aria-label="Filter tanggal servis"><select id="dsFilterStatus" aria-label="Filter status"><option value="all">Semua status</option><option value="completed">Selesai</option><option value="in_progress">Dalam proses</option><option value="pending">Belum dikerjakan</option></select><button type="button" class="reset-btn" id="dsRefresh"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div></div>
+        <div class="notice-grid" id="dsSummary"><div class="notice-card"><div class="notice-label">Selesai</div><div class="notice-number">0</div></div><div class="notice-card"><div class="notice-label">Dalam proses</div><div class="notice-number">0</div></div><div class="notice-card"><div class="notice-label">Belum dikerjakan</div><div class="notice-number">0</div></div></div>
+        <div id="dailyServiceList" class="workflow-list"><div class="workflow-empty">Memuat rekap servis…</div></div>
       </div>
     </div>
   </section>
@@ -897,7 +925,7 @@ function ask(msg,ok,o){o=o||{};const md=$('md'),mi=$('mi');$('mt').textContent=m
  if(o.need)mi.focus()}
 
 let db=null,canWrite=null,shared={},auth=null,currentUser=null,currentRole=null;
-let breakdownRows=[],rescheduleRows=[],workflowUnsubs=[];
+let breakdownRows=[],rescheduleRows=[],dailyServiceRows=[],workflowUnsubs=[];
 const did=c=>'dt_'+c.replace(/[^A-Za-z0-9_.:@+~-]/g,'_');
 function load(r){const x=shared[did(r.c)];if(x&&Array.isArray(x.dt))return x.dt.concat(r.dt.slice(x.dt.length));if(!db){try{const l=JSON.parse(localStorage.getItem(key(r.c)));if(l)return l}catch(e){}}return r.dt.slice()}
 function save(r,a){const id=did(r.c),at=new Date().toISOString();
@@ -938,6 +966,7 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
    db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error('Firestore downtime:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection downtime: '+firestoreErrorText(err),'error')});
    db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
    workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];
+   workflowUnsubs.push(db.collection('daily_service_records').orderBy('serviceDate','desc').limit(500).onSnapshot(sn=>{dailyServiceRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderDailyServiceList();setFirestoreMessage('dailyServiceStatus','Rekap servis berhasil disinkronkan.','success')},err=>{console.error('Rekap servis listener:',err);const msg='Gagal membaca rekap servis: '+firestoreErrorText(err);if($('dailyServiceList'))$('dailyServiceList').innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>';setFirestoreMessage('dailyServiceStatus',msg,'error')}));
    workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Data breakdown berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Breakdown listener:',err);const msg='Gagal membaca laporan breakdown: '+firestoreErrorText(err);['breakdownList','breakdownHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('breakdownDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
    workflowUnsubs.push(db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Data pengajuan berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Reschedule listener:',err);const msg='Gagal membaca pengajuan PM: '+firestoreErrorText(err);['rescheduleList','rescheduleHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('rescheduleDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
   }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses.')}
@@ -982,7 +1011,6 @@ function renderServiceDateSearch(){
  h+='</tbody></table>';box.innerHTML=h;box.hidden=false;
 
 }
-$('searchServiceDate').addEventListener('click',()=>{upcomingPage=1;renderUpcomingTable();});
 $('serviceDate').addEventListener('change',()=>{upcomingPage=1;renderUpcomingTable();});
 // Kalender native: pengguna tetap dapat mengetik DD/MM/YYYY atau memilih tanggal lewat ikon.
 function isoToIndonesianDate(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))return '';const [y,m,d]=iso.split('-');return d+'/'+m+'/'+y;}
@@ -1149,9 +1177,10 @@ function fillUnitSelect(selectId,query,grouped=false){
  else html+=rows.map(r=>'<option value="'+escapeHtml(r.c)+'">'+escapeHtml(workflowUnitLabel(r))+'</option>').join('');
  select.innerHTML=html;if(rows.some(r=>r.c===old&&(!q||unitMatchesQuery(r,q))))select.value=old;else if(q){const exact=rows.find(r=>r.c.toLocaleLowerCase('id-ID')===q.toLocaleLowerCase('id-ID'));if(exact)select.value=exact.c;}
 }
-function bindUnitSearch(searchId,selectId,grouped=false){const input=$(searchId);if(!input)return;input.addEventListener('input',()=>fillUnitSelect(selectId,input.value,grouped));}
+function fillUnitSuggestions(listId){const list=$(listId);if(!list)return;list.innerHTML=DATA.slice().sort((a,b)=>a.c.localeCompare(b.c,undefined,{numeric:true})).map(r=>'<option value="'+escapeHtml(r.c)+'" label="'+escapeHtml((r.d||'')+' — '+(r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel'))+'"></option>').join('')}
+function bindUnitSearch(searchId,selectId,grouped=false){const input=$(searchId);if(!input)return;input.addEventListener('input',()=>{fillUnitSelect(selectId,input.value,grouped);const match=DATA.find(r=>r.c.toLocaleLowerCase('id-ID')===input.value.trim().toLocaleLowerCase('id-ID'));if(match)$(selectId).value=match.c;});input.addEventListener('change',()=>{const match=DATA.find(r=>r.c.toLocaleLowerCase('id-ID')===input.value.trim().toLocaleLowerCase('id-ID'));if(match)$(selectId).value=match.c;});}
 function initWorkflowForms(){
- fillUnitSelect('bdUnit','');fillUnitSelect('rsUnit','');bindUnitSearch('bdUnitSearch','bdUnit');bindUnitSearch('rsUnitSearch','rsUnit');
+ fillUnitSelect('bdUnit','');fillUnitSelect('rsUnit','');fillUnitSuggestions('bdUnitChoices');fillUnitSuggestions('rsUnitChoices');bindUnitSearch('bdUnitSearch','bdUnit');bindUnitSearch('rsUnitSearch','rsUnit');
  $('bdDate').value=workflowDateNow();
  $('bdUnit').disabled=!['admin','technician'].includes(currentRole);
  $('bdMeter').disabled=!['admin','technician'].includes(currentRole);
@@ -1166,10 +1195,44 @@ function initWorkflowForms(){
  $('rsReason').disabled=!['admin','technician'].includes(currentRole);
  $('rsEvaluation').disabled=!['admin','technician'].includes(currentRole);
  $('rsSubmit').disabled=!['admin','technician'].includes(currentRole);
+ fillUnitSelect('dsUnit','');fillUnitSuggestions('dsUnitChoices');bindUnitSearch('dsUnitSearch','dsUnit');
+ $('dsDate').value=workflowDateNow();$('dsFilterDate').value=workflowDateNow();
+ ['dsDate','dsUnit','dsType','dsStatus','dsTechnician','dsMeter','dsNotes','dsSubmit'].forEach(id=>{if($(id))$(id).disabled=!['admin','technician'].includes(currentRole)});
 }
+function dailyStatusLabel(s){return ({completed:'Selesai',in_progress:'Dalam proses',pending:'Belum dikerjakan'})[s]||s||'—'}
+function renderDailyServiceList(){
+ const list=$('dailyServiceList');if(!list)return;const date=$('dsFilterDate')?.value||'',status=$('dsFilterStatus')?.value||'all';
+ const rows=dailyServiceRows.filter(x=>(!date||x.serviceDate===date)&&(status==='all'||x.status===status));
+ const counts={completed:rows.filter(x=>x.status==='completed').length,in_progress:rows.filter(x=>x.status==='in_progress').length,pending:rows.filter(x=>x.status==='pending').length};
+ if($('dsSummary'))$('dsSummary').innerHTML=[['Selesai',counts.completed],['Dalam proses',counts.in_progress],['Belum dikerjakan',counts.pending]].map(x=>'<div class="notice-card"><div class="notice-label">'+x[0]+'</div><div class="notice-number">'+x[1]+'</div></div>').join('');
+ list.innerHTML=rows.length?rows.map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.serviceDate)+'</strong><span class="workflow-status '+(x.status==='completed'?'approved':x.status==='pending'?'pending':'')+'">'+workflowEsc(dailyStatusLabel(x.status))+'</span></div><div>Jenis: <b>'+workflowEsc(x.serviceType==='PM'?'PM / Preventive Maintenance':'Breakdown / Perbaikan')+'</b> · Pelaksana: '+workflowEsc(x.technician||'—')+'</div><div>HM/Odometer: <b>'+workflowEsc(x.meter==null||x.meter===''?'—':x.meter)+'</b> · Dicatat oleh: '+workflowEsc(x.createdByEmail||'')+'</div>'+(x.notes?'<p>'+workflowEsc(x.notes)+'</p>':'')+(['admin','technician'].includes(currentRole)&&x.status!=='completed'?'<div class="actions"><button type="button" data-ds-complete="'+workflowEsc(x.id)+'"><i class="fa-solid fa-check"></i> Tandai Selesai</button><button type="button" class="reset-btn" data-ds-progress="'+workflowEsc(x.id)+'">Dalam Proses</button></div>':'')+'</div>').join(''):'<div class="workflow-empty">Belum ada rekap servis untuk filter ini.</div>';
+ list.querySelectorAll('[data-ds-complete]').forEach(b=>b.addEventListener('click',()=>updateDailyServiceStatus(b.dataset.dsComplete,'completed')));list.querySelectorAll('[data-ds-progress]').forEach(b=>b.addEventListener('click',()=>updateDailyServiceStatus(b.dataset.dsProgress,'in_progress')));
+}
+async function updateDailyServiceStatus(id,status){if(!db||!currentUser||!['admin','technician'].includes(currentRole)){alert('Hanya teknisi dan admin yang dapat mengubah status rekap.');return}try{await db.collection('daily_service_records').doc(id).update({status,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedByUid:currentUser.uid,updatedByEmail:currentUser.email||''});setFirestoreMessage('dailyServiceStatus','Status rekap diperbarui menjadi '+dailyStatusLabel(status)+'.','success');try{await writeWorkflowAudit('daily_service_status_updated','daily_service_records',id,{status})}catch(auditErr){console.error('Audit perubahan status gagal:',auditErr);setFirestoreMessage('dailyServiceStatus','Status rekap sudah diperbarui, tetapi audit log gagal ditulis: '+firestoreErrorText(auditErr),'error')}}catch(e){setFirestoreMessage('dailyServiceStatus','Gagal memperbarui status: '+firestoreErrorText(e),'error')}}
+$('dailyServiceForm')?.addEventListener('submit',async e=>{e.preventDefault();if(!db||!currentUser||!['admin','technician'].includes(currentRole)){alert('Hanya teknisi dan admin yang dapat menambahkan rekap.');return}const unit=DATA.find(r=>r.c===$('dsUnit').value);if(!unit){setFirestoreMessage('dailyServiceStatus','Pilih unit yang valid.','error');return}const payload={serviceDate:$('dsDate').value,unitCode:unit.c,unitDescription:unit.d||'',unitType:unit.t||'',serviceType:$('dsType').value,status:$('dsStatus').value,technician:$('dsTechnician').value.trim(),meter:$('dsMeter').value===''?null:Number($('dsMeter').value),notes:$('dsNotes').value.trim(),createdByUid:currentUser.uid,createdByEmail:currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};try{const recRef=await db.collection('daily_service_records').add(payload);setFirestoreMessage('dailyServiceStatus','Rekap servis berhasil disimpan.','success');try{await writeWorkflowAudit('daily_service_created','daily_service_records',recRef.id,{unitCode:unit.c,serviceDate:payload.serviceDate,serviceType:payload.serviceType,status:payload.status})}catch(auditErr){console.error('Audit rekap servis gagal:',auditErr);setFirestoreMessage('dailyServiceStatus','Rekap servis tersimpan, tetapi audit log gagal ditulis: '+firestoreErrorText(auditErr),'error')};$('dailyServiceForm').reset();$('dsDate').value=workflowDateNow();fillUnitSelect('dsUnit','');$('dsUnitSearch').value='';$('dsFilterDate').value=payload.serviceDate}catch(err){setFirestoreMessage('dailyServiceStatus','Gagal menyimpan rekap: '+firestoreErrorText(err),'error')}});
+$('dsReset')?.addEventListener('click',()=>{ $('dailyServiceForm').reset();$('dsDate').value=workflowDateNow();$('dsUnitSearch').value='';fillUnitSelect('dsUnit','');});
+$('dsFilterDate')?.addEventListener('change',renderDailyServiceList);$('dsFilterStatus')?.addEventListener('change',renderDailyServiceList);
+$('dsRefresh')?.addEventListener('click',async()=>{if(!db)return;try{const sn=await db.collection('daily_service_records').orderBy('serviceDate','desc').limit(500).get();dailyServiceRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderDailyServiceList();setFirestoreMessage('dailyServiceStatus','Rekap dimuat ulang.','success')}catch(e){setFirestoreMessage('dailyServiceStatus','Gagal memuat ulang: '+firestoreErrorText(e),'error')}});
 function workflowRoleCanApprove(){return ['admin','supervisor','head_bengkel','kepala_bengkel'].includes(currentRole)}
 function workflowEsc(v){return escapeHtml(v==null?'':v)}
 function workflowStatusLabel(s){const m={pending:'Menunggu Persetujuan',approved:'Disetujui',rejected:'Ditolak'};return m[s]||s||'—'}
+function workflowExportValue(v){return String(v==null?'':v).replace(/\r?\n/g,' ')}
+function workflowExportRows(kind){
+ if(kind==='breakdown')return {title:'Laporan Breakdown MBK',file:'Laporan-Breakdown-MBK',headers:['Tanggal','Kode Unit','Nama/Departemen Unit','Tingkat Keparahan','HM/Odometer','Gejala/Kerusakan','Diagnosis/Tindakan','Status','Pelapor'],rows:breakdownRows.map(x=>[x.date,x.unitCode,x.unitDescription,x.severity,x.meterAtEvent,x.symptom,x.action,x.status,x.reportedByEmail])};
+ return {title:'Pengajuan Perubahan PM MBK',file:'Pengajuan-Perubahan-PM-MBK',headers:['Kode Unit','Nama/Departemen Unit','Jadwal Saat Ini','Usulan Jadwal Baru','Metode PM','Status','Alasan','Evaluasi Teknisi','Catatan Keputusan','Pengaju','Penyetuju'],rows:rescheduleRows.map(x=>[x.unitCode,x.unitDescription,x.currentDate,x.proposedDate,x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap',workflowStatusLabel(x.status),x.reason,x.technicianEvaluation,x.decisionComment,x.requestedByEmail,x.approverEmail])};
+}
+function exportWorkflow(kind,format){
+ const data=workflowExportRows(kind);if(!data.rows.length){alert('Belum ada data untuk diekspor.');return}
+ const stamp=new Date().toISOString().slice(0,10),safe=workflowExportValue;
+ if(format==='excel'){
+  const all=[data.headers,...data.rows];const table='<table border="1"><thead><tr>'+data.headers.map(x=>'<th>'+workflowEsc(x)+'</th>').join('')+'</tr></thead><tbody>'+data.rows.map(row=>'<tr>'+row.map(x=>'<td>'+workflowEsc(safe(x))+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+  const html='<!doctype html><html><head><meta charset="utf-8"></head><body><h2>'+workflowEsc(data.title)+'</h2><p>Diekspor: '+workflowEsc(new Date().toLocaleString('id-ID'))+'</p>'+table+'</body></html>';
+  const blob=new Blob(['\ufeff',html],{type:'application/vnd.ms-excel;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=data.file+'-'+stamp+'.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);return;
+ }
+ const w=window.open('','_blank');if(!w){alert('Popup diblokir browser. Izinkan popup untuk membuat PDF.');return}
+ const table='<table><thead><tr>'+data.headers.map(x=>'<th>'+workflowEsc(x)+'</th>').join('')+'</tr></thead><tbody>'+data.rows.map(row=>'<tr>'+row.map(x=>'<td>'+workflowEsc(safe(x))+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+workflowEsc(data.title)+'</title><style>body{font:11px Arial,sans-serif;color:#111;padding:18px}h1{font-size:18px}table{border-collapse:collapse;width:100%;font-size:9px}th,td{border:1px solid #888;padding:5px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e5e7eb}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>'+workflowEsc(data.title)+'</h1><p>Diekspor: '+workflowEsc(new Date().toLocaleString('id-ID'))+' · Total data: '+data.rows.length+'</p>'+table+'<script>window.onload=function(){setTimeout(function(){window.print()},250)};<\/script></body></html>');w.document.close();
+}
 function renderWorkflowLists(){
  const bl=$('breakdownList'),rl=$('rescheduleList'),bh=$('breakdownHistoryList'),rh=$('rescheduleHistoryList');
  const breakdownHtml=!breakdownRows.length?'<div class="workflow-empty">Belum ada laporan breakdown.</div>':breakdownRows.slice(0,50).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.date||'')+'</strong><span class="workflow-status">'+workflowEsc(x.severity||'Dilaporkan')+'</span></div><div>HM/Odometer: <b>'+workflowEsc(x.meterAtEvent)+'</b> · Pelapor: '+workflowEsc(x.reportedByEmail||'')+'</div><p><b>Gejala:</b> '+workflowEsc(x.symptom)+'</p>'+(x.action?'<p><b>Diagnosis/tindakan:</b> '+workflowEsc(x.action)+'</p>':'')+(currentRole==='admin'?'<div class="actions"><button type="button" class="delete-breakdown" data-delete-breakdown="'+workflowEsc(x.id)+'"><i class="fa-solid fa-trash"></i> Hapus Laporan</button></div>':'')+'</div>').join('');
@@ -1233,6 +1296,8 @@ $('rescheduleForm').addEventListener('submit',async e=>{
 });
 $('bdReset').addEventListener('click',()=>{$('breakdownForm').reset();$('bdUnitSearch').value='';fillUnitSelect('bdUnit','');$('bdDate').value=workflowDateNow();setFirestoreMessage('breakdownDbStatus','Form breakdown direset. Laporan yang sudah tersimpan tidak dihapus.','')});
 $('rsReset').addEventListener('click',()=>{$('rescheduleForm').reset();$('rsUnitSearch').value='';fillUnitSelect('rsUnit','');setFirestoreMessage('rescheduleDbStatus','Form perubahan PM direset. Pengajuan yang sudah tersimpan tidak dihapus.','')});
+$('bdExport').addEventListener('click',()=>exportWorkflow('breakdown',$('bdExportFormat').value));
+$('rsExport').addEventListener('click',()=>exportWorkflow('reschedule',$('rsExportFormat').value));
 $('bdRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('breakdownDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('breakdownDbStatus','Memuat ulang laporan…','');try{const sn=await db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).get();breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Berhasil memuat '+breakdownRows.length+' laporan.','success')}catch(err){setFirestoreMessage('breakdownDbStatus','Gagal memuat ulang: '+firestoreErrorText(err),'error')}});
 $('rsRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('rescheduleDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('rescheduleDbStatus','Memuat ulang pengajuan…','');try{const sn=await db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).get();rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Berhasil memuat '+rescheduleRows.length+' pengajuan.','success')}catch(err){setFirestoreMessage('rescheduleDbStatus','Gagal memuat ulang: '+firestoreErrorText(err),'error')}});
 $('historyRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('historyDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('historyDbStatus','Memuat ulang riwayat…','');try{const [bs,rs]=await Promise.all([db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).get(),db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).get()]);breakdownRows=bs.docs.map(d=>({id:d.id,...d.data()}));rescheduleRows=rs.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('historyDbStatus','Riwayat berhasil dimuat ulang.','success')}catch(err){setFirestoreMessage('historyDbStatus','Gagal memuat ulang riwayat: '+firestoreErrorText(err),'error')}});
@@ -1334,7 +1399,8 @@ const VIEW_META={
  reschedule:['Pengajuan Perubahan PM','Formulir dan daftar pengajuan perubahan PM saja.'],
  units:['Data Unit','Cari dan filter daftar unit yang tersedia di master.'],
  history:['Riwayat & Laporan','Riwayat laporan breakdown dan pengajuan PM saja.'],
- unitReports:['Laporan per Unit','Cari riwayat servis, breakdown, dan ekspor laporan per unit.']
+ unitReports:['Laporan per Unit','Cari riwayat servis, breakdown, dan ekspor laporan per unit.'],
+ dailyService:['Rekap Servis Harian','Catat dan pantau status pekerjaan PM dan breakdown harian.']
 };
 let activeView='dashboard';
 function setActiveView(view){
