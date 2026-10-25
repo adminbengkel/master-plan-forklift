@@ -430,6 +430,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .workflow-form label{font-size:11px;color:var(--mu);font-weight:700}
 .workflow-form input,.workflow-form select,.workflow-form textarea{width:100%;min-width:0;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--in);color:var(--tx);font:inherit;font-size:12px}
 .workflow-form textarea{min-height:70px;resize:vertical}
+.unit-select-search{margin-bottom:5px}.workflow-item .actions .delete-breakdown{background:#7f1d1d;border-color:#991b1b;color:#fee2e2}.unit-search-hint{display:block;font-size:10px;color:var(--mu);margin-top:4px}
 .workflow-form button{grid-column:1/-1;justify-self:start;background:linear-gradient(135deg,#fbbf24,#d97706);color:#070a0f;border:0;font-weight:800}
 .workflow-note{font-size:11px;color:var(--mu);line-height:1.5;margin:8px 0 12px}
 .workflow-list{display:grid;gap:8px}
@@ -756,7 +757,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div>
         <h2>Catat Breakdown</h2>
         <form id="breakdownForm" class="workflow-form">
-          <div class="field"><label for="bdUnit">Kode Unit</label><select id="bdUnit" required></select></div>
+          <div class="field"><label for="bdUnitSearch">Cari kode/nama unit</label><input id="bdUnitSearch" type="search" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><label for="bdUnit">Pilih Kode Unit</label><select id="bdUnit" required></select></div>
           <div class="field"><label for="bdDate">Tanggal Kejadian</label><input id="bdDate" type="date" required></div>
           <div class="field"><label for="bdMeter">HM / Odometer saat kejadian</label><input id="bdMeter" type="number" min="0" step="0.1" required placeholder="Masukkan meter"></div>
           <div class="field"><label for="bdSeverity">Tingkat Keparahan</label><select id="bdSeverity"><option value="Rendah">Rendah</option><option value="Sedang" selected>Sedang</option><option value="Tinggi">Tinggi</option><option value="Kritis">Kritis</option></select></div>
@@ -781,7 +782,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div>
         <h2>Ajukan Perubahan Jadwal PM</h2>
         <form id="rescheduleForm" class="workflow-form">
-          <div class="field"><label for="rsUnit">Kode Unit</label><select id="rsUnit" required></select></div>
+          <div class="field"><label for="rsUnitSearch">Cari kode/nama unit</label><input id="rsUnitSearch" type="search" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><label for="rsUnit">Pilih Kode Unit</label><select id="rsUnit" required></select></div>
           <div class="field"><label for="rsCurrentDate">Jadwal Saat Ini</label><input id="rsCurrentDate" type="date" required></div>
           <div class="field"><label for="rsProposedDate">Usulan Jadwal Baru</label><input id="rsProposedDate" type="date" required></div>
           <div class="field"><label for="rsMeter">HM / Odometer terkini</label><input id="rsMeter" type="number" min="0" step="0.1" placeholder="Opsional"></div>
@@ -811,7 +812,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   <section class="card workflow-page" id="unitReportsPage" data-view="unitReports" hidden aria-labelledby="unitReportsTitle">
     <div class="overview-head"><div><h2 id="unitReportsTitle"><i class="fa-solid fa-file-lines"></i> Laporan per Unit</h2><div class="overview-meta">Cari satu unit, pisahkan laporan servis dan perbaikan, lalu ekspor PDF atau CSV.</div></div></div>
     <div class="unit-report-tools">
-      <div><label for="unitReportUnit">Unit</label><select id="unitReportUnit"><option value="">Pilih unit…</option></select></div>
+      <div><label for="unitReportUnitSearch">Cari kode/nama unit</label><input id="unitReportUnitSearch" type="search" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><label for="unitReportUnit">Pilih unit</label><select id="unitReportUnit"><option value="">Pilih unit…</option></select></div>
       <div><label for="unitReportCategory">Kategori laporan</label><select id="unitReportCategory"><option value="service">Servis / Jadwal PM</option><option value="repair">Perbaikan / Breakdown</option><option value="all">Gabungan aktivitas</option></select></div>
       <div><label for="unitReportFrom">Dari tanggal (opsional)</label><input type="date" id="unitReportFrom"></div>
       <div><label for="unitReportTo">Sampai tanggal (opsional)</label><input type="date" id="unitReportTo"></div>
@@ -1139,10 +1140,18 @@ function pmMethodForUnit(r){
   return 'FIXED_SCHEDULE';
 }
 function workflowDateNow(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function workflowUnitOptions(){return DATA.map(r=>'<option value="'+escapeHtml(r.c)+'">'+escapeHtml(r.c+' — '+(r.d||'')+' ('+(r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel')+')')+'</option>').join('')}
+function workflowUnitLabel(r){return r.c+' — '+(r.d||'')+' ('+(r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel')+')'}
+function unitMatchesQuery(r,q){const kind=r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel';return (r.c+' '+(r.d||'')+' '+kind).toLocaleLowerCase('id-ID').includes(String(q||'').trim().toLocaleLowerCase('id-ID'))}
+function fillUnitSelect(selectId,query,grouped=false){
+ const select=$(selectId);if(!select)return;const old=select.value,q=String(query||'').trim();const rows=DATA.filter(r=>!q||unitMatchesQuery(r,q)).slice().sort((a,b)=>a.c.localeCompare(b.c,undefined,{numeric:true}));
+ let html='<option value="">'+(q?'Pilih unit dari hasil pencarian…':'Pilih unit…')+'</option>';
+ if(grouped){const groups=[{key:'D',label:'Forklift Diesel'},{key:'B',label:'Forklift Baterai'},{key:'T',label:'Traktor'}];html+=groups.map(g=>{const rs=rows.filter(r=>g.key==='D'?(r.t!=='B'&&r.t!=='T'):r.t===g.key);return rs.length?'<optgroup label="'+g.label+'">'+rs.map(r=>'<option value="'+escapeHtml(r.c)+'">'+escapeHtml(r.c+' — '+(r.d||g.label))+'</option>').join('')+'</optgroup>':''}).join('')}
+ else html+=rows.map(r=>'<option value="'+escapeHtml(r.c)+'">'+escapeHtml(workflowUnitLabel(r))+'</option>').join('');
+ select.innerHTML=html;if(rows.some(r=>r.c===old&&(!q||unitMatchesQuery(r,q))))select.value=old;else if(q){const exact=rows.find(r=>r.c.toLocaleLowerCase('id-ID')===q.toLocaleLowerCase('id-ID'));if(exact)select.value=exact.c;}
+}
+function bindUnitSearch(searchId,selectId,grouped=false){const input=$(searchId);if(!input)return;input.addEventListener('input',()=>fillUnitSelect(selectId,input.value,grouped));}
 function initWorkflowForms(){
- const opts='<option value="">Pilih unit…</option>'+workflowUnitOptions();
- $('bdUnit').innerHTML=opts;$('rsUnit').innerHTML=opts;
+ fillUnitSelect('bdUnit','');fillUnitSelect('rsUnit','');bindUnitSearch('bdUnitSearch','bdUnit');bindUnitSearch('rsUnitSearch','rsUnit');
  $('bdDate').value=workflowDateNow();
  $('bdUnit').disabled=!['admin','technician'].includes(currentRole);
  $('bdMeter').disabled=!['admin','technician'].includes(currentRole);
@@ -1163,12 +1172,21 @@ function workflowEsc(v){return escapeHtml(v==null?'':v)}
 function workflowStatusLabel(s){const m={pending:'Menunggu Persetujuan',approved:'Disetujui',rejected:'Ditolak'};return m[s]||s||'—'}
 function renderWorkflowLists(){
  const bl=$('breakdownList'),rl=$('rescheduleList'),bh=$('breakdownHistoryList'),rh=$('rescheduleHistoryList');
- const breakdownHtml=!breakdownRows.length?'<div class="workflow-empty">Belum ada laporan breakdown.</div>':breakdownRows.slice(0,50).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.date||'')+'</strong><span class="workflow-status">'+workflowEsc(x.severity||'Dilaporkan')+'</span></div><div>HM/Odometer: <b>'+workflowEsc(x.meterAtEvent)+'</b> · Pelapor: '+workflowEsc(x.reportedByEmail||'')+'</div><p><b>Gejala:</b> '+workflowEsc(x.symptom)+'</p>'+(x.action?'<p><b>Diagnosis/tindakan:</b> '+workflowEsc(x.action)+'</p>':'')+'</div>').join('');
+ const breakdownHtml=!breakdownRows.length?'<div class="workflow-empty">Belum ada laporan breakdown.</div>':breakdownRows.slice(0,50).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.date||'')+'</strong><span class="workflow-status">'+workflowEsc(x.severity||'Dilaporkan')+'</span></div><div>HM/Odometer: <b>'+workflowEsc(x.meterAtEvent)+'</b> · Pelapor: '+workflowEsc(x.reportedByEmail||'')+'</div><p><b>Gejala:</b> '+workflowEsc(x.symptom)+'</p>'+(x.action?'<p><b>Diagnosis/tindakan:</b> '+workflowEsc(x.action)+'</p>':'')+(currentRole==='admin'?'<div class="actions"><button type="button" class="delete-breakdown" data-delete-breakdown="'+workflowEsc(x.id)+'"><i class="fa-solid fa-trash"></i> Hapus Laporan</button></div>':'')+'</div>').join('');
  const rescheduleHtml=!rescheduleRows.length?'<div class="workflow-empty">Belum ada pengajuan jadwal ulang.</div>':rescheduleRows.slice(0,100).map(x=>{const canDecide=workflowRoleCanApprove()&&x.status==='pending';return '<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Metode: <b>'+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</b> · Pengaju: '+workflowEsc(x.requestedByEmail||'')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p><p><b>Evaluasi teknisi:</b> '+workflowEsc(x.technicianEvaluation)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+(canDecide?'<div class="actions"><button class="approve" type="button" data-decision="approved" data-id="'+workflowEsc(x.id)+'">Setujui</button><button class="reject" type="button" data-decision="rejected" data-id="'+workflowEsc(x.id)+'">Tolak</button></div>':'')+'</div>'}).join('');
  const rescheduleHistoryHtml=!rescheduleRows.length?'<div class="workflow-empty">Belum ada riwayat pengajuan PM.</div>':rescheduleRows.slice(0,100).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Pengaju: '+workflowEsc(x.requestedByEmail||'')+' · Metode: '+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+'</div>').join('');
  [bl,bh].forEach(el=>{if(el)el.innerHTML=breakdownHtml});if(rl)rl.innerHTML=rescheduleHtml;if(rh)rh.innerHTML=rescheduleHistoryHtml;
  if(rl)rl.querySelectorAll('button[data-decision]').forEach(b=>b.addEventListener('click',()=>decideReschedule(b.dataset.id,b.dataset.decision)));
+ document.querySelectorAll('[data-delete-breakdown]').forEach(b=>b.addEventListener('click',()=>deleteBreakdownReport(b.dataset.deleteBreakdown)));
  if(typeof renderDashboardNotifications==='function')renderDashboardNotifications();
+}
+async function deleteBreakdownReport(id){
+ if(!db||!currentUser||currentRole!=='admin'){alert('Hanya admin yang dapat menghapus laporan breakdown.');return}
+ const item=breakdownRows.find(x=>x.id===id);if(!item){alert('Laporan tidak ditemukan atau sudah dihapus.');return}
+ const ok=confirm('Hapus laporan breakdown '+(item.unitCode||'unit tidak diketahui')+' tanggal '+(item.date||'tanpa tanggal')+'?\n\nTindakan ini menghapus dokumen dari Firestore dan tidak dapat dibatalkan.');if(!ok)return;
+ try{await db.collection('breakdown_reports').doc(id).delete();breakdownRows=breakdownRows.filter(x=>x.id!==id);renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Laporan breakdown '+(item.unitCode||'')+' berhasil dihapus.','success');
+  try{await writeWorkflowAudit('breakdown_deleted','breakdown_reports',id,{unitCode:item.unitCode||'',date:item.date||'',severity:item.severity||''})}catch(auditErr){console.error('Audit penghapusan gagal:',auditErr);setFirestoreMessage('breakdownDbStatus','Laporan sudah dihapus, tetapi audit log gagal ditulis: '+firestoreErrorText(auditErr),'error')}
+ }catch(err){console.error('Hapus breakdown:',err);setFirestoreMessage('breakdownDbStatus','Gagal menghapus laporan: '+firestoreErrorText(err),'error');alert('Laporan tidak berhasil dihapus. Periksa hak admin dan Firestore Rules.')}
 }
 function firestoreErrorText(err){
  const code=err&&err.code||'unknown';
@@ -1213,8 +1231,8 @@ $('rescheduleForm').addEventListener('submit',async e=>{
  }catch(err){console.error(err);setFirestoreMessage('rescheduleDbStatus','Gagal mengajukan perubahan: '+firestoreErrorText(err),'error');alert('Gagal mengajukan perubahan PM. Lihat pesan diagnostik di bawah formulir.')}
  finally{btn.disabled=!['admin','technician'].includes(currentRole)}
 });
-$('bdReset').addEventListener('click',()=>{$('breakdownForm').reset();$('bdDate').value=workflowDateNow();setFirestoreMessage('breakdownDbStatus','Form breakdown direset. Laporan yang sudah tersimpan tidak dihapus.','')});
-$('rsReset').addEventListener('click',()=>{$('rescheduleForm').reset();setFirestoreMessage('rescheduleDbStatus','Form perubahan PM direset. Pengajuan yang sudah tersimpan tidak dihapus.','')});
+$('bdReset').addEventListener('click',()=>{$('breakdownForm').reset();$('bdUnitSearch').value='';fillUnitSelect('bdUnit','');$('bdDate').value=workflowDateNow();setFirestoreMessage('breakdownDbStatus','Form breakdown direset. Laporan yang sudah tersimpan tidak dihapus.','')});
+$('rsReset').addEventListener('click',()=>{$('rescheduleForm').reset();$('rsUnitSearch').value='';fillUnitSelect('rsUnit','');setFirestoreMessage('rescheduleDbStatus','Form perubahan PM direset. Pengajuan yang sudah tersimpan tidak dihapus.','')});
 $('bdRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('breakdownDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('breakdownDbStatus','Memuat ulang laporan…','');try{const sn=await db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).get();breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Berhasil memuat '+breakdownRows.length+' laporan.','success')}catch(err){setFirestoreMessage('breakdownDbStatus','Gagal memuat ulang: '+firestoreErrorText(err),'error')}});
 $('rsRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('rescheduleDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('rescheduleDbStatus','Memuat ulang pengajuan…','');try{const sn=await db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).get();rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Berhasil memuat '+rescheduleRows.length+' pengajuan.','success')}catch(err){setFirestoreMessage('rescheduleDbStatus','Gagal memuat ulang: '+firestoreErrorText(err),'error')}});
 $('historyRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('historyDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('historyDbStatus','Memuat ulang riwayat…','');try{const [bs,rs]=await Promise.all([db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).get(),db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).get()]);breakdownRows=bs.docs.map(d=>({id:d.id,...d.data()}));rescheduleRows=rs.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('historyDbStatus','Riwayat berhasil dimuat ulang.','success')}catch(err){setFirestoreMessage('historyDbStatus','Gagal memuat ulang riwayat: '+firestoreErrorText(err),'error')}});
@@ -1227,10 +1245,7 @@ async function decideReschedule(id,decision){
 // ===== Laporan per unit dan ekspor PDF/CSV =====
 let unitReportCurrent = null;
 function initUnitReportOptions(){
- const select=$('unitReportUnit');
- if(!select)return;
- const groups=[{key:'D',label:'Forklift Diesel'},{key:'B',label:'Forklift Baterai'},{key:'T',label:'Traktor'}];
- select.innerHTML='<option value="">Pilih unit…</option>'+groups.map(g=>'<optgroup label="'+g.label+'">'+DATA.filter(r=>g.key==='D'?(r.t!=='B'&&r.t!=='T'):r.t===g.key).slice().sort((a,b)=>a.c.localeCompare(b.c,undefined,{numeric:true})).map(r=>'<option value="'+escapeHtml(r.c)+'">'+escapeHtml(r.c)+' — '+escapeHtml(r.d||g.label)+'</option>').join('')+'</optgroup>').join('');
+ const select=$('unitReportUnit');if(!select)return;fillUnitSelect('unitReportUnit','',true);bindUnitSearch('unitReportUnitSearch','unitReportUnit',true);
 }
 function reportDateLabel(v){if(!v)return '—';const d=new Date(v+'T00:00:00Z');return Number.isNaN(+d)?String(v):d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});}
 function reportText(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
@@ -1310,7 +1325,7 @@ function exportUnitReportPdf(){
 $('unitReportSearch').addEventListener('click',searchUnitReport);
 $('unitReportPdf').addEventListener('click',exportUnitReportPdf);
 $('unitReportCsv').addEventListener('click',exportUnitReportCsv);
-$('unitReportReset').addEventListener('click',()=>{$('unitReportUnit').value='';$('unitReportCategory').value='service';$('unitReportFrom').value='';$('unitReportTo').value='';$('unitReportPreview').innerHTML='';$('unitReportStatus').textContent='Filter laporan direset. Pilih unit lalu klik Tampilkan Laporan.';unitReportCurrent=null});
+$('unitReportReset').addEventListener('click',()=>{$('unitReportUnitSearch').value='';fillUnitSelect('unitReportUnit','',true);$('unitReportCategory').value='service';$('unitReportFrom').value='';$('unitReportTo').value='';$('unitReportPreview').innerHTML='';$('unitReportStatus').textContent='Filter laporan direset. Pilih unit lalu klik Tampilkan Laporan.';unitReportCurrent=null});
 
 const VIEW_META={
  dashboard:['Dashboard','Ringkasan kondisi PM dan notifikasi penting.'],
