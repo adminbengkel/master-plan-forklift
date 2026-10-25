@@ -447,6 +447,38 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .workflow-status.rejected{background:rgba(248,113,113,.14);color:#fca5a5}
 @media(max-width:800px){.workflow-grid{grid-template-columns:1fr}}
 @media(max-width:560px){.workflow-form{grid-template-columns:1fr}.workflow-form .field.full{grid-column:auto}}
+
+/* Penjagaan tampilan menu agar render jadwal tidak membuka kembali tabel di Dashboard */
+#appShell[data-active-view="dashboard"] #appMain [data-view]:not([data-view="dashboard"]),
+#appShell[data-active-view="schedule"] #appMain [data-view]:not([data-view="schedule"]),
+#appShell[data-active-view="units"] #appMain [data-view]:not([data-view="units"]) {display:none!important}
+/* Navigasi sidebar MBK dan tampilan per menu */
+.app-layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px;align-items:start}
+.app-sidebar{position:sticky;top:12px;align-self:start;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;min-height:calc(100vh - 32px)}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:8px 8px 16px;border-bottom:1px solid var(--bd);margin-bottom:12px}
+.sidebar-mark{width:38px;height:38px;display:grid;place-items:center;background:var(--ac);color:#070a0f;border-radius:10px;font-weight:900}
+.sidebar-brand strong{display:block;font-size:12px}.sidebar-brand small{display:block;color:var(--mu);font-size:10px;margin-top:2px}
+.sidebar-label{color:#64748b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;padding:8px 10px}
+.sidebar-nav{display:grid;gap:5px}
+.sidebar-nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 10px;background:transparent;border:1px solid transparent;color:#cbd5e1;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer}
+.sidebar-nav button i{width:17px;text-align:center;color:#94a3b8}
+.sidebar-nav button:hover{background:#172033;border-color:#334155}
+.sidebar-nav button.active{background:rgba(245,158,11,.13);border-color:rgba(245,158,11,.35);color:#fcd34d}
+.sidebar-nav button.active i{color:#fbbf24}
+.app-main{min-width:0}
+.view-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:2px 0 16px}
+.view-heading h2{font-size:20px;margin:0 0 4px;color:#f8fafc}.view-heading p{font-size:12px;color:var(--mu);margin:0}
+.notice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+.notice-card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:15px;min-width:0}
+.notice-card .notice-label{font-size:11px;color:var(--mu);font-weight:700}.notice-card .notice-number{font-size:26px;font-weight:800;margin:7px 0 3px;color:#f8fafc}.notice-card .notice-desc{font-size:10px;color:var(--mu)}
+.notice-card.warn .notice-number{color:#fbbf24}.notice-card.danger .notice-number{color:#fca5a5}.notice-card.ok .notice-number{color:#6ee7b7}
+.notice-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.notice-actions button{font-size:11px}
+#unitDirectoryCard .directory-tools{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}#unitDirectorySearch{flex:1;min-width:190px;background:var(--in);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:10px 12px}
+#unitDirectoryFilter{background:var(--in);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:10px 12px}
+#unitDirectoryTable{overflow:auto;border:1px solid var(--bd);border-radius:10px}#unitDirectoryTable table{min-width:620px}
+@media(max-width:900px){.app-layout{grid-template-columns:1fr}.app-sidebar{position:static;min-height:0;padding:10px}.sidebar-brand{padding-bottom:10px;margin-bottom:8px}.sidebar-nav{grid-template-columns:repeat(3,minmax(0,1fr))}.sidebar-nav button{justify-content:flex-start;padding:9px 8px;font-size:11px}.sidebar-label{display:none}}
+@media(max-width:600px){.sidebar-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar-nav button{font-size:10px;gap:7px}.notice-grid{grid-template-columns:1fr}.view-heading h2{font-size:18px}}
+
 </style>
 </head>
 <body>
@@ -562,14 +594,47 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
   </div>
 
-  <div class="kpi-grid" aria-label="Ringkasan master plan">
+  <div class="app-layout">
+    <aside class="app-sidebar" aria-label="Navigasi utama MBK">
+      <div class="sidebar-brand"><div class="sidebar-mark">MBK</div><div><strong>MAINTENANCE</strong><small>Menu operasional bengkel</small></div></div>
+      <div class="sidebar-label">Navigasi</div>
+      <nav class="sidebar-nav" id="mainNavigation">
+        <button type="button" class="active" data-view-target="dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+        <button type="button" data-view-target="schedule"><i class="fa-solid fa-calendar-days"></i> Jadwal PM</button>
+        <button type="button" data-view-target="breakdown"><i class="fa-solid fa-triangle-exclamation"></i> Laporan Breakdown</button>
+        <button type="button" data-view-target="reschedule"><i class="fa-solid fa-clipboard-check"></i> Pengajuan Perubahan PM</button>
+        <button type="button" data-view-target="units"><i class="fa-solid fa-truck"></i> Data Unit</button>
+        <button type="button" data-view-target="history"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat &amp; Laporan</button>
+      </nav>
+    </aside>
+    <main class="app-main" id="appMain">
+      <div class="view-heading"><div><h2 id="activeViewTitle">Dashboard</h2><p id="activeViewSubtitle">Ringkasan kondisi PM dan notifikasi penting.</p></div></div>
+
+  <div class="kpi-grid" data-view="dashboard" aria-label="Ringkasan master plan">
     <div class="kpi-card"><div class="kpi-label">Total Units</div><div class="kpi-value" id="kpiUnits">201</div><div class="kpi-sub">Forklift diesel, baterai & traktor</div><i class="fa-solid fa-truck-monster kpi-icon"></i></div>
     <div class="kpi-card"><div class="kpi-label">Jadwal PM Tahun 2027</div><div class="kpi-value" id="kpiServices">—</div><div class="kpi-sub">Total estimasi jadwal servis</div><i class="fa-solid fa-calendar-check kpi-icon"></i></div>
     <div class="kpi-card kpi-urgent"><div class="kpi-label">Overdue / Mendesak</div><div class="kpi-value" id="kpiUrgent">—</div><div class="kpi-sub">Jadwal lewat atau jatuh tempo ≤ 7 hari</div><i class="fa-solid fa-triangle-exclamation kpi-icon"></i></div>
   </div>
 
+  <section id="dashboardOverview" data-view="dashboard" aria-label="Notifikasi penting">
+    <div class="notice-grid">
+      <div class="notice-card danger"><div class="notice-label">PM Terlambat / Mendesak</div><div class="notice-number" id="dashboardUrgentCount">—</div><div class="notice-desc">Jadwal yang lewat atau mendekati jatuh tempo</div></div>
+      <div class="notice-card warn"><div class="notice-label">Pengajuan Menunggu Persetujuan</div><div class="notice-number" id="dashboardPendingCount">0</div><div class="notice-desc">Perlu ditinjau Supervisor / Kepala Bengkel</div></div>
+      <div class="notice-card"><div class="notice-label">Laporan Breakdown</div><div class="notice-number" id="dashboardBreakdownCount">0</div><div class="notice-desc">Laporan terbaru yang tercatat</div></div>
+    </div>
+    <div class="card">
+      <h2><i class="fa-solid fa-bell"></i> Notifikasi &amp; akses cepat</h2>
+      <p class="workflow-note">Halaman awal hanya menampilkan angka ringkasan dan notifikasi. Buka menu di sebelah kiri untuk melihat tabel, detail unit, formulir, dan riwayat lengkap.</p>
+      <div class="notice-actions">
+        <button type="button" class="pdf-btn" data-open-view="schedule"><i class="fa-solid fa-calendar-days"></i> Buka Jadwal PM</button>
+        <button type="button" class="pdf-btn" data-open-view="breakdown"><i class="fa-solid fa-triangle-exclamation"></i> Catat Breakdown</button>
+        <button type="button" class="pdf-btn" data-open-view="reschedule"><i class="fa-solid fa-clipboard-check"></i> Tinjau Pengajuan PM</button>
+      </div>
+    </div>
+  </section>
+
   <!-- Control Toolbar: kategori, kode unit, tanggal servis, laporan -->
-  <div class="control-toolbar">
+  <div class="control-toolbar" data-view="schedule">
     <div class="search-box-wrapper category-select-wrapper">
       <label class="search-label" for="categoryFilter">Kategori Kendaraan</label>
       <select id="categoryFilter" aria-label="Kategori Kendaraan">
@@ -600,7 +665,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </div>
 
   <!-- Status Bar Info -->
-  <div class="status-bar-info">
+  <div class="status-bar-info" data-view="schedule">
     <div id="st">Pilih atau ketik kode forklift atau traktor untuk menampilkan rincian master plan.</div>
     <div>Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</div>
   </div>
@@ -608,7 +673,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
 
   <!-- Tabel operasional jadwal servis mendatang: tampil secara default -->
-  <section class="card overview-card" id="upcomingServicesCard" aria-labelledby="upcomingTitle">
+  <section class="card overview-card" data-view="schedule" id="upcomingServicesCard" aria-labelledby="upcomingTitle">
     <div class="overview-head">
       <div>
         <h2 id="upcomingTitle"><i class="fa-solid fa-calendar-check"></i> Jadwal Servis Mendatang</h2>
@@ -619,14 +684,14 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div id="overviewTable" class="overview-table-wrap"></div>
     <div class="pagination-bar" id="upcomingPagination"></div>
   </section>
-  <div id="emptyState" class="empty-state" hidden>
+  <div id="emptyState" class="empty-state" data-view="schedule" hidden>
     <i class="fa-solid fa-calendar-xmark"></i>
     <h3>Tidak ada jadwal servis pada tanggal/kode unit ini</h3>
     <p>Coba ubah kata kunci, kategori kendaraan, atau tanggal servis.</p>
     <button type="button" class="pdf-btn" id="emptyResetBtn"><i class="fa-solid fa-rotate-left"></i> Reset pencarian</button>
   </div>
 
-  <div id="res" hidden>
+  <div id="res" data-view="schedule" hidden>
     <!-- Informasi Detail Unit Terpilih -->
     <div class="card">
       <div class="section-header-title"><i class="fa-solid fa-circle-info"></i> Informasi Detail Unit Terpilih</div>
@@ -672,7 +737,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <p class="workflow-note">Forklift dan traktor menggunakan acuan pelaksanaan aktual PM. Perbaikan breakdown bukan otomatis pelaksanaan PM. Unit dengan metode jadwal tetap mempertahankan target awal kecuali ada perubahan yang disetujui. Data unit seperti Loader, L300, dan R3 dapat dipilih setelah didaftarkan ke master data.</p>
     <div class="workflow-grid">
-      <div>
+      <div id="breakdownFormPanel" data-workflow-panel="breakdown">
         <h2><i class="fa-solid fa-triangle-exclamation"></i> Laporan Breakdown</h2>
         <form id="breakdownForm" class="workflow-form">
           <div class="field"><label for="bdUnit">Kode Unit</label><select id="bdUnit" required></select></div>
@@ -684,7 +749,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
           <button type="submit" id="bdSubmit"><i class="fa-solid fa-floppy-disk"></i> Simpan Laporan Breakdown</button>
         </form>
       </div>
-      <div>
+      <div id="rescheduleFormPanel" data-workflow-panel="reschedule">
         <h2><i class="fa-solid fa-calendar-check"></i> Pengajuan Jadwal Ulang PM</h2>
         <form id="rescheduleForm" class="workflow-form">
           <div class="field"><label for="rsUnit">Kode Unit</label><select id="rsUnit" required></select></div>
@@ -699,16 +764,26 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       </div>
     </div>
     <div class="workflow-grid" style="margin-top:18px">
-      <div>
+      <div id="breakdownHistoryPanel" data-workflow-panel="history">
         <h2><i class="fa-solid fa-list-check"></i> Riwayat Breakdown</h2>
         <div id="breakdownList" class="workflow-list"><div class="workflow-empty">Memuat data breakdown…</div></div>
       </div>
-      <div>
+      <div id="rescheduleApprovalPanel" data-workflow-panel="history reschedule">
         <h2><i class="fa-solid fa-user-check"></i> Persetujuan Penjadwalan Ulang</h2>
         <div id="rescheduleList" class="workflow-list"><div class="workflow-empty">Memuat pengajuan…</div></div>
       </div>
     </div>
   </section>
+
+  <section class="card" id="unitDirectoryCard" data-view="units" hidden>
+    <div class="overview-head"><div><h2><i class="fa-solid fa-truck"></i> Master Data Unit</h2><div class="overview-meta">Daftar unit yang saat ini tersedia di master plan.</div></div><span class="table-chip" id="unitDirectoryCount">0 unit</span></div>
+    <div class="directory-tools"><input id="unitDirectorySearch" type="search" placeholder="Cari kode unit atau departemen…" aria-label="Cari data unit"><select id="unitDirectoryFilter" aria-label="Filter jenis unit"><option value="ALL">Semua jenis unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option></select></div>
+    <div id="unitDirectoryTable"></div>
+    <p class="workflow-note">Loader, L300, R3, dan unit lain yang belum dimasukkan ke master data belum muncul di daftar ini.</p>
+  </section>
+
+  </main>
+  </div>
 
   <!-- Modal Dialog -->
   <div id="md" class="ov" hidden>
@@ -791,7 +866,7 @@ function banner(){
 function showAuth(message=''){ $('authGate').hidden=false; $('appShell').hidden=true; $('authMsg').textContent=message; }
 function showApp(user,role){
  currentUser=user; currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false; initWorkflowForms(); renderWorkflowLists();
- $('userBadge').textContent=(user.email||user.uid)+' · '+({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja'}[role]||role);
+ $('userBadge').textContent=(user.email||user.uid)+' · '+({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja',supervisor:'Supervisor',head_bengkel:'Kepala Bengkel',kepala_bengkel:'Kepala Bengkel'}[role]||role);
  banner(); render();
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -939,6 +1014,7 @@ function resetSearchFilters(){ $('q').value='';$('serviceDate').value='';if($('s
 
 function render(){
  renderOverview();
+ if(typeof renderDashboardNotifications==='function')renderDashboardNotifications();
  renderUpcomingTable();
  const r=find($('q').value),res=$('res');
  if(!r){res.hidden=true;const searching=!!$('q').value.trim();$('st').textContent=searching?'✗ Kode tidak ditemukan atau berada di luar kategori filter yang dipilih — cek kembali':'Pilih atau ketik kode unit untuk menampilkan rincian master plan.';if(searching){$('upcomingServicesCard').hidden=true;$('emptyState').hidden=false;}return}else{$('emptyState').hidden=true}
@@ -1040,6 +1116,7 @@ function renderWorkflowLists(){
  if(!rescheduleRows.length)rl.innerHTML='<div class="workflow-empty">Belum ada pengajuan jadwal ulang.</div>';
  else rl.innerHTML=rescheduleRows.slice(0,30).map(x=>{const canDecide=workflowRoleCanApprove()&&x.status==='pending';return '<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Metode: <b>'+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</b> · Pengaju: '+workflowEsc(x.requestedByEmail||'')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p><p><b>Evaluasi teknisi:</b> '+workflowEsc(x.technicianEvaluation)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+(canDecide?'<div class="actions"><button class="approve" type="button" data-decision="approved" data-id="'+workflowEsc(x.id)+'">Setujui</button><button class="reject" type="button" data-decision="rejected" data-id="'+workflowEsc(x.id)+'">Tolak</button></div>':'')+'</div>'}).join('');
  rl.querySelectorAll('button[data-decision]').forEach(b=>b.addEventListener('click',()=>decideReschedule(b.dataset.id,b.dataset.decision)));
+ if(typeof renderDashboardNotifications==='function')renderDashboardNotifications();
 }
 async function writeWorkflowAudit(action,entityType,entityId,details){
  if(!db||!currentUser)return;
@@ -1066,9 +1143,49 @@ async function decideReschedule(id,decision){
  let comment='';if(decision==='rejected'){comment=prompt('Masukkan alasan penolakan (wajib):','')||'';if(!comment.trim()){alert('Alasan penolakan wajib diisi.');return}}else{comment=prompt('Catatan persetujuan (opsional):','')||''}
  const ref=db.collection('pm_reschedule_requests').doc(id);try{await db.runTransaction(async tx=>{const snap=await tx.get(ref);if(!snap.exists)throw new Error('Pengajuan tidak ditemukan.');const data=snap.data();if(data.status!=='pending')throw new Error('Pengajuan sudah diputuskan.');tx.update(ref,{status:decision,approverUid:currentUser.uid,approverEmail:currentUser.email||'',approverRole:currentRole,decidedAt:firebase.firestore.FieldValue.serverTimestamp(),decisionComment:comment.trim()});});await writeWorkflowAudit('pm_reschedule_'+decision,'pm_reschedule_requests',id,{decision,comment:comment.trim()});alert(decision==='approved'?'Pengajuan disetujui. Pastikan jadwal baru diterapkan pada master jadwal sesuai prosedur.':'Pengajuan ditolak. Jadwal lama tetap berlaku.');}catch(err){console.error(err);alert('Keputusan tidak tersimpan: '+(err.message||'periksa izin Firestore.'))}
 }
+// Navigasi menu: setiap menu menampilkan hanya bagian yang relevan.
+const VIEW_META={
+ dashboard:['Dashboard','Ringkasan kondisi PM dan notifikasi penting.'],
+ schedule:['Jadwal PM','Cari jadwal, filter kategori, dan buka detail unit.'],
+ breakdown:['Laporan Breakdown','Catat kerusakan dan lihat formulir pelaporan.'],
+ reschedule:['Pengajuan Perubahan PM','Ajukan perubahan dan tinjau status persetujuan.'],
+ units:['Data Unit','Cari dan filter daftar unit yang tersedia di master.'],
+ history:['Riwayat & Laporan','Lihat riwayat breakdown dan keputusan pengajuan PM.']
+};
+let activeView='dashboard';
+function setActiveView(view){
+ if(!VIEW_META[view])view='dashboard';activeView=view;
+ $('appShell').dataset.activeView=view;
+ document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
+ $('activeViewTitle').textContent=VIEW_META[view][0];$('activeViewSubtitle').textContent=VIEW_META[view][1];
+ document.querySelectorAll('#appMain [data-view]').forEach(el=>{el.hidden=el.dataset.view!==view});
+ const showWorkflow=['breakdown','reschedule','history'].includes(view);$('maintenanceWorkflowCard').hidden=!showWorkflow;
+ document.querySelectorAll('[data-workflow-panel]').forEach(el=>{const allowed=el.dataset.workflowPanel.split(/\s+/);el.hidden=!allowed.includes(view)});
+ if(view==='schedule'){render();}
+ if(view==='units')renderUnitDirectory();
+ if(view==='dashboard')renderDashboardNotifications();
+}
+document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>b.addEventListener('click',()=>setActiveView(b.dataset.viewTarget)));
+document.querySelectorAll('[data-open-view]').forEach(b=>b.addEventListener('click',()=>setActiveView(b.dataset.openView)));
+function renderDashboardNotifications(){
+ const upcoming=typeof getUpcomingRows==='function'?getUpcomingRows():[];
+ const urgent=upcoming.filter(x=>x.priority!=='normal').length;
+ if($('dashboardUrgentCount'))$('dashboardUrgentCount').textContent=urgent.toLocaleString('id-ID');
+ if($('dashboardPendingCount'))$('dashboardPendingCount').textContent=rescheduleRows.filter(x=>x.status==='pending').length.toLocaleString('id-ID');
+ if($('dashboardBreakdownCount'))$('dashboardBreakdownCount').textContent=breakdownRows.length.toLocaleString('id-ID');
+}
+function renderUnitDirectory(){
+ const query=($('unitDirectorySearch').value||'').trim().toLowerCase(),cat=$('unitDirectoryFilter').value;
+ const rows=DATA.filter(r=>{const kind=r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel';const hay=(r.c+' '+(r.d||'')+' '+kind).toLowerCase();return (!query||hay.includes(query))&&(cat==='ALL'||r.t===cat)});
+ $('unitDirectoryCount').textContent=rows.length.toLocaleString('id-ID')+' unit';
+ $('unitDirectoryTable').innerHTML=rows.length?'<table><thead><tr><th>Kode Unit</th><th>Jenis</th><th>Departemen</th><th>Interval PM</th><th>Aksi</th></tr></thead><tbody>'+rows.map(r=>'<tr><td><strong>'+escapeHtml(r.c)+'</strong></td><td>'+(r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel')+'</td><td class="l">'+escapeHtml(r.d||'-')+'</td><td>'+(r.h||200)+' HM</td><td><button type="button" class="unit-directory-detail" data-unit="'+escapeHtml(r.c)+'">Lihat detail</button></td></tr>').join('')+'</tbody></table>':'<div class="workflow-empty">Tidak ada unit yang sesuai dengan filter.</div>';
+ $('unitDirectoryTable').querySelectorAll('[data-unit]').forEach(b=>b.addEventListener('click',()=>{$('q').value=b.dataset.unit;setActiveView('schedule');render();window.scrollTo({top:0,behavior:'smooth'})}));
+}
+$('unitDirectorySearch').addEventListener('input',renderUnitDirectory);$('unitDirectoryFilter').addEventListener('change',renderUnitDirectory);
 initWorkflowForms();
+setActiveView('dashboard');
 
-banner(); render();
+banner(); render();renderDashboardNotifications();
 </script>
 <!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
 <script src="export-pdf-forklift.js?v=1"></script>
