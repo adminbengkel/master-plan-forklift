@@ -84,7 +84,7 @@ h2 { font-size: 15px; margin: 0 0 12px; display: flex; align-items: center; gap:
 
 /* Logo & judul utama */
 .title-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
-.brand-logo { height: 96px; width: auto; aspect-ratio: 5 / 3; object-fit: cover; object-position: center; flex: none; }
+.brand-logo { height: 96px; width: auto; aspect-ratio: 5 / 3; object-fit: cover; object-position: center; flex: none; } /* area kosong PNG dipotong via CSS */
 .brand-logo-fallback { flex: none; width: 76px; height: 76px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: var(--ac); color: #070a0f; font-weight: 800; font-size: 22px; }
 .main-title-bar h1 { font-size: clamp(30px, 5.2vw, 48px); line-height: 1; font-weight: 800; letter-spacing: -0.01em; margin: 0; color: #fff; }
 .title-sub { font-size: clamp(11px, 1.7vw, 17px); font-weight: 700; color: #fff; text-transform: uppercase; margin-top: 7px; }
@@ -222,127 +222,75 @@ button {
 }
 button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0.4); }
 
-/* =========================================================
-   Halaman Login Animasi Modern (OVERHAUL UI LOGIN)
-   ========================================================= */
+/* Auth Gate & Modal */
+/* Halaman Login */
 #authGate {
   position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
-  padding: 20px; overflow: auto; background: #070b14;
+  padding: 20px; overflow: auto; background: #0b1120;
+  background-image: radial-gradient(rgba(245, 158, 11, 0.15) 1px, transparent 1px); background-size: 24px 24px;
 }
-#particles-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
-}
+#authGate::before, #authGate::after { content: ""; position: fixed; width: 380px; height: 380px; border-radius: 50%; filter: blur(70px); pointer-events: none; }
+#authGate::before { top: -150px; left: -150px; background: rgba(245, 158, 11, 0.10); }
+#authGate::after { bottom: -150px; right: -150px; background: rgba(37, 99, 235, 0.10); }
 #authGate[hidden], #appShell[hidden] { display: none !important; }
 .login-card {
-  position: relative; z-index: 2; width: min(100%, 1060px); min-height: 620px; display: grid; grid-template-columns: 7fr 5fr;
-  background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; overflow: hidden;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(245, 158, 11, 0.1);
+  position: relative; z-index: 1; width: min(100%, 1040px); min-height: 620px; display: grid; grid-template-columns: 7fr 5fr;
+  background: rgba(15, 23, 42, 0.92); border: 1px solid #1e293b; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
 }
-.login-left { padding: 44px 48px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; position: relative; z-index: 2; }
-.login-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
-.login-logo { height: 56px; width: auto; object-fit: contain; flex: none; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4)); }
-.login-logo-fallback { flex: none; width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #070a0f; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 14px rgba(245,158,11,0.3); }
-.login-brand small { display: block; font-size: 10px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ac); }
+.login-left { padding: 44px 48px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+.login-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
+.login-logo { height: 58px; aspect-ratio: 5 / 3; object-fit: cover; object-position: center; flex: none; }
+.login-logo-fallback { flex: none; width: 48px; height: 48px; border-radius: 12px; background: var(--ac); color: #070a0f; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.login-brand small { display: block; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ac); }
 .login-brand b { display: block; font-size: 14px; font-weight: 800; color: #fff; line-height: 1.3; }
-
-.login-pane { transition: opacity 0.3s ease, transform 0.3s ease; }
-.login-pane[hidden] { display: none; opacity: 0; transform: translateY(10px); }
+.login-pane[hidden] { display: none; }
 .login-pane h2 { font-size: clamp(22px, 3vw, 30px); color: #fff; margin: 0; letter-spacing: -0.02em; }
 .login-pane .sub { font-size: 13px; color: #94a3b8; margin: 6px 0 22px; line-height: 1.5; }
-
-.fld { position: relative; margin-bottom: 18px; }
-.fld label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #cbd5e1; margin-bottom: 8px; }
-.fld .ic { position: absolute; left: 16px; bottom: 14px; color: #64748b; font-size: 15px; pointer-events: none; transition: color 0.2s; }
-.fld input {
-  width: 100%; padding: 13px 44px 13px 44px; font-size: 14px; border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(11, 15, 23, 0.7); color: #f1f5f9;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.fld input:focus {
-  outline: none; border-color: var(--ac); background: rgba(15, 23, 42, 0.9);
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18), 0 4px 16px rgba(0,0,0,0.3);
-}
-.fld input:focus ~ .ic { color: var(--ac); }
-
-.pwd-toggle {
-  position: absolute; right: 6px; bottom: 5px; width: 38px; height: 38px; padding: 0;
-  border: none; background: transparent; color: #64748b; cursor: pointer; transition: color 0.2s;
-  display: flex; align-items: center; justify-content: center;
-}
+.fld { position: relative; margin-bottom: 16px; }
+.fld label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #cbd5e1; margin-bottom: 7px; }
+.fld .ic { position: absolute; left: 14px; bottom: 14px; color: #94a3b8; font-size: 14px; pointer-events: none; }
+.fld input { width: 100%; padding: 12px 42px 12px 40px; font-size: 14px; border-radius: 12px; border: 1px solid #334155; background: rgba(30, 41, 59, 0.8); color: #f1f5f9; transition: all 0.2s; }
+.fld input:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
+.pwd-toggle { position: absolute; right: 4px; bottom: 4px; width: 38px; height: 38px; padding: 0; border: none; background: transparent; color: #94a3b8; }
 .pwd-toggle:hover { background: transparent; color: var(--ac); }
-
-.login-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; margin: 4px 0 20px; }
-.chk { display: inline-flex; align-items: center; gap: 8px; color: #94a3b8; cursor: pointer; font-size: 12px; font-weight: 500; }
-.chk input { width: 16px; height: 16px; padding: 0; accent-color: var(--ac); border-radius: 4px; cursor: pointer; }
-.btn-link { background: none; border: none; padding: 0; color: var(--ac); font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-.btn-link:hover { background: none; text-decoration: underline; opacity: 0.9; }
-
+.login-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; margin: 2px 0 18px; }
+.chk { display: inline-flex; align-items: center; gap: 8px; color: #94a3b8; cursor: pointer; font-size: 12px; font-weight: 500; text-transform: none; letter-spacing: 0; margin: 0; }
+.chk input { width: 16px; height: 16px; padding: 0; accent-color: var(--ac); }
+.btn-link { background: none; border: none; padding: 0; color: var(--ac); font-size: 12px; font-weight: 700; }
+.btn-link:hover { background: none; text-decoration: underline; }
 .login-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.login-actions button, .btn-primary { padding: 13px 18px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s; }
-.btn-primary {
-  background: linear-gradient(135deg, #fbbf24, #d97706); color: #070a0f; border: none;
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25); width: 100%; position: relative; overflow: hidden;
-}
-.btn-primary::after {
-  content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(60deg, transparent, rgba(255,255,255,0.25), transparent);
-  transform: rotate(30deg); transition: 0.8s;
-}
-.btn-primary:hover::after { left: 100%; }
-.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35); }
-.btn-primary:disabled { opacity: 0.6; cursor: wait; transform: none; }
-.btn-ghost { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; }
-.btn-ghost:hover { background: rgba(51, 65, 85, 0.8); border-color: rgba(255,255,255,0.2); }
-.back-link { display: inline-flex; margin-bottom: 12px; }
-
-#authMsg, #resetMsg { min-height: 20px; color: #f87171; font-size: 12px; margin-top: 14px; line-height: 1.4; font-weight: 600; }
+.login-actions button, .btn-primary { padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 700; }
+.btn-primary { background: var(--ac); color: #070a0f; border: none; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.2); width: 100%; }
+.btn-primary:hover { background: #d97706; }
+.btn-primary:disabled { opacity: 0.6; cursor: wait; }
+.btn-ghost { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; }
+.back-link { display: inline-flex; margin-bottom: 8px; }
+#authMsg, #resetMsg { min-height: 18px; color: #f87171; font-size: 12px; margin-top: 12px; line-height: 1.4; }
 #resetMsg.ok { color: #4ade80; }
-
-.login-foot { margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 11px; color: #64748b; line-height: 1.6; }
-
-.login-right { position: relative; min-height: 100%; display: flex; align-items: flex-end; padding: 32px; overflow: hidden; background: #0b1220; }
-.hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.8s ease; opacity: 0; transform: scale(1.03); }
-.hero-img.active { opacity: 0.55; transform: scale(1); }
-.hero-shade { position: absolute; inset: 0; background: linear-gradient(to top, #070b14, rgba(7, 11, 20, 0.4) 60%, transparent); }
-
-.hero-play {
-  position: absolute; z-index: 10; top: 50%; left: -22px; transform: translateY(-50%);
-  width: 44px; height: 44px; padding: 0; border-radius: 50%; background: var(--ac); color: #070a0f;
-  border: 3px solid #0f172a; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); cursor: pointer; transition: all 0.2s;
-  display: flex; align-items: center; justify-content: center;
-}
-.hero-play:hover { background: #fcd34d; transform: translateY(-50%) scale(1.1); }
-
+.login-foot { margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(30, 41, 59, 0.9); font-size: 11px; color: #64748b; line-height: 1.6; }
+.login-right { position: relative; min-height: 100%; display: flex; align-items: flex-end; padding: 28px; overflow: hidden; background: linear-gradient(135deg, #0f172a, #1e293b 60%, #3b2a0a); }
+.hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.4s; }
+.hero-shade { position: absolute; inset: 0; background: linear-gradient(to top, #020617, rgba(2, 6, 23, 0.5) 50%, transparent); }
+.hero-play { position: absolute; z-index: 3; top: 50%; left: calc(58.333% ); transform: translate(-50%, -50%); width: 46px; height: 46px; padding: 0; border-radius: 50%; background: var(--ac); color: #070a0f; border: 2px solid #0f172a; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3); }
+.hero-play:hover { background: #fbbf24; }
 .hero-content { position: relative; z-index: 2; width: 100%; }
-.glass {
-  background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 14px 18px; margin-bottom: 20px;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
+.glass { background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .glass .who { display: flex; align-items: center; gap: 12px; }
-.glass .who img { height: 32px; width: auto; object-fit: contain; }
-.glass small { display: block; font-size: 11px; color: #94a3b8; }
-.glass b { display: block; font-size: 13px; color: #fff; font-weight: 700; }
-.live {
-  display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700;
-  padding: 4px 10px; border-radius: 99px; color: #34d399; background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; }
-
+.glass .who img { height: 40px; aspect-ratio: 5 / 3; object-fit: cover; }
+.glass small { display: block; font-size: 11px; color: #cbd5e1; }
+.glass b { display: block; font-size: 13px; color: #fff; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 99px; color: #34d399; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.3); }
+.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
 .hero-text { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.hero-text small { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #fbbf24; }
-.hero-text h3 { margin: 4px 0 0; font-size: 18px; line-height: 1.35; color: #fff; font-weight: 700; }
-.dots { display: flex; gap: 6px; align-items: center; }
-.dots button { width: 8px; height: 8px; padding: 0; border: none; border-radius: 99px; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.3s; }
-.dots button.on { width: 26px; background: var(--ac); border-radius: 99px; }
-
+.hero-text small { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fbbf24; }
+.hero-text h3 { margin: 4px 0 0; font-size: 17px; line-height: 1.35; color: #fff; }
+.dots { display: flex; gap: 4px; align-items: center; }
+.dots button { width: 8px; height: 6px; padding: 0; border: none; border-radius: 99px; background: #475569; transition: all 0.2s; }
+.dots button.on { width: 24px; background: var(--ac); }
 @media (max-width: 860px) {
   .login-card { grid-template-columns: 1fr; min-height: 0; }
-  .login-left { padding: 32px 24px; }
-  .login-right { min-height: 220px; }
+  .login-left { padding: 28px 22px; }
+  .login-right { min-height: 250px; }
   .hero-play { display: none; }
 }
 
@@ -417,7 +365,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 @media(max-width:1050px) { .control-toolbar { grid-template-columns:1fr 1fr; } .control-toolbar > div:last-child { grid-column:1/-1; } }
 @media(max-width:650px) { .kpi-grid { grid-template-columns:1fr; gap:8px; } .kpi-card { min-height:80px; } .control-toolbar { grid-template-columns:1fr; } .control-toolbar > div:last-child { grid-column:auto; } .main-title-bar::after { width:100%; text-align:left; } }
 
-/* Navigasi dua tampilan */
+/* Navigasi dua tampilan: halaman utama tetap seperti dashboard semula; hasil tanggal menjadi halaman tersendiri */
 #appShell.date-home #serviceDateSearchCard { display: block; max-width: 980px; margin: 26px auto; }
 #appShell.date-home #serviceDateResults { display: none !important; }
 #appShell.date-results .control-toolbar,
@@ -434,7 +382,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .date-page-heading { margin: 0 0 8px; font-size: clamp(20px, 3vw, 28px); font-weight: 800; }
 .date-page-subtitle { margin: 0 0 18px; color: var(--mu); font-size: 12px; }
 
-/* UI/UX operasional MBK */
+/* UI/UX operasional MBK: tabel jadwal default, status, pagination, dan toolbar responsif */
 .control-toolbar { grid-template-columns:minmax(165px,.8fr) minmax(200px,1.1fr) minmax(180px,.8fr) auto; background:rgba(15,23,42,.92); border-color:#334155; align-items:end; }
 .toolbar-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
 #serviceDate { color-scheme:dark; background:#0b1220; color:#f8fafc; }
@@ -449,7 +397,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #overviewTable th { padding:12px 10px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; }
 #overviewTable td { border-bottom:1px solid rgba(71,85,105,.35); vertical-align:middle; }
 #overviewTable tbody tr:hover { background:rgba(148,163,184,.06); }
-.unit-cell { display:flex; align-items:center; gap:99px; min-width:135px; }
+.unit-cell { display:flex; align-items:center; gap:9px; min-width:135px; }
 .unit-icon { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:9px; background:rgba(245,158,11,.12); color:#fbbf24; flex-shrink:0; }
 .unit-code { font-weight:800; color:#f8fafc; }
 .unit-kind { display:block; color:#94a3b8; font-size:10px; margin-top:2px; }
@@ -472,14 +420,12 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #appShell.date-results #upcomingServicesCard { display:block; }
 @media(max-width:1050px) { .control-toolbar { grid-template-columns:1fr 1fr; } .toolbar-actions { grid-column:1/-1; justify-content:flex-end; } }
 @media(max-width:650px) { .control-toolbar { grid-template-columns:1fr; } .toolbar-actions { grid-column:auto; display:grid; grid-template-columns:1fr 1fr; } .toolbar-actions #exportPdfBtnMain { grid-column:1/-1; justify-content:center; } .pagination-bar { align-items:flex-start; flex-direction:column; } .overview-head { align-items:flex-start; } }
+
 </style>
 </head>
 <body>
 
-<!-- Halaman Login Animasi Modern -->
 <div id="authGate">
-  <canvas id="particles-canvas"></canvas>
-  
   <div class="login-card">
     <div class="login-left">
       <div>
@@ -504,7 +450,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
             <div class="fld">
               <label for="loginPassword">Password Akun</label>
               <i class="fa-solid fa-lock ic"></i>
-              <input id="loginPassword" name="password" type="password" autocomplete="current-password" required placeholder="••••••••••••">
+              <input id="loginPassword" name="password" type="password" autocomplete="current-password" required placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
               <button type="button" class="pwd-toggle" id="togglePwd" aria-label="Tampilkan / sembunyikan password"><i class="fa-regular fa-eye"></i></button>
             </div>
             <div class="login-row">
@@ -542,18 +488,13 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       </div>
     </div>
 
-    <!-- Hero Carousel Visual Kanan -->
     <div class="login-right">
-      <img class="hero-img active" src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80" alt="Maintenance Industrial 1">
-      <img class="hero-img" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80" alt="Maintenance Industrial 2">
-      <img class="hero-img" src="https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80" alt="Maintenance Industrial 3">
-      
+      <img class="hero-img" id="heroImg" alt="Maintenance Bengkel Kendaraan (MBK)" onerror="this.style.display='none'">
       <div class="hero-shade"></div>
-      
       <div class="hero-content">
         <div class="glass">
           <div class="who">
-            <img src="logo-bengkel.png" alt="MBK" onerror="this.style.display='none'">
+            <img src="logo-bengkel.png" alt="" onerror="this.style.display='none'">
             <div><small>Divisi Maintenance</small><b>Forklift &amp; Heavy Equipment</b></div>
           </div>
           <span class="live">Active</span>
@@ -563,11 +504,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
             <small>Maintenance Bengkel Kendaraan</small>
             <h3 id="heroTitle">Manajemen Armada &amp; Maintenance Terintegrasi</h3>
           </div>
-          <div class="dots" id="heroDots">
-            <button class="on" aria-label="Slide 1"></button>
-            <button aria-label="Slide 2"></button>
-            <button aria-label="Slide 3"></button>
-          </div>
+          <div class="dots" id="heroDots"></div>
         </div>
       </div>
     </div>
@@ -575,7 +512,6 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </div>
 </div>
 
-<!-- Application Main Shell -->
 <div id="appShell" class="date-home" hidden>
   <!-- Top App Header -->
   <div class="app-header">
@@ -643,7 +579,9 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div>Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</div>
   </div>
 
-  <!-- Tabel operasional jadwal servis mendatang -->
+
+
+  <!-- Tabel operasional jadwal servis mendatang: tampil secara default -->
   <section class="card overview-card" id="upcomingServicesCard" aria-labelledby="upcomingTitle">
     <div class="overview-head">
       <div>
@@ -726,116 +664,6 @@ const firebaseConfig = {
 };
 const firebaseConfigReady = !Object.values(firebaseConfig).some(v => String(v).includes("GANTI_DENGAN"));
 </script>
-
-<!-- Script Interaktif Animasi & Login UI -->
-<script>
-// Canvas Partikel Animasi Latar Belakang Login
-(function initParticles() {
-  const canvas = document.getElementById('particles-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let width, height, particles = [];
-
-  function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  for (let i = 0; i < 45; i++) {
-    particles.push({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      r: Math.random() * 2 + 0.5,
-      dx: (Math.random() - 0.5) * 0.4,
-      dy: (Math.random() - 0.5) * 0.4,
-      alpha: Math.random() * 0.5 + 0.2
-    });
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, width, height);
-    particles.forEach(p => {
-      p.x += p.dx; p.y += p.dy;
-      if (p.x < 0) p.x = width; if (p.x > width) p.x = 0;
-      if (p.y < 0) p.y = height; if (p.y > height) p.y = 0;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(245, 158, 11, ${p.alpha})`;
-      ctx.fill();
-    });
-    
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
-        if (dist < 120) {
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(245, 158, 11, ${0.15 * (1 - dist / 120)})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        }
-      }
-    }
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
-
-// Toggle Lihat Password & Navigasi Panel Login/Reset
-document.addEventListener('DOMContentLoaded', () => {
-  const pwdInput = document.getElementById('loginPassword');
-  const togglePwd = document.getElementById('togglePwd');
-  if (togglePwd && pwdInput) {
-    togglePwd.addEventListener('click', () => {
-      const type = pwdInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      pwdInput.setAttribute('type', type);
-      togglePwd.innerHTML = type === 'password' ? '<i class="fa-regular fa-eye"></i>' : '<i class="fa-regular fa-eye-slash"></i>';
-    });
-  }
-
-  const loginPane = document.getElementById('loginPane');
-  const resetPane = document.getElementById('resetPane');
-  document.querySelectorAll('[data-go]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = btn.getAttribute('data-go');
-      if (target === 'reset') {
-        loginPane.hidden = true; resetPane.hidden = false;
-      } else {
-        resetPane.hidden = true; loginPane.hidden = false;
-      }
-    });
-  });
-
-  // Hero Carousel Control
-  const heroImgs = document.querySelectorAll('.hero-img');
-  const heroDots = document.querySelectorAll('#heroDots button');
-  const heroNext = document.getElementById('heroNext');
-  let currentSlide = 0;
-
-  function setSlide(idx) {
-    heroImgs.forEach((img, i) => img.classList.toggle('active', i === idx));
-    heroDots.forEach((dot, i) => dot.classList.toggle('on', i === idx));
-    currentSlide = idx;
-  }
-
-  if (heroNext && heroImgs.length > 0) {
-    heroNext.addEventListener('click', () => {
-      setSlide((currentSlide + 1) % heroImgs.length);
-    });
-    heroDots.forEach((dot, i) => {
-      dot.addEventListener('click', () => setSlide(i));
-    });
-    setInterval(() => {
-      setSlide((currentSlide + 1) % heroImgs.length);
-    }, 6000);
-  }
-});
-</script>
-
 <script src="data-forklift-2027.js?v=4"></script>
 <script>
 const FORKLIFT_DATA=window.FORKLIFT_DATA_2027;
@@ -917,6 +745,7 @@ function jenis(p,r){if(r.t==='T') return p%20===0?2000:p%10===0?1000:p%5===0?500
 const KJ={100:'Servis berkala forklift baterai (100 HM)',2400:'SERVICE BESAR: oli mesin, filter, hidrolis, gardan, transmisi',1200:'Oli mesin + oli filter + fuel filter',400:'Oli mesin + oli filter',200:'Oli mesin'};
 const TRACTOR_JOBS={100:'Ganti oli mesin, cleaning+greasing, cek unit',200:'Ganti oli mesin, ganti filter oli, cleaning+greasing, cek unit',500:'Ganti oli mesin, ganti filter oli, ganti fuel filter, cleaning+greasing, cek unit',1000:'Ganti oli mesin, ganti filter oli, ganti fuel filter, ganti air filter (IN)+(OUT), ganti oli gardan, ganti oli transmisi, cleaning+greasing, cek unit',2000:'Ganti oli mesin, ganti filter oli, ganti fuel filter, ganti air filter (IN)+(OUT), ganti oli gardan, ganti oli transmisi, ganti filter transmisi, ganti v belt, cleaning+greasing, cek unit'};
 
+// Menghitung tanggal PM menggunakan aturan yang sama dengan tabel jadwal tiap unit.
 function getScheduleRowsForDateSearch(r){
  const dt=load(r),lj=lget(r),f0=new Date(r.f+'T00:00:00Z'),rows=[];
  const chs=lj.ch.map(c=>({t:Date.parse(c.f+'T00:00:00Z'),l:+c.l})).filter(c=>c.t===c.t&&c.l>0).sort((a,b)=>a.t-b.t);
@@ -946,10 +775,11 @@ function renderServiceDateSearch(){
   h+='<tr><td><b>'+x.r.c+'</b></td><td>'+kind+'</td><td class="l">'+(x.r.d||'-')+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+x.targetHM.toLocaleString('id-ID')+' HM</td><td class="l">'+(x.pekerjaan||'-')+'</td></tr>'; 
  });
  h+='</tbody></table>';box.innerHTML=h;box.hidden=false;
+
 }
 $('searchServiceDate').addEventListener('click',()=>{upcomingPage=1;renderUpcomingTable();});
 $('serviceDate').addEventListener('change',()=>{upcomingPage=1;renderUpcomingTable();});
-
+// Kalender native: pengguna tetap dapat mengetik DD/MM/YYYY atau memilih tanggal lewat ikon.
 function isoToIndonesianDate(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))return '';const [y,m,d]=iso.split('-');return d+'/'+m+'/'+y;}
 function indonesianToIsoDate(value){const m=String(value||'').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return '';const d=+m[1],mo=+m[2],y=+m[3],dt=new Date(Date.UTC(y,mo-1,d));return dt.getUTCFullYear()===y&&dt.getUTCMonth()===mo-1&&dt.getUTCDate()===d?y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'):'';}
 const serviceDateInput=$('serviceDate'),serviceDatePicker=$('serviceDatePicker');
@@ -1084,7 +914,7 @@ function render(){
  const u=shared[did(r.c)];$('upd').textContent=u&&u.at?'Terakhir diubah: '+new Date(u.at).toLocaleString('id-ID'):'';
 }
 
-// Filter kategori terintegrasi
+// Filter kategori terintegrasi dengan pencarian kode dan tanggal servis
 $('categoryFilter').addEventListener('change', () => {
   updateDatalist(getActiveCategory());
   $('q').value = '';
@@ -1097,7 +927,9 @@ $('categoryFilter').addEventListener('change', () => {
 $('q').addEventListener('input', ()=>{upcomingPage=1;render();});
 banner(); render();
 </script>
+<!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
 <script src="export-pdf-forklift.js?v=1"></script>
+<!-- Sesi login: auto-logout 3 jam, Ingat Saya, tampilan halaman login -->
 <script src="auth-session.js?v=1"></script>
 
 </body>
