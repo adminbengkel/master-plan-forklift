@@ -1,963 +1,936 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Plan PM 2027 - MBK Bengkel</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        amber: {
-                            400: '#fbbf24',
-                            500: '#f59e0b',
-                            600: '#d97706',
-                            700: '#b45309',
-                        },
-                        dark: {
-                            900: '#070a0f',
-                            800: '#0f172a',
-                            700: '#1e293b',
-                            600: '#334155',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #070a0f;
-            color: #f8fafc;
-            overflow-x: hidden;
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master Plan PM Forklift &amp; Traktor 2027 — Enterprise Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #070a0f;
+  --card: #0f172a;
+  --card-hover: #1e293b;
+  --tx: #f8fafc;
+  --mu: #94a3b8;
+  --ac: #f59e0b;
+  --ac-glow: rgba(245, 158, 11, 0.15);
+  --bd: #1e293b;
+  --bd-focus: #f59e0b;
+  --in: #0b0f17;
+  
+  /* Interval Colors */
+  --c200: rgba(254, 243, 199, 0.12); --t200: #fbbf24;
+  --c400: rgba(186, 230, 253, 0.12); --t400: #38bdf8;
+  --c1200: rgba(254, 215, 170, 0.12); --t1200: #fb923c;
+  --c2400: rgba(254, 202, 202, 0.12); --t2400: #f87171;
+  --c100: rgba(187, 247, 208, 0.12); --t100: #4ade80;
+  --c500: rgba(196, 181, 253, 0.12); --t500: #c4b5fd;
+  --c1000: rgba(244, 114, 182, 0.12); --t1000: #f472b6;
+  --c2000: rgba(248, 113, 113, 0.16); --t2000: #f87171;
+}
 
-        /* Glassmorphism Styles */
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(245, 158, 11, 0.15);
-        }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  padding: 16px clamp(12px, 2.5vw, 24px);
+  max-width: 1440px;
+  margin: auto;
+  min-height: 100vh;
+  line-height: 1.5;
+}
 
-        .glass-card {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
+h1, h2 { color: #fef3c7; font-weight: 700; letter-spacing: -0.02em; }
+h1 { font-size: clamp(18px, 2vw, 22px); margin: 0; }
+h2 { font-size: 15px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
 
-        .glass-input {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            transition: all 0.3s ease;
-        }
+.card {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
 
-        .glass-input:focus {
-            border-color: #f59e0b;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
-            outline: none;
-        }
+/* Top App Header Layout */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.brand-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.badge-tag {
+  background: #1e293b; color: #fef3c7; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px;
+  letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.sync-badge { color: #4ade80; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.sync-badge::before { content: ""; display: inline-block; width: 7px; height: 7px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; }
 
-        /* Glow Effects */
-        .glow-amber {
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
-        }
-        
-        .glow-amber-lg {
-            box-shadow: 0 0 45px rgba(245, 158, 11, 0.4);
-        }
+.stats-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #070a0f;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 4px;
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #f59e0b;
-        }
+/* Logo & judul utama */
+.title-brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-logo { height: 96px; width: auto; aspect-ratio: 5 / 3; object-fit: cover; object-position: center; flex: none; } /* area kosong PNG dipotong via CSS */
+.brand-logo-fallback { flex: none; width: 76px; height: 76px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: var(--ac); color: #070a0f; font-weight: 800; font-size: 22px; }
+.main-title-bar h1 { font-size: clamp(30px, 5.2vw, 48px); line-height: 1; font-weight: 800; letter-spacing: -0.01em; margin: 0; color: #fff; }
+.title-sub { font-size: clamp(11px, 1.7vw, 17px); font-weight: 700; color: #fff; text-transform: uppercase; margin-top: 7px; }
+.user-line { font-size: 12px; color: var(--mu); margin-top: 4px; min-height: 16px; }
+@media (max-width: 600px) { .brand-logo { height: 58px; } .brand-logo-fallback { width: 52px; height: 52px; font-size: 16px; } .title-brand { gap: 10px; } }
 
-        /* Slide Transition Animations */
-        .pane-transition {
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
-        }
+/* Main Title Bar */
+.main-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
-        /* Print Media Styles */
-        @media print {
-            #authGate, #appHeader, .no-print {
-                display: none !important;
-            }
-            #appShell {
-                display: block !important;
-                background: white !important;
-                color: black !important;
-            }
-            .glass-panel, .glass-card {
-                background: white !important;
-                border: 1px solid #ccc !important;
-                color: black !important;
-                box-shadow: none !important;
-            }
-            table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-            }
-            th, td {
-                border: 1px solid #ddd !important;
-                color: black !important;
-                padding: 6px !important;
-            }
-        }
-    </style>
+/* Control Toolbar & Search Row */
+.control-toolbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+@media(max-width: 900px) {
+  .control-toolbar { grid-template-columns: 1fr; }
+}
+
+.category-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.cat-btn {
+  background: #0b0f17; border: 1px solid var(--bd); color: var(--mu); padding: 8px 14px; border-radius: 8px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.cat-btn:hover { border-color: var(--ac); color: var(--tx); }
+.cat-btn.active { background: linear-gradient(135deg, #fbbf24, #d97706); color: #070a0f; border-color: #f59e0b; font-weight: 700; box-shadow: 0 4px 12px rgba(245,158,11,0.25); }
+
+.search-box-wrapper { position: relative; }
+.search-label { display: block; font-size: 10px; font-weight: 700; color: var(--mu); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+#q {
+  width: 100%; font-size: 14px; font-weight: 600; padding: 10px 14px; border: 1px solid var(--bd);
+  border-radius: 8px; background: var(--in); color: var(--tx); outline: none; transition: all 0.2s;
+}
+#q:focus { border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac-glow); }
+#st { font-size: 12px; margin-top: 4px; color: var(--mu); }
+
+.pdf-btn {
+  background: linear-gradient(135deg, #fbbf24, #d97706); color: #070a0f; border: none; font-weight: 700;
+  padding: 11px 18px; border-radius: 9px; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 12px rgba(245,158,11,0.2); transition: all 0.2s; height: fit-content;
+}
+.pdf-btn:hover { background: linear-gradient(135deg, #fcd34d, #b45309); transform: translateY(-1px); }
+
+/* Pencarian jadwal servis berdasarkan tanggal */
+.date-search-controls { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; }
+.date-search-controls .field { display: flex; flex-direction: column; gap: 5px; min-width: 190px; }
+.date-search-controls label { font-size: 11px; color: var(--mu); font-weight: 700; }
+.date-search-controls input[type="date"] { background: var(--in); color: var(--tx); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 12px; min-height: 38px; }
+.date-search-controls input[type="date"]:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac-glow); }
+#serviceDateStatus { color: var(--mu); font-size: 12px; margin: 10px 0; }
+.date-search-table { overflow-x: auto; border: 1px solid var(--bd); border-radius: 10px; background: var(--in); }
+.date-search-table table { min-width: 780px; }
+.date-search-table td.l { min-width: 250px; }
+.date-search-table .unit-open { white-space: nowrap; }
+@media(max-width: 600px) { .date-search-controls .field { flex: 1 1 100%; } .date-search-controls button { width: 100%; } }
+
+/* Status Bar Info */
+.status-bar-info {
+  display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--mu); margin-bottom: 14px; padding: 0 4px; flex-wrap: wrap; gap: 6px;
+}
+
+/* Detail Section Header */
+.section-header-title {
+  font-size: 12px; font-weight: 700; color: var(--ac); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+
+/* KPI Info Grid */
+.info { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.info div {
+  background: var(--in); border: 1px solid var(--bd); border-radius: 10px; padding: 12px;
+  position: relative; overflow: hidden;
+}
+.info div::after {
+  content: ""; position: absolute; bottom: 0; left: 0; width: 100px; height: 2px; background: linear-gradient(90deg, var(--ac), transparent); opacity: 0.4;
+}
+.info b { display: block; font-size: 10px; color: var(--mu); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.info span { font-size: 15px; font-weight: 700; color: var(--tx); }
+
+/* Grid Layout for Simulator & Schedule */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 14px;
+}
+@media(max-width: 1024px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+/* Tables & Wrappers */
+.wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--bd); background: var(--in); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; text-align: left; }
+th { background: #162032; color: #fef3c7; padding: 10px 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; border-bottom: 2px solid var(--bd); }
+td { border-bottom: 1px solid var(--bd); padding: 8px; text-align: center; white-space: nowrap; color: #cbd5e1; }
+td.l { text-align: left; white-space: normal; color: var(--tx); font-weight: 500; }
+tr.out td { color: var(--mu); font-style: italic; background: rgba(0,0,0,0.15); }
+tr:hover td { background-color: rgba(255, 255, 255, 0.015); }
+
+td input {
+  width: 60px; text-align: center; padding: 5px; background: var(--card); color: var(--tx);
+  border: 1px solid var(--bd); border-radius: 6px; font-weight: 700; font-size: 12px;
+}
+td input:focus { border-color: var(--ac); outline: none; box-shadow: 0 0 0 2px var(--ac-glow); }
+
+/* Interval Badges */
+.t200 { background: var(--c200); color: var(--t200); border: 1px solid rgba(251, 191, 36, 0.2); }
+.t400 { background: var(--c400); color: var(--t400); border: 1px solid rgba(56, 189, 248, 0.2); }
+.t1200 { background: var(--c1200); color: var(--t1200); border: 1px solid rgba(251, 146, 60, 0.2); }
+.t2400 { background: var(--c2400); color: var(--t2400); border: 1px solid rgba(248, 113, 113, 0.2); }
+.t100 { background: var(--c100); color: var(--t100); border: 1px solid rgba(74, 222, 128, 0.2); }
+.t500 { background: var(--c500); color: var(--t500); border: 1px solid rgba(196, 181, 253, 0.25); }
+.t1000 { background: var(--c1000); color: var(--t1000); border: 1px solid rgba(244, 114, 182, 0.25); }
+.t2000 { background: var(--c2000); color: var(--t2000); border: 1px solid rgba(248, 113, 113, 0.3); }
+.t200, .t400, .t1200, .t2400, .t100, .t500, .t1000, .t2000 { font-weight: 700; border-radius: 5px; padding: 2px 6px; display: inline-block; }
+
+.mx td:first-child { text-align: left; font-weight: 700; color: var(--tx); }
+
+/* Buttons & Controls */
+button {
+  padding: 8px 14px; border-radius: 8px; border: 1px solid var(--bd);
+  background: var(--card); color: var(--tx); cursor: pointer; font-weight: 600; font-size: 12px;
+  transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+button:hover { background: var(--card-hover); border-color: rgba(245, 158, 11, 0.4); }
+
+/* Auth Gate & Modal */
+/* Halaman Login */
+#authGate {
+  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+  padding: 20px; overflow: auto; background: #0b1120;
+  background-image: radial-gradient(rgba(245, 158, 11, 0.15) 1px, transparent 1px); background-size: 24px 24px;
+}
+#authGate::before, #authGate::after { content: ""; position: fixed; width: 380px; height: 380px; border-radius: 50%; filter: blur(70px); pointer-events: none; }
+#authGate::before { top: -150px; left: -150px; background: rgba(245, 158, 11, 0.10); }
+#authGate::after { bottom: -150px; right: -150px; background: rgba(37, 99, 235, 0.10); }
+#authGate[hidden], #appShell[hidden] { display: none !important; }
+.login-card {
+  position: relative; z-index: 1; width: min(100%, 1040px); min-height: 620px; display: grid; grid-template-columns: 7fr 5fr;
+  background: rgba(15, 23, 42, 0.92); border: 1px solid #1e293b; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+}
+.login-left { padding: 44px 48px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+.login-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
+.login-logo { height: 58px; aspect-ratio: 5 / 3; object-fit: cover; object-position: center; flex: none; }
+.login-logo-fallback { flex: none; width: 48px; height: 48px; border-radius: 12px; background: var(--ac); color: #070a0f; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.login-brand small { display: block; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ac); }
+.login-brand b { display: block; font-size: 14px; font-weight: 800; color: #fff; line-height: 1.3; }
+.login-pane[hidden] { display: none; }
+.login-pane h2 { font-size: clamp(22px, 3vw, 30px); color: #fff; margin: 0; letter-spacing: -0.02em; }
+.login-pane .sub { font-size: 13px; color: #94a3b8; margin: 6px 0 22px; line-height: 1.5; }
+.fld { position: relative; margin-bottom: 16px; }
+.fld label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #cbd5e1; margin-bottom: 7px; }
+.fld .ic { position: absolute; left: 14px; bottom: 14px; color: #94a3b8; font-size: 14px; pointer-events: none; }
+.fld input { width: 100%; padding: 12px 42px 12px 40px; font-size: 14px; border-radius: 12px; border: 1px solid #334155; background: rgba(30, 41, 59, 0.8); color: #f1f5f9; transition: all 0.2s; }
+.fld input:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
+.pwd-toggle { position: absolute; right: 4px; bottom: 4px; width: 38px; height: 38px; padding: 0; border: none; background: transparent; color: #94a3b8; }
+.pwd-toggle:hover { background: transparent; color: var(--ac); }
+.login-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; margin: 2px 0 18px; }
+.chk { display: inline-flex; align-items: center; gap: 8px; color: #94a3b8; cursor: pointer; font-size: 12px; font-weight: 500; text-transform: none; letter-spacing: 0; margin: 0; }
+.chk input { width: 16px; height: 16px; padding: 0; accent-color: var(--ac); }
+.btn-link { background: none; border: none; padding: 0; color: var(--ac); font-size: 12px; font-weight: 700; }
+.btn-link:hover { background: none; text-decoration: underline; }
+.login-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.login-actions button, .btn-primary { padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 700; }
+.btn-primary { background: var(--ac); color: #070a0f; border: none; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.2); width: 100%; }
+.btn-primary:hover { background: #d97706; }
+.btn-primary:disabled { opacity: 0.6; cursor: wait; }
+.btn-ghost { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; }
+.back-link { display: inline-flex; margin-bottom: 8px; }
+#authMsg, #resetMsg { min-height: 18px; color: #f87171; font-size: 12px; margin-top: 12px; line-height: 1.4; }
+#resetMsg.ok { color: #4ade80; }
+.login-foot { margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(30, 41, 59, 0.9); font-size: 11px; color: #64748b; line-height: 1.6; }
+.login-right { position: relative; min-height: 100%; display: flex; align-items: flex-end; padding: 28px; overflow: hidden; background: linear-gradient(135deg, #0f172a, #1e293b 60%, #3b2a0a); }
+.hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.4s; }
+.hero-shade { position: absolute; inset: 0; background: linear-gradient(to top, #020617, rgba(2, 6, 23, 0.5) 50%, transparent); }
+.hero-play { position: absolute; z-index: 3; top: 50%; left: calc(58.333% ); transform: translate(-50%, -50%); width: 46px; height: 46px; padding: 0; border-radius: 50%; background: var(--ac); color: #070a0f; border: 2px solid #0f172a; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3); }
+.hero-play:hover { background: #fbbf24; }
+.hero-content { position: relative; z-index: 2; width: 100%; }
+.glass { background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.glass .who { display: flex; align-items: center; gap: 12px; }
+.glass .who img { height: 40px; aspect-ratio: 5 / 3; object-fit: cover; }
+.glass small { display: block; font-size: 11px; color: #cbd5e1; }
+.glass b { display: block; font-size: 13px; color: #fff; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 99px; color: #34d399; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.3); }
+.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+.hero-text { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.hero-text small { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fbbf24; }
+.hero-text h3 { margin: 4px 0 0; font-size: 17px; line-height: 1.35; color: #fff; }
+.dots { display: flex; gap: 4px; align-items: center; }
+.dots button { width: 8px; height: 6px; padding: 0; border: none; border-radius: 99px; background: #475569; transition: all 0.2s; }
+.dots button.on { width: 24px; background: var(--ac); }
+@media (max-width: 860px) {
+  .login-card { grid-template-columns: 1fr; min-height: 0; }
+  .login-left { padding: 28px 22px; }
+  .login-right { min-height: 250px; }
+  .hero-play { display: none; }
+}
+
+/* Modal Overlay */
+.ov {
+  position: fixed; inset: 0; background: rgba(3, 7, 18, 0.75); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 100;
+}
+.ov[hidden] { display: none; }
+.bx {
+  background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 16px;
+  padding: 20px; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+.bx #mt { white-space: pre-line; font-size: 13px; line-height: 1.5; margin-bottom: 12px; color: #cbd5e1; }
+.bx input { margin-bottom: 10px; }
+.bx .bt { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+#my { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; border: none; font-weight: 700; }
+#me { color: #f87171; font-size: 11px; min-height: 16px; margin-bottom: 6px; }
+.note { font-size: 11px; color: var(--mu); margin-top: 8px; line-height: 1.4; }
+
+/* Dashboard overview ala Master Plan MBK */
+body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235 0%, #080c13 48%, #070a0f 100%); }
+.main-title-bar { min-height: 112px; }
+.main-title-bar::after { content: "Master Plan Preventive Maintenance Forklift & Traktor • Tahun 2027"; color: #cbd5e1; font-size: 12px; margin-left: auto; text-align: right; }
+.kpi-grid { display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:14px; margin: 4px 0 18px; }
+.kpi-card { position:relative; min-height:96px; padding:16px 18px; overflow:hidden; border:1px solid #334155; border-radius:14px; background:linear-gradient(120deg,rgba(51,65,85,.9),rgba(15,23,42,.95)); box-shadow:0 8px 24px rgba(0,0,0,.22); }
+.kpi-card::after { content:""; position:absolute; width:110px;height:110px;right:-25px;top:-35px;border-radius:50%;background:rgba(245,158,11,.09);filter:blur(2px); }
+.kpi-label { font-size:11px; font-weight:800; color:#cbd5e1; letter-spacing:.04em; text-transform:uppercase; }
+.kpi-value { font-size:34px; line-height:1.15; font-weight:800; margin-top:4px; color:#fff; }
+.kpi-sub { font-size:11px; color:#94a3b8; margin-top:3px; }
+.kpi-icon { position:absolute; right:16px; top:24px; font-size:25px; color:#cbd5e1; opacity:.75; }
+.control-toolbar { grid-template-columns:minmax(190px,.9fr) minmax(220px,1.2fr) minmax(190px,.9fr) auto; gap:10px; padding:12px; background:#64748b; border-color:#94a3b8; }
+.control-toolbar .search-label { display:block; color:#f1f5f9; }
+#categoryFilter { width:100%; min-width:0; padding:10px 12px; border:1px solid var(--bd); border-radius:8px; background:var(--in); color:var(--tx); font-size:13px; font-weight:600; outline:none; }
+#categoryFilter:focus { border-color:var(--ac); box-shadow:0 0 0 3px var(--ac-glow); }
+#q { min-height:40px; background:#e2e8f0; color:#0f172a; border-color:#94a3b8; }
+#q::placeholder { color:#64748b; }
+.toolbar-date { display:flex; flex-direction:column; min-width:0; gap:4px; }
+.toolbar-date input { width:100%; min-width:0; padding:10px 12px; border:1px solid var(--bd); border-radius:8px; background:var(--in); color:var(--tx); }
+.service-date-input-wrap { position:relative; display:flex; align-items:center; width:100%; }
+#serviceDate { width:100%; min-width:0; min-height:40px; background:#e2e8f0; color:#0f172a; border:1px solid #94a3b8; border-radius:8px; padding:8px 46px 8px 10px; font:inherit; font-size:12px; }
+#serviceDate:focus { outline:2px solid #f59e0b; }
+#openServiceDatePicker { position:absolute; right:4px; top:4px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; padding:0; border:1px solid #475569; border-radius:6px; background:#1e293b; color:#f8fafc; cursor:pointer; z-index:4; }
+#openServiceDatePicker:hover { background:#334155; border-color:#f59e0b; }
+#serviceDatePicker { position:absolute; right:4px; top:4px; width:32px; height:32px; opacity:0; cursor:pointer; z-index:3; }
+#serviceDatePicker:focus-visible { opacity:.12; outline:2px solid #f59e0b; }
+.service-date-input-wrap:focus-within #openServiceDatePicker { border-color:#f59e0b; }
+
+#searchServiceDate { white-space:nowrap; padding:11px 14px; }
+.overview-card { padding:0; overflow:hidden; }
+.overview-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 16px; border-bottom:1px solid var(--bd); }
+.overview-head h2 { margin:0; color:#f8fafc; }
+.overview-meta { color:var(--mu); font-size:11px; }
+#overviewTable { overflow-x:auto; }
+#overviewTable table { min-width:850px; }
+#overviewTable th { background:#263244; color:#f1f5f9; }
+#overviewTable td { padding:9px 10px; }
+.priority { display:inline-block; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:700; }
+.priority.high { background:rgba(52,211,153,.22); color:#6ee7b7; }
+.priority.critical { background:rgba(248,113,113,.22); color:#fca5a5; }
+.overview-unit { font-weight:800; color:#f8fafc; }
+#appShell.date-home #serviceDateSearchCard { display:none !important; }
+#appShell.date-home .date-search-controls { display:none !important; }
+#appShell.date-results .kpi-grid, #appShell.date-results .overview-card { display:none !important; }
+#appShell.date-results .main-title-bar { margin-bottom:24px; }
+#appShell.date-results #serviceDateSearchCard { display:block; max-width:none; margin:0 0 18px; }
+#appShell.date-results #serviceDateSearchCard > p, #appShell.date-results .date-search-controls { display:none !important; }
+#appShell.date-results .control-toolbar, #appShell.date-results .status-bar-info, #appShell.date-results #res { display:none !important; }
+#appShell.date-results #serviceDateResults { display:block !important; }
+#appShell.date-results #serviceDateResults[hidden] { display:none !important; }
+#appShell.date-results #serviceDateStatus { display:block !important; }
+@media(max-width:1050px) { .control-toolbar { grid-template-columns:1fr 1fr; } .control-toolbar > div:last-child { grid-column:1/-1; } }
+@media(max-width:650px) { .kpi-grid { grid-template-columns:1fr; gap:8px; } .kpi-card { min-height:80px; } .control-toolbar { grid-template-columns:1fr; } .control-toolbar > div:last-child { grid-column:auto; } .main-title-bar::after { width:100%; text-align:left; } }
+
+/* Navigasi dua tampilan: halaman utama tetap seperti dashboard semula; hasil tanggal menjadi halaman tersendiri */
+#appShell.date-home #serviceDateSearchCard { display: block; max-width: 980px; margin: 26px auto; }
+#appShell.date-home #serviceDateResults { display: none !important; }
+#appShell.date-results .control-toolbar,
+#appShell.date-results .status-bar-info,
+#appShell.date-results #res { display: none !important; }
+#appShell.date-results #serviceDateSearchCard { display: block; max-width: 1200px; margin: 26px auto; }
+#appShell.date-results #serviceDateSearchCard > p,
+#appShell.date-results .date-search-controls { display: none !important; }
+#appShell.date-results #serviceDateResults { display: block !important; }
+#appShell.date-results #serviceDateResults[hidden] { display: none !important; }
+#appShell.date-results #serviceDateStatus { display: block !important; }
+.date-card-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#serviceDateHomeBtn { width: 34px; height: 32px; min-width: 34px; padding: 0; justify-content: center; border-radius: 8px; margin-left: auto; }
+.date-page-heading { margin: 0 0 8px; font-size: clamp(20px, 3vw, 28px); font-weight: 800; }
+.date-page-subtitle { margin: 0 0 18px; color: var(--mu); font-size: 12px; }
+
+/* UI/UX operasional MBK: tabel jadwal default, status, pagination, dan toolbar responsif */
+.control-toolbar { grid-template-columns:minmax(165px,.8fr) minmax(200px,1.1fr) minmax(180px,.8fr) auto; background:rgba(15,23,42,.92); border-color:#334155; align-items:end; }
+.toolbar-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+#serviceDate { color-scheme:dark; background:#0b1220; color:#f8fafc; }
+#serviceDate::-webkit-datetime-edit { color:#f8fafc; }
+.kpi-urgent { border-color:rgba(248,113,113,.45); }
+.kpi-urgent .kpi-value { color:#fca5a5; }
+.overview-card { margin-top:18px; }
+.overview-head h2 { font-size:16px; }
+.table-chip { display:inline-flex; padding:6px 10px; border:1px solid #334155; border-radius:999px; color:#cbd5e1; font-size:11px; white-space:nowrap; }
+.overview-table-wrap { overflow-x:auto; }
+#overviewTable table { width:100%; min-width:1050px; }
+#overviewTable th { padding:12px 10px; font-size:10px; text-transform:uppercase; letter-spacing:.04em; }
+#overviewTable td { border-bottom:1px solid rgba(71,85,105,.35); vertical-align:middle; }
+#overviewTable tbody tr:hover { background:rgba(148,163,184,.06); }
+.unit-cell { display:flex; align-items:center; gap:9px; min-width:135px; }
+.unit-icon { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:9px; background:rgba(245,158,11,.12); color:#fbbf24; flex-shrink:0; }
+.unit-code { font-weight:800; color:#f8fafc; }
+.unit-kind { display:block; color:#94a3b8; font-size:10px; margin-top:2px; }
+.priority { padding:4px 8px; border-radius:999px; font-size:10px; font-weight:800; letter-spacing:.02em; white-space:nowrap; }
+.priority.critical { background:rgba(248,113,113,.16); color:#fca5a5; border:1px solid rgba(248,113,113,.25); }
+.priority.high { background:rgba(251,191,36,.15); color:#fcd34d; border:1px solid rgba(251,191,36,.24); }
+.priority.normal { background:rgba(52,211,153,.12); color:#6ee7b7; border:1px solid rgba(52,211,153,.2); }
+.action-buttons { display:flex; gap:6px; }
+.action-buttons button { padding:6px 9px; font-size:10px; white-space:nowrap; }
+.action-buttons .history-btn { background:#1e293b; border-color:#475569; }
+.pagination-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-top:1px solid var(--bd); color:var(--mu); font-size:11px; }
+.pagination-controls { display:flex; align-items:center; gap:6px; }
+.pagination-controls button { padding:6px 10px; min-width:32px; }
+.pagination-controls button:disabled { opacity:.35; cursor:not-allowed; }
+.empty-state { margin-top:18px; padding:36px 18px; text-align:center; background:rgba(15,23,42,.8); border:1px dashed #475569; border-radius:16px; }
+.empty-state[hidden] { display:none !important; }
+.empty-state > i { font-size:30px; color:#94a3b8; margin-bottom:10px; }
+.empty-state h3 { margin:8px 0; font-size:16px; }
+.empty-state p { color:var(--mu); font-size:12px; margin-bottom:16px; }
+#appShell.date-results #upcomingServicesCard { display:block; }
+@media(max-width:1050px) { .control-toolbar { grid-template-columns:1fr 1fr; } .toolbar-actions { grid-column:1/-1; justify-content:flex-end; } }
+@media(max-width:650px) { .control-toolbar { grid-template-columns:1fr; } .toolbar-actions { grid-column:auto; display:grid; grid-template-columns:1fr 1fr; } .toolbar-actions #exportPdfBtnMain { grid-column:1/-1; justify-content:center; } .pagination-bar { align-items:flex-start; flex-direction:column; } .overview-head { align-items:flex-start; } }
+
+</style>
 </head>
-<body class="bg-dark-900 text-slate-100 min-h-screen relative flex flex-col justify-between selection:bg-amber-500 selection:text-black">
+<body>
 
-    <!-- ================================================================= -->
-    <!-- 1. AUTHENTICATION GATE (#authGate)                                -->
-    <!-- ================================================================= -->
-    <div id="authGate" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 bg-dark-900 transition-opacity duration-500">
-        
-        <!-- Interactive Node Canvas Background -->
-        <canvas id="particleCanvas" class="absolute inset-0 pointer-events-none z-0"></canvas>
-
-        <!-- Ambient Background Glows -->
-        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <!-- Main Auth Container -->
-        <div class="relative z-10 w-full max-w-6xl glass-panel rounded-3xl overflow-hidden shadow-2xl border border-amber-500/20 grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
-            
-            <!-- LEFT COLUMN: Dynamic Authentication Forms (Login & Reset Password) -->
-            <div class="lg:col-span-5 p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden bg-dark-900/40">
-                
-                <!-- Brand Header -->
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="relative group">
-                        <!-- Custom Logo Image with Fallback Container -->
-                        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center overflow-hidden shadow-lg group-hover:border-amber-400 transition-all">
-                            <img class="login-logo object-cover w-full h-full" src="logo-bengkel.png" alt="Logo MBK" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
-                            <span class="hidden font-black text-amber-500 text-xl tracking-tighter">MBK</span>
-                        </div>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                            MBK BENGKEL <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">PRO</span>
-                        </h1>
-                        <p class="text-xs text-slate-400">Enterprise Asset & PM System 2027</p>
-                    </div>
-                </div>
-
-                <!-- SLIDING CONTAINER FOR LOGIN / RESET PANES -->
-                <div class="relative w-full overflow-hidden my-auto py-2">
-                    
-                    <!-- PANE 1: LOGIN PANE -->
-                    <div id="loginPane" class="pane-transition w-full space-y-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-white tracking-tight">Selamat Datang Kembali</h2>
-                            <p class="text-sm text-slate-400 mt-1">Masuk dengan akun terdaftar untuk mengakses dashboard.</p>
-                        </div>
-
-                        <!-- Login Form -->
-                        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Email / User ID</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                                        <i class="fa-solid font-sm fa-envelope"></i>
-                                    </span>
-                                    <input type="email" id="loginEmail" value="mhe.adm145@gmail.com" required 
-                                        class="glass-input w-full pl-10 pr-4 py-3 rounded-xl text-sm placeholder-slate-500" placeholder="nama@mbkbengkel.com">
-                                </div>
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Kata Sandi</label>
-                                    <button type="button" onclick="switchToReset()" class="text-xs text-amber-400 hover:text-amber-300 transition-colors">Lupa Password?</button>
-                                </div>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                                        <i class="fa-solid fa-lock"></i>
-                                    </span>
-                                    <input type="password" id="loginPassword" value="password123" required 
-                                        class="glass-input w-full pl-10 pr-10 py-3 rounded-xl text-sm placeholder-slate-500" placeholder="••••••••">
-                                    <button type="button" onclick="togglePasswordVisibility('loginPassword', 'eyeIconLogin')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-amber-400">
-                                        <i id="eyeIconLogin" class="fa-solid fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-2 pt-1">
-                                <input type="checkbox" id="rememberMe" checked class="rounded border-slate-700 bg-dark-800 text-amber-500 focus:ring-amber-500 focus:ring-offset-dark-900">
-                                <label for="rememberMe" class="text-xs text-slate-300 cursor-pointer">Ingat Sesi Login Saya</label>
-                            </div>
-
-                            <button type="submit" id="btnSubmitLogin" 
-                                class="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-2 group">
-                                <span>MASUK DASHBOARD</span>
-                                <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- PANE 2: RESET PASSWORD PANE -->
-                    <div id="resetPane" class="pane-transition w-full space-y-6 absolute top-0 left-0 translate-x-full opacity-0 pointer-events-none">
-                        <div>
-                            <h2 class="text-2xl font-bold text-white tracking-tight">Reset Password</h2>
-                            <p class="text-sm text-slate-400 mt-1">Masukkan email terdaftar untuk menerima instruksi instruksi reset.</p>
-                        </div>
-
-                        <form id="resetForm" onsubmit="handleResetPassword(event)" class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Email Terdaftar</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                                        <i class="fa-solid fa-envelope"></i>
-                                    </span>
-                                    <input type="email" id="resetEmail" required 
-                                        class="glass-input w-full pl-10 pr-4 py-3 rounded-xl text-sm placeholder-slate-500" placeholder="mhe.adm145@gmail.com">
-                                </div>
-                            </div>
-
-                            <button type="submit" 
-                                class="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all">
-                                KIRIM LINK RESET
-                            </button>
-
-                            <button type="button" onclick="switchToLogin()" class="w-full text-center text-xs text-slate-400 hover:text-white transition-colors flex items-center justify-center gap-2 pt-2">
-                                <i class="fa-solid fa-arrow-left"></i> Kembali ke Form Login
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Footer Status Bar inside Auth Pane -->
-                <div class="pt-6 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
-                    <span class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                        Server Status: Online
-                    </span>
-                    <span>v4.2.0 - 2027 Edition</span>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN: Dynamic Interactive Hero Section with Carousel -->
-            <div class="lg:col-span-7 relative bg-dark-800/80 border-t lg:border-t-0 lg:border-l border-slate-800 flex flex-col justify-between p-8 sm:p-10 overflow-hidden">
-                
-                <!-- Hero Decorative Gradient Orbs -->
-                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                <!-- Top Badge & Status -->
-                <div class="flex justify-between items-center relative z-10">
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium">
-                        <i class="fa-solid fa-shield-halved"></i> Enterprise Maintenance Planning
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-slate-400 bg-dark-900/60 px-3 py-1.5 rounded-full border border-slate-700/50">
-                        <i class="fa-solid fa-bolt text-amber-400"></i> Active Fleet Sync
-                    </div>
-                </div>
-
-                <!-- Interactive Hero Carousel -->
-                <div class="relative z-10 my-8">
-                    <!-- Carousel Slides Container -->
-                    <div class="relative h-64 sm:h-72 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl group">
-                        
-                        <!-- Slide 1 -->
-                        <div id="slide-0" class="carousel-slide absolute inset-0 transition-all duration-700 opacity-100 scale-100">
-                            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent z-10"></div>
-                            <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80" 
-                                 alt="Heavy Machinery" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
-                            <div class="absolute bottom-6 left-6 right-6 z-20">
-                                <span class="px-2.5 py-1 rounded bg-amber-500 text-slate-950 text-xs font-bold mb-2 inline-block">EXCAVATOR & HEAVY EQUIPMENT</span>
-                                <h3 class="text-xl font-bold text-white">Monitoring Jam Kerja Real-time</h3>
-                                <p class="text-xs text-slate-300 mt-1">Sistem deteksi dini interval servis 250, 500 & 1000 HM untuk mencegah downtime terencana.</p>
-                            </div>
-                        </div>
-
-                        <!-- Slide 2 -->
-                        <div id="slide-1" class="carousel-slide absolute inset-0 transition-all duration-700 opacity-0 scale-95 pointer-events-none">
-                            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent z-10"></div>
-                            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=80" 
-                                 alt="Engine Diagnostics" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
-                            <div class="absolute bottom-6 left-6 right-6 z-20">
-                                <span class="px-2.5 py-1 rounded bg-amber-500 text-slate-950 text-xs font-bold mb-2 inline-block">PREDICTIVE MAINTENANCE</span>
-                                <h3 class="text-xl font-bold text-white">Analisis Predictive Lubrication</h3>
-                                <p class="text-xs text-slate-300 mt-1">Otomatisasi pengingat ganti oli filter dan inspeksi sistem hidrolik armada unit.</p>
-                            </div>
-                        </div>
-
-                        <!-- Slide 3 -->
-                        <div id="slide-2" class="carousel-slide absolute inset-0 transition-all duration-700 opacity-0 scale-95 pointer-events-none">
-                            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent z-10"></div>
-                            <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1000&q=80" 
-                                 alt="Workshop Tech" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
-                            <div class="absolute bottom-6 left-6 right-6 z-20">
-                                <span class="px-2.5 py-1 rounded bg-amber-500 text-slate-950 text-xs font-bold mb-2 inline-block">DIGITAL LOGBOOK 2027</span>
-                                <h3 class="text-xl font-bold text-white">Ekosistem MBK Integrated</h3>
-                                <p class="text-xs text-slate-300 mt-1">Laporan terpusat jadwal overhaul, penggantian suku cadang, dan audit pemeliharaan.</p>
-                            </div>
-                        </div>
-
-                        <!-- Interactive Play Preview Modal Button -->
-                        <button onclick="openVideoModal()" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-dark-900/80 border border-amber-500/50 text-amber-400 flex items-center justify-center hover:bg-amber-500 hover:text-dark-900 transition-all shadow-lg">
-                            <i class="fa-solid fa-play text-xs ml-0.5"></i>
-                        </button>
-                    </div>
-
-                    <!-- Carousel Controls & Indicators -->
-                    <div class="flex justify-between items-center mt-4">
-                        <div class="flex gap-2" id="carouselDots">
-                            <button onclick="setSlide(0)" class="w-8 h-2 rounded-full bg-amber-500 transition-all" id="dot-0"></button>
-                            <button onclick="setSlide(1)" class="w-2 h-2 rounded-full bg-slate-700 transition-all" id="dot-1"></button>
-                            <button onclick="setSlide(2)" class="w-2 h-2 rounded-full bg-slate-700 transition-all" id="dot-2"></button>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="prevSlide()" class="w-8 h-8 rounded-lg bg-dark-900 border border-slate-700 flex items-center justify-center text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors">
-                                <i class="fa-solid fa-chevron-left text-xs"></i>
-                            </button>
-                            <button onclick="nextSlide()" class="w-8 h-8 rounded-lg bg-dark-900 border border-slate-700 flex items-center justify-center text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors">
-                                <i class="fa-solid fa-chevron-right text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Features Highlight Grid -->
-                <div class="grid grid-cols-3 gap-3 relative z-10">
-                    <div class="p-3 rounded-xl bg-dark-900/50 border border-slate-800 text-center">
-                        <div class="text-amber-400 font-bold text-lg mb-0.5">145+</div>
-                        <div class="text-[10px] text-slate-400 uppercase tracking-wider">Unit Terdaftar</div>
-                    </div>
-                    <div class="p-3 rounded-xl bg-dark-900/50 border border-slate-800 text-center">
-                        <div class="text-emerald-400 font-bold text-lg mb-0.5">99.4%</div>
-                        <div class="text-[10px] text-slate-400 uppercase tracking-wider">Uptime Fleet</div>
-                    </div>
-                    <div class="p-3 rounded-xl bg-dark-900/50 border border-slate-800 text-center">
-                        <div class="text-amber-400 font-bold text-lg mb-0.5">2027</div>
-                        <div class="text-[10px] text-slate-400 uppercase tracking-wider">Master Matrix</div>
-                    </div>
-                </div>
-
-            </div>
+<div id="authGate">
+  <div class="login-card">
+    <div class="login-left">
+      <div>
+        <div class="login-brand">
+          <img class="login-logo" src="logo-bengkel.png" alt="Logo MBK" onerror="this.outerHTML='<div class=&quot;login-logo-fallback&quot;>MBK</div>'">
+          <div>
+            <small>Master Plan 2027</small>
+            <b>MAINTENANCE BENGKEL KENDARAAN (MBK)</b>
+          </div>
         </div>
-    </div>
 
-
-    <!-- ================================================================= -->
-    <!-- 2. MAIN APPLICATION SHELL DASHBOARD (#appShell)                   -->
-    <!-- ================================================================= -->
-    <div id="appShell" class="min-h-screen flex flex-col justify-between hidden">
-        
-        <!-- App Main Header -->
-        <header id="appHeader" class="sticky top-0 z-40 bg-dark-900/90 backdrop-blur-md border-b border-amber-500/20 px-4 sm:px-8 py-3">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                
-                <!-- Left Header: Brand & Title -->
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center overflow-hidden">
-                        <img class="brand-logo object-cover w-full h-full" src="logo-bengkel.png" alt="Logo MBK" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
-                        <span class="hidden font-black text-amber-500 text-lg">MBK</span>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                            ENTERPRISE MASTER PLAN PM 2027
-                            <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-mono">CONFIDENTIAL</span>
-                        </h1>
-                        <p class="text-xs text-slate-400 hidden sm:block">PT. MBK Bengkel Technical Fleet Operations Management</p>
-                    </div>
-                </div>
-
-                <!-- Right Header: Sync Status & User Controls -->
-                <div class="flex items-center gap-3">
-                    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>Data Synced: Live</span>
-                    </div>
-
-                    <button onclick="triggerPrintPDF()" class="no-print px-3 py-1.5 bg-dark-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 rounded-lg transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-file-pdf text-red-400"></i>
-                        <span class="hidden sm:inline">Export PDF</span>
-                    </button>
-
-                    <div class="h-6 w-px bg-slate-800 mx-1"></div>
-
-                    <!-- Active User Info & Logout Button -->
-                    <div class="flex items-center gap-3">
-                        <div class="text-right hidden sm:block">
-                            <div id="userDisplayName" class="text-xs font-semibold text-white">mhe.adm145@gmail.com</div>
-                            <div class="text-[10px] text-amber-400">Head Workshop Planner</div>
-                        </div>
-                        <button onclick="handleLogout()" title="Logout dari Aplikasi" 
-                            class="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                        </button>
-                    </div>
-                </div>
+        <!-- Panel Login -->
+        <div class="login-pane" id="loginPane">
+          <h2>Selamat Datang Kembali!</h2>
+          <p class="sub">Silakan masuk menggunakan akun resmi perusahaan yang telah didaftarkan.</p>
+          <form id="loginForm" autocomplete="on">
+            <div class="fld">
+              <label for="loginEmail">Email</label>
+              <i class="fa-regular fa-envelope ic"></i>
+              <input id="loginEmail" name="email" type="email" autocomplete="username" required placeholder="nama@perusahaan.com">
             </div>
-        </header>
-
-        <!-- Main Dashboard Content Container -->
-        <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
-            
-            <!-- SECTION 1: Top Stats KPI Bar -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Armada Unit</p>
-                            <h3 class="text-2xl font-bold text-white mt-1">148 Unit</h3>
-                        </div>
-                        <div class="p-3 bg-amber-500/10 rounded-xl text-amber-400">
-                            <i class="fa-solid fa-truck-monster text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center gap-2 text-xs text-emerald-400">
-                        <i class="fa-solid fa-arrow-up"></i>
-                        <span>12 Unit Ditambahkan Tahun Ini</span>
-                    </div>
-                </div>
-
-                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-red-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Overdue Maintenance</p>
-                            <h3 class="text-2xl font-bold text-white mt-1">4 Unit</h3>
-                        </div>
-                        <div class="p-3 bg-red-500/10 rounded-xl text-red-400">
-                            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center gap-2 text-xs text-red-400">
-                        <i class="fa-solid fa-clock"></i>
-                        <span>Butuh Tindakan Segera</span>
-                    </div>
-                </div>
-
-                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-emerald-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Servis Aktif Minggu Ini</p>
-                            <h3 class="text-2xl font-bold text-white mt-1">18 PM</h3>
-                        </div>
-                        <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-                            <i class="fa-solid fa-wrench text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center gap-2 text-xs text-slate-400">
-                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
-                        <span>9 PM Selesai Ditangani</span>
-                    </div>
-                </div>
-
-                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-blue-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Kepatuhan Jadwal</p>
-                            <h3 class="text-2xl font-bold text-white mt-1">96.8%</h3>
-                        </div>
-                        <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400">
-                            <i class="fa-solid fa-chart-line text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center gap-2 text-xs text-blue-400">
-                        <i class="fa-solid fa-award"></i>
-                        <span>Target Operasional Tercapai</span>
-                    </div>
-                </div>
+            <div class="fld">
+              <label for="loginPassword">Password Akun</label>
+              <i class="fa-solid fa-lock ic"></i>
+              <input id="loginPassword" name="password" type="password" autocomplete="current-password" required placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+              <button type="button" class="pwd-toggle" id="togglePwd" aria-label="Tampilkan / sembunyikan password"><i class="fa-regular fa-eye"></i></button>
             </div>
-
-            <!-- SECTION 2: Control Bar (Search, Category Filters & Date Picker) -->
-            <div class="glass-panel p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between no-print">
-                <!-- Search Box -->
-                <div class="relative w-full md:w-80">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                    </span>
-                    <input type="text" id="searchInput" onkeyup="filterTable()" 
-                        placeholder="Cari Code Unit, Serial No, Model..." 
-                        class="glass-input w-full pl-9 pr-4 py-2 rounded-xl text-xs">
-                </div>
-
-                <!-- Category Filter Buttons & Date Picker -->
-                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-                    <div class="flex items-center gap-1.5 bg-dark-900/60 p-1 rounded-xl border border-slate-800">
-                        <button onclick="setCategoryFilter('ALL')" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500 text-slate-950 shadow">Semua</button>
-                        <button onclick="setCategoryFilter('EXCAVATOR')" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Excavator</button>
-                        <button onclick="setCategoryFilter('BULLDOZER')" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Bulldozer</button>
-                        <button onclick="setCategoryFilter('DUMP TRUCK')" class="cat-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">Dump Truck</button>
-                    </div>
-
-                    <!-- Filter Date Range -->
-                    <div class="relative">
-                        <input type="date" id="dateFilter" onchange="filterTable()" class="glass-input px-3 py-1.5 rounded-xl text-xs text-slate-300">
-                    </div>
-                </div>
+            <div class="login-row">
+              <label class="chk"><input type="checkbox" id="rememberMe"> Ingat Saya</label>
+              <button type="button" class="btn-link" data-go="reset">Lupa Password?</button>
             </div>
-
-            <!-- SECTION 3: PM Interval Matrix Simulator -->
-            <div class="glass-panel p-6 rounded-2xl space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h3 class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-amber-500"></i> Simulator Matrix PM (Preventive Maintenance 2027)
-                    </h3>
-                    <span class="text-xs text-slate-400">Klik interval untuk preview paket servis</span>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <button onclick="selectPMInterval(250)" class="pm-matrix-btn p-4 rounded-xl border border-slate-700 bg-dark-900/60 hover:border-amber-500 transition-all text-left group">
-                        <div class="text-xs text-slate-400">Interval Basic</div>
-                        <div class="text-xl font-bold text-amber-400 group-hover:scale-105 transition-transform">PM 250 HM</div>
-                        <div class="text-[10px] text-slate-500 mt-1">Oli Engine & Filter Standard</div>
-                    </button>
-                    <button onclick="selectPMInterval(500)" class="pm-matrix-btn p-4 rounded-xl border border-slate-700 bg-dark-900/60 hover:border-amber-500 transition-all text-left group">
-                        <div class="text-xs text-slate-400">Interval Medium</div>
-                        <div class="text-xl font-bold text-amber-400 group-hover:scale-105 transition-transform">PM 500 HM</div>
-                        <div class="text-[10px] text-slate-500 mt-1">Filter Fuel, Air & Inspection</div>
-                    </button>
-                    <button onclick="selectPMInterval(1000)" class="pm-matrix-btn p-4 rounded-xl border border-slate-700 bg-dark-900/60 hover:border-amber-500 transition-all text-left group">
-                        <div class="text-xs text-slate-400">Interval Major</div>
-                        <div class="text-xl font-bold text-amber-400 group-hover:scale-105 transition-transform">PM 1000 HM</div>
-                        <div class="text-[10px] text-slate-500 mt-1">Oli Transmisi & Fluid Valve</div>
-                    </button>
-                    <button onclick="selectPMInterval(2000)" class="pm-matrix-btn p-4 rounded-xl border border-slate-700 bg-dark-900/60 hover:border-amber-500 transition-all text-left group">
-                        <div class="text-xs text-slate-400">Interval General</div>
-                        <div class="text-xl font-bold text-amber-400 group-hover:scale-105 transition-transform">PM 2000 HM</div>
-                        <div class="text-[10px] text-slate-500 mt-1">Total Overhaul & Hydraulic System</div>
-                    </button>
-                </div>
+            <div class="login-actions">
+              <button type="submit" id="loginBtn" class="btn-primary">Masuk <i class="fa-solid fa-arrow-right"></i></button>
+              <button type="button" class="btn-ghost" data-go="reset">Reset Password</button>
             </div>
-
-            <!-- SECTION 4: Master Fleet Data Table -->
-            <div class="glass-panel rounded-2xl overflow-hidden shadow-xl">
-                <div class="p-5 border-b border-slate-800 flex justify-between items-center">
-                    <div>
-                        <h3 class="text-base font-bold text-white">Jadwal Preventive Maintenance 2027</h3>
-                        <p class="text-xs text-slate-400">Daftar pemantauan jam kerja (Hour Meter) dan status servis unit</p>
-                    </div>
-                    <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">Total: <span id="unitCount">6</span> Records Shown</span>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-300">
-                        <thead class="bg-dark-900/80 uppercase text-[10px] tracking-wider text-slate-400 border-b border-slate-800">
-                            <tr>
-                                <th class="p-4">Kode Unit</th>
-                                <th class="p-4">Model & Serial</th>
-                                <th class="p-4">Kategori</th>
-                                <th class="p-4 text-right">Current HM</th>
-                                <th class="p-4 text-right">Target PM berikutnya</th>
-                                <th class="p-4">Tgl Estimasi</th>
-                                <th class="p-4">Status</th>
-                                <th class="p-4 text-center no-print">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="unitTableBody" class="divide-y divide-slate-800/60">
-                            <!-- Table Rows dynamically populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Table Pagination Controls -->
-                <div class="p-4 bg-dark-900/50 border-t border-slate-800 flex items-center justify-between text-xs no-print">
-                    <span class="text-slate-400">Menampilkan 1-6 dari 6 armada unit</span>
-                    <div class="flex gap-1">
-                        <button class="px-3 py-1 bg-dark-800 text-slate-500 rounded border border-slate-700 cursor-not-allowed" disabled>Prev</button>
-                        <button class="px-3 py-1 bg-amber-500 text-slate-950 font-bold rounded">1</button>
-                        <button class="px-3 py-1 bg-dark-800 text-slate-400 hover:text-white rounded border border-slate-700">Next</button>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-
-        <!-- Footer -->
-        <footer class="border-t border-slate-800 py-4 text-center text-xs text-slate-500">
-            <p>© 2027 PT. MBK Bengkel - Enterprise Asset Management System. All Rights Reserved.</p>
-        </footer>
-    </div>
-
-
-    <!-- ================================================================= -->
-    <!-- MODALS & DIALOGS                                                  -->
-    <!-- ================================================================= -->
-
-    <!-- Modal 1: Service History & Details Dialog -->
-    <div id="serviceModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 shadow-2xl border border-amber-500/30">
-            <div class="flex justify-between items-start border-b border-slate-800 pb-3">
-                <div>
-                    <h3 id="modalUnitCode" class="text-lg font-bold text-white">EXC-2027-01</h3>
-                    <p id="modalUnitSub" class="text-xs text-amber-400">Komatsu PC200-8 (PM 500 HM)</p>
-                </div>
-                <button onclick="closeServiceModal()" class="text-slate-400 hover:text-white text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            
-            <div class="py-4 space-y-3 text-xs">
-                <div class="p-3 bg-dark-900/80 rounded-xl border border-slate-800">
-                    <p class="font-semibold text-slate-300 mb-1">Rincian Paket Pemeliharaan (Checklist):</p>
-                    <ul class="list-disc list-inside space-y-1 text-slate-400">
-                        <li>Penggantian Oli Mesin (SAE 15W-40 Heavy Duty)</li>
-                        <li>Penggantian Filter Oli & Filter Bahan Bakar Primary</li>
-                        <li>Pemeriksaan Tekanan Hidrolik Main Pump</li>
-                        <li>Greasing Bushing Boom, Arm & Bucket</li>
-                    </ul>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 text-slate-400">
-                    <div>Technician Lead: <span class="text-white font-medium">Budi Santoso</span></div>
-                    <div>Lokasi Site: <span class="text-white font-medium">Pit 3 Tambang A</span></div>
-                </div>
-            </div>
-
-            <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
-                <button onclick="closeServiceModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs rounded-xl">Tutup</button>
-                <button onclick="alert('Work Order PDF berhasil digenerate untuk unit ini!'); closeServiceModal();" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl">Cetak Work Order</button>
-            </div>
+          </form>
+          <div id="authMsg" role="status" aria-live="polite"></div>
         </div>
-    </div>
 
-    <!-- Modal 2: Interactive Video Preview Modal -->
-    <div id="videoModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-900/85 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 shadow-2xl border border-amber-500/30 relative">
-            <button onclick="closeVideoModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h3 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-circle-play text-amber-500 mr-2"></i>MBK Smart Diagnostic Preview</h3>
-            <p class="text-xs text-slate-400 mb-4">Simulasi inspeksi telemetri dan sistem pemantauan jam operasional unit.</p>
-            
-            <div class="aspect-video bg-black rounded-xl border border-slate-800 flex items-center justify-center relative overflow-hidden group">
-                <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80" class="w-full h-full object-cover opacity-40">
-                <div class="absolute text-center">
-                    <div class="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center mx-auto mb-2 text-amber-400 text-xl animate-pulse">
-                        <i class="fa-solid fa-chart-pie"></i>
-                    </div>
-                    <span class="text-sm font-semibold text-white">Interactive Telemetry Live Stream Demo</span>
-                    <p class="text-xs text-slate-400 mt-1">Connecting to Workshop Node Server #2027...</p>
-                </div>
+        <!-- Panel Reset Password -->
+        <div class="login-pane" id="resetPane" hidden>
+          <button type="button" class="btn-link back-link" data-go="login"><i class="fa-solid fa-arrow-left"></i>&nbsp;Kembali ke Login</button>
+          <h2>Reset Password</h2>
+          <p class="sub">Masukkan email perusahaan Anda untuk menerima tautan pemulihan kata sandi.</p>
+          <form id="resetForm">
+            <div class="fld">
+              <label for="resetEmail">Email</label>
+              <i class="fa-regular fa-envelope ic"></i>
+              <input id="resetEmail" type="email" autocomplete="email" required placeholder="nama@perusahaan.com">
             </div>
+            <button type="submit" id="resetBtn" class="btn-primary">Kirim Tautan Reset <i class="fa-solid fa-paper-plane"></i></button>
+          </form>
+          <div id="resetMsg" role="status" aria-live="polite"></div>
         </div>
+      </div>
+
+      <div class="login-foot">
+        Hak akses dikelola sepenuhnya oleh Administrator Bengkel.<br>
+        Demi keamanan, sesi otomatis berakhir setelah 3 jam tanpa aktivitas.
+      </div>
     </div>
 
+    <div class="login-right">
+      <img class="hero-img" id="heroImg" alt="Maintenance Bengkel Kendaraan (MBK)" onerror="this.style.display='none'">
+      <div class="hero-shade"></div>
+      <div class="hero-content">
+        <div class="glass">
+          <div class="who">
+            <img src="logo-bengkel.png" alt="" onerror="this.style.display='none'">
+            <div><small>Divisi Maintenance</small><b>Forklift &amp; Heavy Equipment</b></div>
+          </div>
+          <span class="live">Active</span>
+        </div>
+        <div class="hero-text">
+          <div>
+            <small>Maintenance Bengkel Kendaraan</small>
+            <h3 id="heroTitle">Manajemen Armada &amp; Maintenance Terintegrasi</h3>
+          </div>
+          <div class="dots" id="heroDots"></div>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="hero-play" id="heroNext" title="Ganti tampilan visual" aria-label="Ganti tampilan visual"><i class="fa-solid fa-play"></i></button>
+  </div>
+</div>
 
-    <!-- ================================================================= -->
-    <!-- 3. JAVASCRIPT LOGIC & APPLICATION STATE                           -->
-    <!-- ================================================================= -->
-    <script>
-        // Sample Master Dataset Armada Unit
-        const unitData = [
-            { id: 'EXC-2027-01', model: 'Komatsu PC200-8', serial: 'KM890123', category: 'EXCAVATOR', currentHM: 2450, targetHM: 2500, date: '2027-03-15', status: 'DUE SOON' },
-            { id: 'EXC-2027-02', model: 'Caterpillar 320D', serial: 'CAT56789', category: 'EXCAVATOR', currentHM: 4120, targetHM: 4000, date: '2027-02-28', status: 'OVERDUE' },
-            { id: 'BULL-2027-01', model: 'Komatsu D85ESS', serial: 'KMD33412', category: 'BULLDOZER', currentHM: 1850, targetHM: 2000, date: '2027-04-02', status: 'SCHEDULED' },
-            { id: 'TRK-2027-05', model: 'Scania P410 CB', serial: 'SCN99011', category: 'DUMP TRUCK', currentHM: 5900, targetHM: 6000, date: '2027-03-22', status: 'SCHEDULED' },
-            { id: 'BULL-2027-04', model: 'CAT D6R Heavy', serial: 'CAT99812', category: 'BULLDOZER', currentHM: 3010, targetHM: 3000, date: '2027-03-01', status: 'IN SERVICE' },
-            { id: 'TRK-2027-09', model: 'Volvo FMX 440', serial: 'VLV44102', category: 'DUMP TRUCK', currentHM: 1210, targetHM: 1250, date: '2027-03-18', status: 'SCHEDULED' }
-        ];
+<div id="appShell" class="date-home" hidden>
+  <!-- Top App Header -->
+  <div class="app-header">
+    <div class="brand-left">
+      <div class="badge-tag"><i class="fa-solid fa-wrench"></i> BENGKEL MBK</div>
+      <div class="sync-badge" id="sync">Tersinkron Database</div>
+    </div>
+    <div class="stats-right">
+      <button id="logoutBtn" type="button" style="padding:6px 10px; font-size:11px;"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+    </div>
+  </div>
 
-        let currentActiveCategory = 'ALL';
+  <!-- Main Title Bar -->
+  <div class="main-title-bar">
+    <div class="title-brand">
+      <img class="brand-logo" src="logo-bengkel.png" alt="Logo MBK" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>MBK</div>'">
+      <div class="title-text">
+        <h1>MASTER PLAN</h1>
+        <div class="title-sub">MAINTENANCE BENGKEL KENDARAAN (MBK)</div>
+        <div class="user-line" id="userBadge"></div>
+      </div>
+    </div>
+  </div>
 
-        // Render Table Data
-        function renderTable(dataToRender) {
-            const tbody = document.getElementById('unitTableBody');
-            tbody.innerHTML = '';
+  <div class="kpi-grid" aria-label="Ringkasan master plan">
+    <div class="kpi-card"><div class="kpi-label">Total Units</div><div class="kpi-value" id="kpiUnits">201</div><div class="kpi-sub">Forklift diesel, baterai & traktor</div><i class="fa-solid fa-truck-monster kpi-icon"></i></div>
+    <div class="kpi-card"><div class="kpi-label">Jadwal PM Tahun 2027</div><div class="kpi-value" id="kpiServices">—</div><div class="kpi-sub">Total estimasi jadwal servis</div><i class="fa-solid fa-calendar-check kpi-icon"></i></div>
+    <div class="kpi-card kpi-urgent"><div class="kpi-label">Overdue / Mendesak</div><div class="kpi-value" id="kpiUrgent">—</div><div class="kpi-sub">Jadwal lewat atau jatuh tempo ≤ 7 hari</div><i class="fa-solid fa-triangle-exclamation kpi-icon"></i></div>
+  </div>
 
-            dataToRender.forEach(unit => {
-                let statusBadge = '';
-                if(unit.status === 'OVERDUE') {
-                    statusBadge = '<span class="px-2.5 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">OVERDUE</span>';
-                } else if(unit.status === 'DUE SOON') {
-                    statusBadge = '<span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-bold">DUE SOON</span>';
-                } else if(unit.status === 'IN SERVICE') {
-                    statusBadge = '<span class="px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-bold">IN SERVICE</span>';
-                } else {
-                    statusBadge = '<span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">SCHEDULED</span>';
-                }
+  <!-- Control Toolbar: kategori, kode unit, tanggal servis, laporan -->
+  <div class="control-toolbar">
+    <div class="search-box-wrapper category-select-wrapper">
+      <label class="search-label" for="categoryFilter">Kategori Kendaraan</label>
+      <select id="categoryFilter" aria-label="Kategori Kendaraan">
+        <option value="ALL">Semua Unit (201)</option>
+        <option value="D">Forklift Diesel (103)</option>
+        <option value="B">Forklift Baterai (73)</option>
+        <option value="T">Traktor (25)</option>
+      </select>
+    </div>
+    <div class="search-box-wrapper">
+      <label class="search-label" for="q">Cari kode unit</label>
+      <input id="q" list="dl" placeholder="Cari kode, contoh: A71 atau T1" autocomplete="off">
+      <datalist id="dl"></datalist>
+    </div>
+    <div class="toolbar-date search-box-wrapper">
+      <label class="search-label" for="serviceDate">Tanggal servis</label>
+      <div class="service-date-input-wrap">
+        <input type="text" id="serviceDate" aria-label="Tanggal servis (DD/MM/YYYY)" inputmode="numeric" autocomplete="off" value="" title="Ketik tanggal dengan format DD/MM/YYYY atau klik ikon kalender" placeholder="DD/MM/YYYY">
+        <button type="button" id="openServiceDatePicker" aria-label="Buka kalender tanggal servis" title="Pilih tanggal dari kalender"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i></button>
+        <input type="date" id="serviceDatePicker" aria-label="Kalender tanggal servis" min="2027-01-01" max="2027-12-31" tabindex="-1">
+      </div>
+    </div>
+    <div class="toolbar-actions">
+      <button type="button" class="pdf-btn reset-btn" id="resetFiltersBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+      <button type="button" class="pdf-btn" id="searchServiceDate"><i class="fa-solid fa-magnifying-glass"></i> Terapkan Tanggal</button>
+      <button type="button" class="pdf-btn" id="exportPdfBtnMain"><i class="fa-solid fa-file-pdf"></i> Unduh PDF (A4)</button>
+    </div>
+  </div>
 
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/40 transition-colors";
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-amber-400">${unit.id}</td>
-                    <td class="p-4">
-                        <div class="font-semibold text-white">${unit.model}</div>
-                        <div class="text-[10px] text-slate-500">SN: ${unit.serial}</div>
-                    </td>
-                    <td class="p-4"><span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">${unit.category}</span></td>
-                    <td class="p-4 text-right font-mono text-slate-200">${unit.currentHM.toLocaleString()} HM</td>
-                    <td class="p-4 text-right font-mono text-amber-400 font-bold">${unit.targetHM.toLocaleString()} HM</td>
-                    <td class="p-4 text-slate-300">${unit.date}</td>
-                    <td class="p-4">${statusBadge}</td>
-                    <td class="p-4 text-center no-print">
-                        <button onclick="openServiceModal('${unit.id}', '${unit.model}', '${unit.targetHM}')" 
-                            class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 hover:text-slate-950 text-amber-400 rounded-lg transition-all text-[11px]">
-                            Detail PM
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+  <!-- Status Bar Info -->
+  <div class="status-bar-info">
+    <div id="st">Pilih atau ketik kode forklift atau traktor untuk menampilkan rincian master plan.</div>
+    <div>Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</div>
+  </div>
 
-            document.getElementById('unitCount').innerText = dataToRender.length;
-        }
 
-        // Filtering logic
-        function filterTable() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const dateVal = document.getElementById('dateFilter').value;
 
-            const filtered = unitData.filter(unit => {
-                const matchesCategory = (currentActiveCategory === 'ALL' || unit.category === currentActiveCategory);
-                const matchesQuery = unit.id.toLowerCase().includes(query) || 
-                                     unit.model.toLowerCase().includes(query) || 
-                                     unit.serial.toLowerCase().includes(query);
-                const matchesDate = !dateVal || unit.date === dateVal;
+  <!-- Tabel operasional jadwal servis mendatang: tampil secara default -->
+  <section class="card overview-card" id="upcomingServicesCard" aria-labelledby="upcomingTitle">
+    <div class="overview-head">
+      <div>
+        <h2 id="upcomingTitle"><i class="fa-solid fa-calendar-check"></i> Jadwal Servis Mendatang</h2>
+        <div class="overview-meta">Preventive Maintenance • Master Plan 2027</div>
+      </div>
+      <span class="table-chip" id="upcomingCount">Memuat jadwal…</span>
+    </div>
+    <div id="overviewTable" class="overview-table-wrap"></div>
+    <div class="pagination-bar" id="upcomingPagination"></div>
+  </section>
+  <div id="emptyState" class="empty-state" hidden>
+    <i class="fa-solid fa-calendar-xmark"></i>
+    <h3>Tidak ada jadwal servis pada tanggal/kode unit ini</h3>
+    <p>Coba ubah kata kunci, kategori kendaraan, atau tanggal servis.</p>
+    <button type="button" class="pdf-btn" id="emptyResetBtn"><i class="fa-solid fa-rotate-left"></i> Reset pencarian</button>
+  </div>
 
-                return matchesCategory && matchesQuery && matchesDate;
-            });
+  <div id="res" hidden>
+    <!-- Informasi Detail Unit Terpilih -->
+    <div class="card">
+      <div class="section-header-title"><i class="fa-solid fa-circle-info"></i> Informasi Detail Unit Terpilih</div>
+      <div class="info" id="info"></div>
+    </div>
 
-            renderTable(filtered);
-        }
+    <!-- Dashboard Grid: Simulator Laju Kerja & Jadwal/Matrix -->
+    <div class="dashboard-grid">
+      <!-- Left Column: Simulator Laju Kerja -->
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h2>Simulator Laju Kerja</h2>
+          <span style="background:rgba(245,158,11,0.1); color:var(--ac); border:1px solid rgba(245,158,11,0.2); font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px;">Interactive</span>
+        </div>
+        <div id="lj" style="font-size:12px;"></div>
+        <div class="note" style="margin-top:12px;">Laju baru berlaku mulai tanggal yang dipilih. Servis sesudah tanggal itu dihitung ulang secara otomatis.</div>
+      </div>
 
-        function setCategoryFilter(cat) {
-            currentActiveCategory = cat;
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                if(btn.innerText.toUpperCase() === cat || (cat === 'ALL' && btn.innerText === 'Semua')) {
-                    btn.className = "cat-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500 text-slate-950 shadow";
-                } else {
-                    btn.className = "cat-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white";
-                }
-            });
-            filterTable();
-        }
+      <!-- Right Column: Schedule & Matrix -->
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="card" style="margin-bottom:0;">
+          <h2>Jadwal &amp; Estimasi PM 2027</h2>
+          <div class="wrap"><table id="tb"></table></div>
+          <div class="note" id="upd"></div>
+          <div class="note">Isi kolom Downtime CM (hari) untuk menggeser servis tersebut dan semua servis sesudahnya. Baris abu-abu = jatuh di luar 2027.</div>
+          <p style="margin-top:12px;"><button id="rs"><i class="fa-solid fa-rotate-left"></i> Reset downtime unit ini</button></p>
+        </div>
 
-        function selectPMInterval(interval) {
-            alert(`Filter Matrix: Menampilkan rekomendasi paket servis interval ${interval} HM untuk seluruh armada.`);
-        }
+        <div class="card" style="margin-bottom:0;">
+          <h2>Matriks Bulanan 2027 (HM)</h2>
+          <div class="wrap"><table class="mx" id="mx"></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // Auth Gate Logic & Switchers
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const gate = document.getElementById('authGate');
-            const app = document.getElementById('appShell');
+  <!-- Modal Dialog -->
+  <div id="md" class="ov" hidden>
+    <div class="bx">
+      <div id="mt"></div>
+      <input id="mi" hidden autocomplete="off">
+      <div id="me"></div>
+      <div class="bt">
+        <button id="mn">Batal</button>
+        <button id="my">Ya, simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-            // Set user display name
-            document.getElementById('userDisplayName').innerText = email;
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAT9zREF3SgYS9vPZtzKODFCKq7kmULMxg",
+  authDomain: "master-plan-forklift.firebaseapp.com",
+  projectId: "master-plan-forklift",
+  appId: "1:652160611676:web:918b0b12c52b2309a6fd99"
+};
+const firebaseConfigReady = !Object.values(firebaseConfig).some(v => String(v).includes("GANTI_DENGAN"));
+</script>
+<script src="data-forklift-2027.js?v=4"></script>
+<script>
+const FORKLIFT_DATA=window.FORKLIFT_DATA_2027;
+if(!Array.isArray(FORKLIFT_DATA)||FORKLIFT_DATA.length!==176) throw new Error('File data-forklift-2027.js tidak berhasil dimuat (seharusnya 176 unit).');
+const TRACTOR_DATA=[{"c":"T1","d":"Gd Kemas Noodle","t":"T","l":3.5,"i":29,"f":"2027-01-15","n":13,"h":100,"p":9,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T2","d":"G.PR. NOODLE 1","t":"T","l":3.6,"i":28,"f":"2027-01-15","n":13,"h":100,"p":11,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T3","d":"G. FG N (WM)","t":"T","l":3.8,"i":26,"f":"2027-01-17","n":14,"h":100,"p":17,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T4","d":"G. FG N (WM)","t":"T","l":4.4,"i":23,"f":"2027-01-22","n":15,"h":100,"p":19,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T5","d":"G.PR.FG.SBL KCP","t":"T","l":2.7,"i":37,"f":"2027-01-24","n":10,"h":100,"p":2,"dt":[0,0,0,0,0,0,0,0,0,0]},{"c":"T6","d":"G. FG N (WM)","t":"T","l":2.5,"i":40,"f":"2027-01-06","n":9,"h":100,"p":3,"dt":[0,0,0,0,0,0,0,0,0]},{"c":"T7","d":"Gd BS 1","t":"T","l":5.4,"i":19,"f":"2027-01-13","n":19,"h":100,"p":19,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T8","d":"G.PR.FG.SBL KCP","t":"T","l":2.3,"i":43,"f":"2027-01-02","n":9,"h":100,"p":12,"dt":[0,0,0,0,0,0,0,0,0]},{"c":"T9","d":"G.PR. NOODLE 1","t":"T","l":3.8,"i":27,"f":"2027-01-10","n":14,"h":100,"p":4,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T10","d":"Gd Kemas Noodle","t":"T","l":5.8,"i":17,"f":"2027-01-11","n":21,"h":100,"p":4,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T11","d":"Gd Kemas Noodle","t":"T","l":2.7,"i":37,"f":"2027-02-06","n":9,"h":100,"p":19,"dt":[0,0,0,0,0,0,0,0,0]},{"c":"T12","d":"G. FG N (WM)","t":"T","l":3.7,"i":27,"f":"2027-01-10","n":14,"h":100,"p":8,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T13","d":"G.PR.FG.SBL KCP","t":"T","l":1.3,"i":75,"f":"2027-02-24","n":5,"h":100,"p":13,"dt":[0,0,0,0,0]},{"c":"T14","d":"Gd Kemas Noodle","t":"T","l":4.7,"i":21,"f":"2027-01-02","n":18,"h":100,"p":3,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T15","d":"G. FG N (WM)","t":"T","l":3.4,"i":29,"f":"2027-01-15","n":13,"h":100,"p":18,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T16","d":"G. FG N (WM)","t":"T","l":2.4,"i":42,"f":"2027-01-28","n":9,"h":100,"p":8,"dt":[0,0,0,0,0,0,0,0,0]},{"c":"T17","d":"EKSPEDISI","t":"T","l":2.3,"i":43,"f":"2027-01-22","n":8,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0]},{"c":"T18","d":"G. FG N (WM)","t":"T","l":4.0,"i":25,"f":"2027-01-04","n":15,"h":100,"p":19,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T19","d":"G. FG N (WM)","t":"T","l":1.6,"i":64,"f":"2027-02-21","n":5,"h":100,"p":19,"dt":[0,0,0,0,0]},{"c":"T20","d":"Gd Kemas Noodle","t":"T","l":4.4,"i":23,"f":"2027-01-21","n":15,"h":100,"p":1,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T21","d":"Gd Kemas Noodle","t":"T","l":4.9,"i":20,"f":"2027-01-11","n":18,"h":100,"p":16,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T22","d":"G.PR.FG.SBL KCP","t":"T","l":4.3,"i":23,"f":"2027-01-20","n":16,"h":100,"p":18,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T23","d":"G. FG. SSN 4","t":"T","l":3.9,"i":26,"f":"2027-01-17","n":14,"h":100,"p":10,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T24","d":"EKSPEDISI","t":"T","l":4.0,"i":25,"f":"2027-01-16","n":14,"h":100,"p":11,"dt":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},{"c":"T25","d":"G. FG. SSN 4","t":"T","l":2.5,"i":39,"f":"2027-01-24","n":9,"h":100,"p":20,"dt":[0,0,0,0,0,0,0,0,0]}];
+if(!Array.isArray(TRACTOR_DATA)||TRACTOR_DATA.length!==25) throw new Error('Data traktor tidak lengkap.');
+const DATA=[...FORKLIFT_DATA,...TRACTOR_DATA];
+const HR=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],BL=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const $=id=>document.getElementById(id),by={};DATA.forEach(r=>by[r.c.toLowerCase()]=r);
 
-            // Animate transition out
-            gate.style.opacity = '0';
-            setTimeout(() => {
-                gate.classList.add('hidden');
-                app.classList.remove('hidden');
-                renderTable(unitData);
-            }, 500);
-        }
+function updateDatalist(cat = 'ALL') {
+  const dl = $('dl');
+  dl.innerHTML = '';
+  const filtered = cat === 'ALL' ? DATA : DATA.filter(r => cat === 'T' ? r.t === 'T' : cat === 'B' ? r.t === 'B' : cat === 'D' ? r.t !== 'B' && r.t !== 'T' : true);
+  filtered.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.c;
+    opt.label = r.d || '';
+    dl.appendChild(opt);
+  });
+}
+updateDatalist('ALL');
 
-        function handleLogout() {
-            const gate = document.getElementById('authGate');
-            const app = document.getElementById('appShell');
-            
-            app.classList.add('hidden');
-            gate.classList.remove('hidden');
-            setTimeout(() => {
-                gate.style.opacity = '1';
-            }, 50);
-        }
+const key=c=>'dt_'+c;
+function ask(msg,ok,o){o=o||{};const md=$('md'),mi=$('mi');$('mt').textContent=msg;$('me').textContent='';mi.hidden=!o.need;mi.value='';mi.placeholder=o.need?'Ketik: '+o.need:'';$('my').textContent=o.yes||'Ya, simpan';$('mn').hidden=!!o.only;md.hidden=false;
+ const norm=v=>String(v).trim().toLowerCase().replace(/^(forklift|traktor)\s+/,'');
+ const close=()=>{md.hidden=true};
+ $('mn').onclick=()=>{close();o.cancel&&o.cancel()};
+ $('my').onclick=()=>{if(o.need&&norm(mi.value)!==norm(o.need)){$('me').textContent='Kode tidak sesuai.';return}close();ok&&ok()};
+ if(o.need)mi.focus()}
 
-        function switchToReset() {
-            const loginPane = document.getElementById('loginPane');
-            const resetPane = document.getElementById('resetPane');
+let db=null,canWrite=null,shared={},auth=null,currentUser=null,currentRole=null;
+const did=c=>'dt_'+c.replace(/[^A-Za-z0-9_.:@+~-]/g,'_');
+function load(r){const x=shared[did(r.c)];if(x&&Array.isArray(x.dt))return x.dt.concat(r.dt.slice(x.dt.length));if(!db){try{const l=JSON.parse(localStorage.getItem(key(r.c)));if(l)return l}catch(e){}}return r.dt.slice()}
+function save(r,a){const id=did(r.c),at=new Date().toISOString();
+ if(db){shared[id]={dt:a,at};render();db.doc('downtime/'+id).set({dt:a,at}).catch(e=>{delete shared[id];render();info('Gagal menyimpan: perubahan hanya dapat dilakukan oleh yang punya akses mengisi.')})}
+ else{try{localStorage.setItem(key(r.c),JSON.stringify(a))}catch(e){}render()}}
+let lshared={};
+function lget(r){const x=lshared[did(r.c)];if(x)return{base:+x.base||r.l,ch:(x.ch||[]).slice()};if(!db){try{const l=JSON.parse(localStorage.getItem('lj_'+r.c));if(l)return l}catch(e){}}return{base:r.l,ch:[]}}
+function lsave(r,o){const id=did(r.c),at=new Date().toISOString();o.ch.sort((a,b)=>a.f<b.f?-1:1);
+ if(db){lshared[id]={base:o.base,ch:o.ch,at};render();db.doc('laju/'+id).set({base:o.base,ch:o.ch,at}).catch(e=>{delete lshared[id];render();info('Gagal menyimpan: Anda tidak punya akses mengisi.')})}
+ else{try{localStorage.setItem('lj_'+r.c,JSON.stringify(o))}catch(e){}render()}}
+function stepDays(start,rate,interval=200){let rem=interval,n=0;while(n<400){n++;const rt=rate(start+n*864e5);rem-=rt;if(rem<=rt/2)break}return n}
+function banner(){
+  const e=$('sync');
+  if(!db) e.textContent='● Database belum tersambung';
+  else if(canWrite===false) e.textContent='● Mode lihat saja';
+  else e.textContent='Tersinkron Database';
+  e.style.color=db&&canWrite!==false?'#4ade80':'#fbbf24';
+}
+function showAuth(message=''){ $('authGate').hidden=false; $('appShell').hidden=true; $('authMsg').textContent=message; }
+function showApp(user,role){
+ currentUser=user; currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false;
+ $('userBadge').textContent=(user.email||user.uid)+' · '+({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja'}[role]||role);
+ banner(); render();
+}
+function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('authMsg').textContent='Memeriksa akun…';$('loginBtn').disabled=true;
+ try{if(!firebaseConfigReady)throw new Error('Konfigurasi Firebase belum diisi.');const em=$('loginEmail').value.trim(),pw=$('loginPassword').value;if(window.MbkSession)await MbkSession.beforeLogin();await auth.signInWithEmailAndPassword(em,pw);if(window.MbkSession)MbkSession.afterLogin(em,pw)}catch(err){$('authMsg').textContent=friendlyAuthError(err)}finally{$('loginBtn').disabled=false}
+});
+$('logoutBtn').addEventListener('click',()=>auth.signOut());
 
-            loginPane.classList.add('-translate-x-full', 'opacity-0', 'pointer-events-none');
-            resetPane.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
-        }
+if(!firebaseConfigReady){showAuth('Setup diperlukan: konfigurasi Firebase belum diisi.');banner();}
+else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
+ auth.onAuthStateChanged(async user=>{
+  if(!user){currentUser=null;currentRole=null;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
+  try{const profile=await db.collection('users').doc(user.uid).get();const role=profile.exists?profile.data().role:null;
+   if(!['admin','technician','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
+   showApp(user,role);
+   db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error(err)});
+   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error(err)});
+  }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses.')}
+ });
+ }catch(err){showAuth('Firebase gagal dimulai: '+err.message)}}
+banner();
 
-        function switchToLogin() {
-            const loginPane = document.getElementById('loginPane');
-            const resetPane = document.getElementById('resetPane');
+const fmt=d=>d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
+function jenis(p,r){if(r.t==='T') return p%20===0?2000:p%10===0?1000:p%5===0?500:p%2===0?200:100; return p%12==0?2400:p%12==6?1200:p%2==1?200:400}
+const KJ={100:'Servis berkala forklift baterai (100 HM)',2400:'SERVICE BESAR: oli mesin, filter, hidrolis, gardan, transmisi',1200:'Oli mesin + oli filter + fuel filter',400:'Oli mesin + oli filter',200:'Oli mesin'};
+const TRACTOR_JOBS={100:'Ganti oli mesin, cleaning+greasing, cek unit',200:'Ganti oli mesin, ganti filter oli, cleaning+greasing, cek unit',500:'Ganti oli mesin, ganti filter oli, ganti fuel filter, cleaning+greasing, cek unit',1000:'Ganti oli mesin, ganti filter oli, ganti fuel filter, ganti air filter (IN)+(OUT), ganti oli gardan, ganti oli transmisi, cleaning+greasing, cek unit',2000:'Ganti oli mesin, ganti filter oli, ganti fuel filter, ganti air filter (IN)+(OUT), ganti oli gardan, ganti oli transmisi, ganti filter transmisi, ganti v belt, cleaning+greasing, cek unit'};
 
-            loginPane.classList.remove('-translate-x-full', 'opacity-0', 'pointer-events-none');
-            resetPane.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
-        }
+// Menghitung tanggal PM menggunakan aturan yang sama dengan tabel jadwal tiap unit.
+function getScheduleRowsForDateSearch(r){
+ const dt=load(r),lj=lget(r),f0=new Date(r.f+'T00:00:00Z'),rows=[];
+ const chs=lj.ch.map(c=>({t:Date.parse(c.f+'T00:00:00Z'),l:+c.l})).filter(c=>c.t===c.t&&c.l>0).sort((a,b)=>a.t-b.t);
+ const rate=ms=>{let l=lj.base==r.l?(r.h||200)/r.i:lj.base;for(const c of chs){if(c.t<=ms)l=c.l}return l};
+ let cur=0,nm=+f0;
+ for(let k=0;k<r.n;k++){
+  const d=+dt[k]||0;let n=0;
+  if(k===0){cur=+f0+d*864e5}else{n=stepDays(cur,rate,r.h||200);nm=nm+stepDays(nm,rate,r.h||200)*864e5;cur=cur+(n+d)*864e5}
+  const rv=new Date(cur),norm=new Date(nm),p=r.p+k,j=r.t==='B'?100:jenis(p,r);
+  rows.push({k,rv,norm,p,j,targetHM:r.t==='T'?p*100:(k+1)*(r.h||200),d,pekerjaan:r.t==='T'?TRACTOR_JOBS[j]:KJ[j]});
+ }
+ return rows;
+}
+function renderServiceDateSearch(){
+ const date=$('serviceDate').value,box=$('serviceDateResults'),status=$('serviceDateStatus');
+ if(!date){status.textContent='Silakan pilih tanggal servis terlebih dahulu.';box.hidden=true;return;}
+ if(date<'2027-01-01'||date>'2027-12-31'){status.textContent='Pencarian ini menggunakan jadwal master plan tahun 2027.';box.hidden=true;return;}
+ const found=[];
+ DATA.forEach(r=>getScheduleRowsForDateSearch(r).forEach(x=>{if(fmt(x.rv)===date)found.push({r,...x});}));
+ found.sort((a,b)=>a.r.c.localeCompare(b.r.c,undefined,{numeric:true}));
+ const displayDate=new Date(date+'T00:00:00Z').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+ if(!found.length){status.textContent='Tidak ditemukan jadwal PM untuk '+displayDate+' berdasarkan estimasi saat ini.';box.hidden=true;return;}
+ status.textContent=found.length+' unit dijadwalkan servis pada '+displayDate+'.';
+ let h='<table><thead><tr><th>Kode Unit</th><th>Jenis</th><th>Departemen</th><th>PM</th><th>Target HM</th><th>Pekerjaan</th></tr></thead><tbody>'; 
+ found.forEach(x=>{
+  const kind=x.r.t==='T'?'Traktor':x.r.t==='B'?'Baterai':'Diesel';
+  h+='<tr><td><b>'+x.r.c+'</b></td><td>'+kind+'</td><td class="l">'+(x.r.d||'-')+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+x.targetHM.toLocaleString('id-ID')+' HM</td><td class="l">'+(x.pekerjaan||'-')+'</td></tr>'; 
+ });
+ h+='</tbody></table>';box.innerHTML=h;box.hidden=false;
 
-        function handleResetPassword(e) {
-            e.preventDefault();
-            alert('Instruksi reset password telah dikirimkan ke email anda.');
-            switchToLogin();
-        }
+}
+$('searchServiceDate').addEventListener('click',()=>{upcomingPage=1;renderUpcomingTable();});
+$('serviceDate').addEventListener('change',()=>{upcomingPage=1;renderUpcomingTable();});
+// Kalender native: pengguna tetap dapat mengetik DD/MM/YYYY atau memilih tanggal lewat ikon.
+function isoToIndonesianDate(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))return '';const [y,m,d]=iso.split('-');return d+'/'+m+'/'+y;}
+function indonesianToIsoDate(value){const m=String(value||'').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return '';const d=+m[1],mo=+m[2],y=+m[3],dt=new Date(Date.UTC(y,mo-1,d));return dt.getUTCFullYear()===y&&dt.getUTCMonth()===mo-1&&dt.getUTCDate()===d?y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'):'';}
+const serviceDateInput=$('serviceDate'),serviceDatePicker=$('serviceDatePicker');
+$('openServiceDatePicker').addEventListener('click',()=>{const current=indonesianToIsoDate(serviceDateInput.value);serviceDatePicker.value=current||'';if(typeof serviceDatePicker.showPicker==='function'){try{serviceDatePicker.showPicker();return;}catch(e){}}serviceDatePicker.focus();serviceDatePicker.click();});
+serviceDatePicker.addEventListener('change',()=>{if(serviceDatePicker.value){serviceDateInput.value=isoToIndonesianDate(serviceDatePicker.value);serviceDateInput.dispatchEvent(new Event('change',{bubbles:true}));}});
+serviceDateInput.addEventListener('input',()=>{const iso=indonesianToIsoDate(serviceDateInput.value);if(iso)serviceDatePicker.value=iso;else if(!serviceDateInput.value.trim())serviceDatePicker.value='';});
+$('resetFiltersBtn').addEventListener('click',resetSearchFilters);
+$('emptyResetBtn').addEventListener('click',resetSearchFilters);
 
-        function togglePasswordVisibility(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
+function getActiveCategory() {
+  return $('categoryFilter') ? $('categoryFilter').value : 'ALL';
+}
 
-            if(input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fa-solid fa-eye-slash text-amber-400';
-            } else {
-                input.type = 'password';
-                icon.className = 'fa-solid fa-eye';
-            }
-        }
+function find(v){
+  v = v.trim().toLowerCase();
+  if(!v) return null;
+  const unit = by[v] || by['forklift ' + v] || by['traktor ' + v] || null;
+  if(!unit) return null;
+  
+  const currentCat = getActiveCategory();
+  if(currentCat !== 'ALL') {
+    if(currentCat === 'T' && unit.t !== 'T') return null;
+    if(currentCat === 'B' && unit.t !== 'B') return null;
+    if(currentCat === 'D' && (unit.t === 'B' || unit.t === 'T')) return null;
+  }
+  return unit;
+}
 
-        // Modals Logic
-        function openServiceModal(code, model, hm) {
-            document.getElementById('modalUnitCode').innerText = code;
-            document.getElementById('modalUnitSub').innerText = `${model} (Target: ${hm} HM)`;
-            const modal = document.getElementById('serviceModal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-        }
+function renderOverview(){
+ const rows=[];
+ DATA.forEach(r=>getScheduleRowsForDateSearch(r).forEach(x=>{
+   if(x.rv.getUTCFullYear()===2027) rows.push({r,...x});
+ }));
+ $('kpiUnits').textContent=DATA.length.toLocaleString('id-ID');
+ $('kpiServices').textContent=rows.length.toLocaleString('id-ID');
+}
 
-        function closeServiceModal() {
-            const modal = document.getElementById('serviceModal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-        }
+let upcomingPage=1;
+const UPCOMING_PAGE_SIZE=10;
+function dateId(d){return d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'});}
+function parseIndonesianDate(v){const m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return '';const d=+m[1],mo=+m[2],y=+m[3];const x=new Date(Date.UTC(y,mo-1,d));return x.getUTCFullYear()===y&&x.getUTCMonth()===mo-1&&x.getUTCDate()===d&&y===2027?y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'):'';}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function getUpcomingRows(){
+ const rows=[];
+ DATA.forEach(r=>getScheduleRowsForDateSearch(r).forEach(x=>{
+  if(x.rv.getUTCFullYear()!==2027)return;
+  rows.push({r,...x,kind:r.t==='T'?'Traktor':r.t==='B'?'Baterai':'Diesel',priority:(x.rv.getTime()<Date.now()?'critical':x.rv.getTime()<=Date.now()+7*864e5?'high':'normal')});
+ }));
+ return rows.sort((a,b)=>a.rv-b.rv||a.r.c.localeCompare(b.r.c,undefined,{numeric:true}));
+}
+function renderUpcomingTable(){
+ const card=$('upcomingServicesCard'),empty=$('emptyState'),query=$('q').value.trim(),date=$('serviceDate').value,cat=getActiveCategory();
+ const detailActive=!!query;
+ card.hidden=detailActive; empty.hidden=true;
+ const dateFilter=date.trim()?parseIndonesianDate(date.trim()):'';
+ if(date.trim()&&!dateFilter){card.hidden=true;empty.hidden=false;$('upcomingCount').textContent='Format tanggal tidak valid';$('upcomingPagination').innerHTML='';return;}
+ if(detailActive){$('upcomingPagination').innerHTML='';return;}
+ let rows=getUpcomingRows();
+ if(cat==='T')rows=rows.filter(x=>x.r.t==='T');
+ else if(cat==='D')rows=rows.filter(x=>x.r.t!=='B'&&x.r.t!=='T');
+ else if(cat==='B')rows=rows.filter(x=>x.r.t==='B');
+ if(dateFilter)rows=rows.filter(x=>fmt(x.rv)===dateFilter);
+ $('upcomingCount').textContent=rows.length.toLocaleString('id-ID')+' jadwal';
+ $('kpiUrgent').textContent=getUpcomingRows().filter(x=>x.priority!=='normal').length.toLocaleString('id-ID');
+ if(!rows.length){card.hidden=true;empty.hidden=false;$('overviewTable').innerHTML='';$('upcomingPagination').innerHTML='';return;}
+ const pages=Math.max(1,Math.ceil(rows.length/UPCOMING_PAGE_SIZE));upcomingPage=Math.min(Math.max(1,upcomingPage),pages);
+ const first=(upcomingPage-1)*UPCOMING_PAGE_SIZE,shown=rows.slice(first,first+UPCOMING_PAGE_SIZE);
+ let h='<table><thead><tr><th>Tanggal Servis</th><th>Kode Unit &amp; Jenis</th><th>Departemen</th><th>Kategori</th><th>Maintenance</th><th>Prioritas</th><th>Aksi</th></tr></thead><tbody>';
+ shown.forEach(x=>{
+  const icon=x.kind==='Traktor'?'fa-tractor':x.kind==='Baterai'?'fa-car-battery':'fa-truck';
+  const p=x.priority==='critical'?'Critical':x.priority==='high'?'High':'Normal';
+  h+='<tr><td><strong>'+dateId(x.rv)+'</strong><div class="unit-kind">Target '+x.targetHM.toLocaleString('id-ID')+' HM</div></td><td><div class="unit-cell"><span class="unit-icon"><i class="fa-solid '+icon+'"></i></span><span><span class="unit-code">'+escapeHtml(x.r.c)+'</span><span class="unit-kind">'+x.kind+'</span></span></div></td><td>'+escapeHtml(x.r.d||'-')+'</td><td>'+x.kind+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td><span class="priority '+x.priority+'">'+p+'</span></td><td><div class="action-buttons"><button type="button" data-unit="'+escapeHtml(x.r.c)+'" class="detail-btn">Detail</button><button type="button" data-unit="'+escapeHtml(x.r.c)+'" class="history-btn">History</button></div></td></tr>';
+ });
+ h+='</tbody></table>';$('overviewTable').innerHTML=h;
+ $('upcomingPagination').innerHTML='<span>Menampilkan '+(first+1)+'–'+Math.min(first+shown.length,rows.length)+' dari '+rows.length.toLocaleString('id-ID')+' jadwal</span><div class="pagination-controls"><button type="button" id="pagePrev" '+(upcomingPage===1?'disabled':'')+' aria-label="Halaman sebelumnya"><i class="fa-solid fa-chevron-left"></i></button><span>Halaman '+upcomingPage+' / '+pages+'</span><button type="button" id="pageNext" '+(upcomingPage===pages?'disabled':'')+' aria-label="Halaman berikutnya"><i class="fa-solid fa-chevron-right"></i></button></div>';
+ $('pagePrev').onclick=()=>{upcomingPage--;renderUpcomingTable()};$('pageNext').onclick=()=>{upcomingPage++;renderUpcomingTable()};
+ $('overviewTable').querySelectorAll('button[data-unit]').forEach(b=>b.onclick=()=>{$('q').value=b.dataset.unit;render();if(b.classList.contains('history-btn')){setTimeout(()=>$('tb').scrollIntoView({behavior:'smooth',block:'start'}),50);}else{window.scrollTo({top:0,behavior:'smooth'});}});
+}
+function resetSearchFilters(){ $('q').value='';$('serviceDate').value='';if($('serviceDatePicker'))$('serviceDatePicker').value='';$('categoryFilter').value='ALL';upcomingPage=1;$('res').hidden=true;$('st').textContent='Pilih atau ketik kode unit untuk menampilkan rincian master plan.';$('emptyState').hidden=true;updateDatalist('ALL');render(); }
 
-        function openVideoModal() {
-            const modal = document.getElementById('videoModal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-        }
+function render(){
+ renderOverview();
+ renderUpcomingTable();
+ const r=find($('q').value),res=$('res');
+ if(!r){res.hidden=true;const searching=!!$('q').value.trim();$('st').textContent=searching?'✗ Kode tidak ditemukan atau berada di luar kategori filter yang dipilih — cek kembali':'Pilih atau ketik kode unit untuk menampilkan rincian master plan.';if(searching){$('upcomingServicesCard').hidden=true;$('emptyState').hidden=false;}return}else{$('emptyState').hidden=true}
+ $('st').innerHTML='✓ Data ditemukan: <b>'+r.c+'</b> ('+(r.t==='T'?'Traktor':r.t==='B'?'Baterai':'Diesel')+')';res.hidden=false;
+ const dt=load(r),lj=lget(r),f0=new Date(r.f+'T00:00:00Z'),rows=[];
+ const chs=lj.ch.map(c=>({t:Date.parse(c.f+'T00:00:00Z'),l:+c.l})).filter(c=>c.t==c.t&&c.l>0).sort((a,b)=>a.t-b.t);
+ const rate=ms=>{let l=lj.base==r.l?(r.h||200)/r.i:lj.base;for(const c of chs){if(c.t<=ms)l=c.l}return l};
+ let cur=0,nm=+f0;
+ for(let k=0;k<r.n;k++){const d=+dt[k]||0;let n=0;
+  if(k==0){cur=+f0+d*864e5}else{n=stepDays(cur,rate,r.h||200);nm=nm+stepDays(nm,rate,r.h||200)*864e5;cur=cur+(n+d)*864e5}
+  rows.push({k,norm:new Date(nm),d,n,rv:new Date(cur),p:r.p+k})}
+ rows.forEach(x=>{const in27=x.rv.getUTCFullYear()==2027;x.m=in27?x.rv.getUTCMonth()+1:0;x.w=in27?Math.min(4,Math.floor((x.rv.getUTCDate()-1)/7)+1):0;x.j=r.t==='B'?100:jenis(x.p,r)});
+ const tot=dt.reduce((a,b)=>a+(+b||0),0),n27=rows.filter(x=>x.m>0).length;
 
-        function closeVideoModal() {
-            const modal = document.getElementById('videoModal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-        }
+ $('info').innerHTML=[
+  ['Kode Unit', r.c],
+  ['Jenis Machine', (r.t==='T'?'Traktor':r.t==='B'?'Baterai':'Diesel') + (r.t==='T'?'':' Engine Fuel')],
+  ['Interval PM', (r.h||200)+' HM'],
+  ['Departemen', r.d],
+  ['Laju Awal', (+lj.base).toFixed(1)+' HM/hr'],
+  ['Laju Sekarang', rate(Date.now()).toFixed(1)+' HM/hr'],
+  ['Downtime CM', tot+' Hari'],
+  ['Est. Servis 2027', n27+'x']
+ ].map(a=>'<div><b>'+a[0]+'</b><span>'+a[1]+'</span></div>').join('');
 
-        function triggerPrintPDF() {
-            window.print();
-        }
+ let h='<tr><th>Bulan</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th></tr>';
+ for(let m=1;m<=12;m++){h+='<tr><td>'+BL[m-1]+'</td>';for(let w=1;w<=4;w++){const x=rows.find(y=>y.m==m&&y.w==w);h+=x?'<td class="t'+x.j+'">'+x.j+'</td>':'<td></td>'}h+='</tr>'}
+ $('mx').innerHTML=h;
 
-        // Hero Carousel Logic
-        let currentSlide = 0;
-        const totalSlides = 3;
+ h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
+ rows.forEach(x=>{
+  const targetHM = r.t==='T' ? x.p*100 : (x.k + 1) * (r.h || 200);
+  const intervalVal = x.k === 0 ? '-' : x.n + ' hari';
+  const pekerjaan=r.t==='T'?TRACTOR_JOBS[x.j]:KJ[x.j];
+  h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+targetHM+' HM</td><td><b>'+fmt(x.rv)+'</b></td><td>'+intervalVal+'</td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+pekerjaan+'</td></tr>';
+ });
+ $('tb').innerHTML=h;
 
-        function setSlide(index) {
-            currentSlide = index;
-            for(let i = 0; i < totalSlides; i++) {
-                const slide = document.getElementById(`slide-${i}`);
-                const dot = document.getElementById(`dot-${i}`);
+ $('tb').querySelectorAll('input').forEach(i=>i.onchange=()=>{const k=+i.dataset.k,nv=Math.max(0,+i.value||0),old=+dt[k]||0;if(nv===old){render();return}
+  ask('Ubah downtime '+r.c+' — Servis ke-'+(k+1)+'\n\nDari '+old+' hari menjadi '+nv+' hari?',()=>{const a=load(r);a[k]=nv;save(r,a)},{cancel:()=>render()})});
 
-                if(i === index) {
-                    slide.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
-                    slide.classList.add('opacity-100', 'scale-100');
-                    dot.className = "w-8 h-2 rounded-full bg-amber-500 transition-all";
-                } else {
-                    slide.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
-                    slide.classList.remove('opacity-100', 'scale-100');
-                    dot.className = "w-2 h-2 rounded-full bg-slate-700 transition-all";
-                }
-            }
-        }
+ {const ro=canWrite===false?' disabled':'';let q='<div style="margin-bottom:8px">Laju Awal (HM/hari)<br><input id="lb" type="number" step="0.1" min="0.1" value="'+lj.base+'"'+ro+' style="width:100%; margin-top:4px;"></div>';
+ lj.ch.forEach((c,i)=>{q+='<div style="margin-top:6px; font-size:11px;">Mulai <b>'+c.f+'</b> → <b>'+c.l+'</b> HM/hari <button data-i="'+i+'"'+ro+' style="padding:2px 6px; font-size:10px;">Hapus</button></div>'});
+ q+='<div style="margin-top:12px; border-top:1px solid var(--bd); pt:10px;"><div style="font-weight:600; margin-bottom:6px;">Simulasi Laju Kerja Sekarang (HM/hari)</div><input id="ll" type="number" step="0.1" min="0.1" placeholder="HM/hari" value="'+rate(Date.now()).toFixed(1)+'" style="width:100%; margin-bottom:6px;"'+ro+'><div style="font-size:11px; margin-bottom:6px;">Tanggal Berlaku:</div><input id="ld" type="date" value="'+fmt(new Date())+'" style="width:100%; margin-bottom:8px;"'+ro+'><button id="la"'+ro+' style="width:100%; background:var(--card-hover);"><i class="fa-solid fa-plus"></i> Terapkan Simulasi</button></div>';
+ $('lj').innerHTML=q;
+ $('lb').onchange=()=>{const v=+$('lb').value;if(!(v>0)||v===+lj.base){render();return}ask('Ubah laju awal '+r.c+'?',()=>{const o=lget(r);o.base=v;lsave(r,o)},{cancel:()=>render()})};
+ $('lj').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const c=lj.ch[+b.dataset.i];ask('Hapus perubahan laju?',()=>{const o=lget(r);o.ch.splice(+b.dataset.i,1);lsave(r,o)})});$('la').onclick=()=>{const v=+$('ll').value,d=$('ld').value;if(!(v>0)||!d){alert('Isi tanggal dan laju.');return}ask('Simpan perubahan laju kerja?',()=>{const o=lget(r);o.ch=o.ch.filter(c=>c.f!=d);o.ch.push({f:d,l:v});lsave(r,o)})}}
 
-        function nextSlide() {
-            setSlide((currentSlide + 1) % totalSlides);
-        }
+ $('rs').disabled=canWrite===false;$('rs').onclick=()=>ask('RESET semua downtime '+r.c+' menjadi 0 hari?\nKetik kode unit untuk konfirmasi.',()=>save(r,r.dt.slice()),{need:r.c,yes:'Ya, reset'});
+ const u=shared[did(r.c)];$('upd').textContent=u&&u.at?'Terakhir diubah: '+new Date(u.at).toLocaleString('id-ID'):'';
+}
 
-        function prevSlide() {
-            setSlide((currentSlide - 1 + totalSlides) % totalSlides);
-        }
+// Filter kategori terintegrasi dengan pencarian kode dan tanggal servis
+$('categoryFilter').addEventListener('change', () => {
+  updateDatalist(getActiveCategory());
+  $('q').value = '';
+  const cat = getActiveCategory();
+  const filteredCount = cat === 'ALL' ? DATA.length : DATA.filter(r => cat === 'T' ? r.t === 'T' : cat === 'B' ? r.t === 'B' : cat === 'D' ? r.t !== 'B' && r.t !== 'T' : true).length;
+  $('st').textContent = filteredCount + ' unit tersedia dalam kategori ini.';
+  render();
+});
 
-        // Auto slide hero carousel
-        setInterval(() => {
-            nextSlide();
-        }, 5000);
+$('q').addEventListener('input', ()=>{upcomingPage=1;render();});
+banner(); render();
+</script>
+<!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
+<script src="export-pdf-forklift.js?v=1"></script>
+<!-- Sesi login: auto-logout 3 jam, Ingat Saya, tampilan halaman login -->
+<script src="auth-session.js?v=1"></script>
 
-        // Canvas Connecting Nodes & Glow Particles
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        let particlesArray = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.8;
-                this.speedY = (Math.random() - 0.5) * 0.8;
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-            }
-
-            draw() {
-                ctx.fillStyle = 'rgba(245, 158, 11, 0.5)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function initParticles() {
-            particlesArray = [];
-            const numberOfParticles = Math.floor((canvas.width * canvas.height) / 18000);
-            for (let i = 0; i < numberOfParticles; i++) {
-                particlesArray.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
-
-                for (let j = i; j < particlesArray.length; j++) {
-                    const dx = particlesArray[i].x - particlesArray[j].x;
-                    const dy = particlesArray[i].y - particlesArray[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < 110) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(245, 158, 11, ${1 - distance / 110 * 0.8})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
-                        ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
-                        ctx.stroke();
-                        ctx.closePath();
-                    }
-                }
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        window.onload = function() {
-            initParticles();
-            animateParticles();
-        };
-    </script>
 </body>
 </html>
