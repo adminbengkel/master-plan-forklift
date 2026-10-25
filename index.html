@@ -421,6 +421,32 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 @media(max-width:1050px) { .control-toolbar { grid-template-columns:1fr 1fr; } .toolbar-actions { grid-column:1/-1; justify-content:flex-end; } }
 @media(max-width:650px) { .control-toolbar { grid-template-columns:1fr; } .toolbar-actions { grid-column:auto; display:grid; grid-template-columns:1fr 1fr; } .toolbar-actions #exportPdfBtnMain { grid-column:1/-1; justify-content:center; } .pagination-bar { align-items:flex-start; flex-direction:column; } .overview-head { align-items:flex-start; } }
 
+
+/* Fitur operasional: breakdown, pelaksanaan aktual PM, dan pengajuan jadwal ulang */
+.workflow-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.workflow-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.workflow-form .field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.workflow-form .field.full{grid-column:1/-1}
+.workflow-form label{font-size:11px;color:var(--mu);font-weight:700}
+.workflow-form input,.workflow-form select,.workflow-form textarea{width:100%;min-width:0;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--in);color:var(--tx);font:inherit;font-size:12px}
+.workflow-form textarea{min-height:70px;resize:vertical}
+.workflow-form button{grid-column:1/-1;justify-self:start;background:linear-gradient(135deg,#fbbf24,#d97706);color:#070a0f;border:0;font-weight:800}
+.workflow-note{font-size:11px;color:var(--mu);line-height:1.5;margin:8px 0 12px}
+.workflow-list{display:grid;gap:8px}
+.workflow-item{border:1px solid var(--bd);border-radius:10px;padding:11px;background:var(--in);font-size:12px}
+.workflow-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.workflow-item p{margin:5px 0;color:#cbd5e1;white-space:pre-wrap}
+.workflow-item .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.workflow-item .actions button{font-size:11px;padding:6px 9px}
+.workflow-item .actions .approve{background:#14532d;border-color:#166534}
+.workflow-item .actions .reject{background:#7f1d1d;border-color:#991b1b}
+.workflow-empty{font-size:12px;color:var(--mu);padding:12px;border:1px dashed #475569;border-radius:8px}
+.workflow-status{display:inline-block;padding:3px 7px;border-radius:999px;background:#334155;color:#e2e8f0;font-size:10px;font-weight:800}
+.workflow-status.pending{background:rgba(251,191,36,.14);color:#fcd34d}
+.workflow-status.approved{background:rgba(52,211,153,.14);color:#6ee7b7}
+.workflow-status.rejected{background:rgba(248,113,113,.14);color:#fca5a5}
+@media(max-width:800px){.workflow-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.workflow-form{grid-template-columns:1fr}.workflow-form .field.full{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -637,6 +663,53 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
   </div>
 
+  <!-- Breakdown, PM aktual, dan persetujuan penjadwalan ulang -->
+  <section class="card" id="maintenanceWorkflowCard" aria-labelledby="maintenanceWorkflowTitle">
+    <div class="overview-head" style="padding:0 0 12px;margin-bottom:14px">
+      <div><h2 id="maintenanceWorkflowTitle"><i class="fa-solid fa-screwdriver-wrench"></i> Breakdown &amp; Penjadwalan Ulang PM</h2>
+      <div class="overview-meta">Pencatatan pekerjaan, evaluasi teknisi, dan persetujuan jadwal</div></div>
+      <span class="table-chip">Alur persetujuan</span>
+    </div>
+    <p class="workflow-note">Forklift dan traktor menggunakan acuan pelaksanaan aktual PM. Perbaikan breakdown bukan otomatis pelaksanaan PM. Unit dengan metode jadwal tetap mempertahankan target awal kecuali ada perubahan yang disetujui. Data unit seperti Loader, L300, dan R3 dapat dipilih setelah didaftarkan ke master data.</p>
+    <div class="workflow-grid">
+      <div>
+        <h2><i class="fa-solid fa-triangle-exclamation"></i> Laporan Breakdown</h2>
+        <form id="breakdownForm" class="workflow-form">
+          <div class="field"><label for="bdUnit">Kode Unit</label><select id="bdUnit" required></select></div>
+          <div class="field"><label for="bdDate">Tanggal Kejadian</label><input id="bdDate" type="date" required></div>
+          <div class="field"><label for="bdMeter">HM / Odometer saat kejadian</label><input id="bdMeter" type="number" min="0" step="0.1" required placeholder="Masukkan meter"></div>
+          <div class="field"><label for="bdSeverity">Tingkat Keparahan</label><select id="bdSeverity"><option value="Rendah">Rendah</option><option value="Sedang" selected>Sedang</option><option value="Tinggi">Tinggi</option><option value="Kritis">Kritis</option></select></div>
+          <div class="field full"><label for="bdSymptom">Gejala / Kerusakan</label><textarea id="bdSymptom" required placeholder="Jelaskan gejala atau kerusakan"></textarea></div>
+          <div class="field full"><label for="bdAction">Diagnosis / Tindakan (jika sudah ada)</label><textarea id="bdAction" placeholder="Diagnosis awal, perbaikan, atau kebutuhan spare part"></textarea></div>
+          <button type="submit" id="bdSubmit"><i class="fa-solid fa-floppy-disk"></i> Simpan Laporan Breakdown</button>
+        </form>
+      </div>
+      <div>
+        <h2><i class="fa-solid fa-calendar-check"></i> Pengajuan Jadwal Ulang PM</h2>
+        <form id="rescheduleForm" class="workflow-form">
+          <div class="field"><label for="rsUnit">Kode Unit</label><select id="rsUnit" required></select></div>
+          <div class="field"><label for="rsCurrentDate">Jadwal Saat Ini</label><input id="rsCurrentDate" type="date" required></div>
+          <div class="field"><label for="rsProposedDate">Usulan Jadwal Baru</label><input id="rsProposedDate" type="date" required></div>
+          <div class="field"><label for="rsMeter">HM / Odometer terkini</label><input id="rsMeter" type="number" min="0" step="0.1" placeholder="Opsional"></div>
+          <div class="field full"><label for="rsReason">Alasan Perubahan</label><textarea id="rsReason" required placeholder="Contoh: unit breakdown, spare part belum tersedia, atau kesiapan operasional"></textarea></div>
+          <div class="field full"><label for="rsEvaluation">Evaluasi Teknisi</label><textarea id="rsEvaluation" required placeholder="Jelaskan pemeriksaan, risiko, dan rekomendasi teknisi"></textarea></div>
+          <button type="submit" id="rsSubmit"><i class="fa-solid fa-paper-plane"></i> Ajukan Persetujuan</button>
+        </form>
+        <p class="workflow-note">Jadwal aktif tidak berubah saat pengajuan menunggu keputusan. Hanya supervisor, kepala bengkel, atau admin berwenang yang dapat menyetujui/menolak.</p>
+      </div>
+    </div>
+    <div class="workflow-grid" style="margin-top:18px">
+      <div>
+        <h2><i class="fa-solid fa-list-check"></i> Riwayat Breakdown</h2>
+        <div id="breakdownList" class="workflow-list"><div class="workflow-empty">Memuat data breakdown…</div></div>
+      </div>
+      <div>
+        <h2><i class="fa-solid fa-user-check"></i> Persetujuan Penjadwalan Ulang</h2>
+        <div id="rescheduleList" class="workflow-list"><div class="workflow-empty">Memuat pengajuan…</div></div>
+      </div>
+    </div>
+  </section>
+
   <!-- Modal Dialog -->
   <div id="md" class="ov" hidden>
     <div class="bx">
@@ -696,6 +769,7 @@ function ask(msg,ok,o){o=o||{};const md=$('md'),mi=$('mi');$('mt').textContent=m
  if(o.need)mi.focus()}
 
 let db=null,canWrite=null,shared={},auth=null,currentUser=null,currentRole=null;
+let breakdownRows=[],rescheduleRows=[],workflowUnsubs=[];
 const did=c=>'dt_'+c.replace(/[^A-Za-z0-9_.:@+~-]/g,'_');
 function load(r){const x=shared[did(r.c)];if(x&&Array.isArray(x.dt))return x.dt.concat(r.dt.slice(x.dt.length));if(!db){try{const l=JSON.parse(localStorage.getItem(key(r.c)));if(l)return l}catch(e){}}return r.dt.slice()}
 function save(r,a){const id=did(r.c),at=new Date().toISOString();
@@ -716,7 +790,7 @@ function banner(){
 }
 function showAuth(message=''){ $('authGate').hidden=false; $('appShell').hidden=true; $('authMsg').textContent=message; }
 function showApp(user,role){
- currentUser=user; currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false;
+ currentUser=user; currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false; initWorkflowForms(); renderWorkflowLists();
  $('userBadge').textContent=(user.email||user.uid)+' · '+({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja'}[role]||role);
  banner(); render();
 }
@@ -729,12 +803,15 @@ $('logoutBtn').addEventListener('click',()=>auth.signOut());
 if(!firebaseConfigReady){showAuth('Setup diperlukan: konfigurasi Firebase belum diisi.');banner();}
 else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
  auth.onAuthStateChanged(async user=>{
-  if(!user){currentUser=null;currentRole=null;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
+  if(!user){workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];breakdownRows=[];rescheduleRows=[];currentUser=null;currentRole=null;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
   try{const profile=await db.collection('users').doc(user.uid).get();const role=profile.exists?profile.data().role:null;
-   if(!['admin','technician','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
+   if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
    showApp(user,role);
    db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error(err)});
    db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error(err)});
+   workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];
+   workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(50).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists()},err=>{console.error('Breakdown listener:',err);$('breakdownList').innerHTML='<div class="workflow-empty">Data breakdown tidak dapat dibaca. Periksa izin Firestore.</div>'}));
+   workflowUnsubs.push(db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists()},err=>{console.error('Reschedule listener:',err);$('rescheduleList').innerHTML='<div class="workflow-empty">Data pengajuan tidak dapat dibaca. Periksa izin Firestore.</div>'}));
   }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses.')}
  });
  }catch(err){showAuth('Firebase gagal dimulai: '+err.message)}}
@@ -925,6 +1002,72 @@ $('categoryFilter').addEventListener('change', () => {
 });
 
 $('q').addEventListener('input', ()=>{upcomingPage=1;render();});
+// ===== Alur Breakdown dan Persetujuan PM =====
+function pmMethodForUnit(r){
+  if(r && ['ACTUAL_EXECUTION','FIXED_SCHEDULE'].includes(r.pmMethod)) return r.pmMethod;
+  // Unit yang sudah ada pada master ini adalah forklift (D/B) dan traktor (T).
+  // Untuk kategori baru, metode harus ditentukan eksplisit saat unit ditambahkan.
+  if(r && ['D','B','T'].includes(r.t)) return 'ACTUAL_EXECUTION';
+  return 'FIXED_SCHEDULE';
+}
+function workflowDateNow(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function workflowUnitOptions(){return DATA.map(r=>'<option value="'+escapeHtml(r.c)+'">'+escapeHtml(r.c+' — '+(r.d||'')+' ('+(r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel')+')')+'</option>').join('')}
+function initWorkflowForms(){
+ const opts='<option value="">Pilih unit…</option>'+workflowUnitOptions();
+ $('bdUnit').innerHTML=opts;$('rsUnit').innerHTML=opts;
+ $('bdDate').value=workflowDateNow();
+ $('bdUnit').disabled=!['admin','technician'].includes(currentRole);
+ $('bdMeter').disabled=!['admin','technician'].includes(currentRole);
+ $('bdSeverity').disabled=!['admin','technician'].includes(currentRole);
+ $('bdSymptom').disabled=!['admin','technician'].includes(currentRole);
+ $('bdAction').disabled=!['admin','technician'].includes(currentRole);
+ $('bdSubmit').disabled=!['admin','technician'].includes(currentRole);
+ $('rsUnit').disabled=!['admin','technician'].includes(currentRole);
+ $('rsCurrentDate').disabled=!['admin','technician'].includes(currentRole);
+ $('rsProposedDate').disabled=!['admin','technician'].includes(currentRole);
+ $('rsMeter').disabled=!['admin','technician'].includes(currentRole);
+ $('rsReason').disabled=!['admin','technician'].includes(currentRole);
+ $('rsEvaluation').disabled=!['admin','technician'].includes(currentRole);
+ $('rsSubmit').disabled=!['admin','technician'].includes(currentRole);
+}
+function workflowRoleCanApprove(){return ['admin','supervisor','head_bengkel','kepala_bengkel'].includes(currentRole)}
+function workflowEsc(v){return escapeHtml(v==null?'':v)}
+function workflowStatusLabel(s){const m={pending:'Menunggu Persetujuan',approved:'Disetujui',rejected:'Ditolak'};return m[s]||s||'—'}
+function renderWorkflowLists(){
+ const bl=$('breakdownList'),rl=$('rescheduleList');if(!bl||!rl)return;
+ if(!breakdownRows.length)bl.innerHTML='<div class="workflow-empty">Belum ada laporan breakdown.</div>';
+ else bl.innerHTML=breakdownRows.slice(0,20).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.date||'')+'</strong><span class="workflow-status">'+workflowEsc(x.severity||'Dilaporkan')+'</span></div><div>HM/Odometer: <b>'+workflowEsc(x.meterAtEvent)+'</b> · Pelapor: '+workflowEsc(x.reportedByEmail||'')+'</div><p><b>Gejala:</b> '+workflowEsc(x.symptom)+'</p>'+(x.action?'<p><b>Diagnosis/tindakan:</b> '+workflowEsc(x.action)+'</p>':'')+'</div>').join('');
+ if(!rescheduleRows.length)rl.innerHTML='<div class="workflow-empty">Belum ada pengajuan jadwal ulang.</div>';
+ else rl.innerHTML=rescheduleRows.slice(0,30).map(x=>{const canDecide=workflowRoleCanApprove()&&x.status==='pending';return '<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Metode: <b>'+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</b> · Pengaju: '+workflowEsc(x.requestedByEmail||'')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p><p><b>Evaluasi teknisi:</b> '+workflowEsc(x.technicianEvaluation)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+(canDecide?'<div class="actions"><button class="approve" type="button" data-decision="approved" data-id="'+workflowEsc(x.id)+'">Setujui</button><button class="reject" type="button" data-decision="rejected" data-id="'+workflowEsc(x.id)+'">Tolak</button></div>':'')+'</div>'}).join('');
+ rl.querySelectorAll('button[data-decision]').forEach(b=>b.addEventListener('click',()=>decideReschedule(b.dataset.id,b.dataset.decision)));
+}
+async function writeWorkflowAudit(action,entityType,entityId,details){
+ if(!db||!currentUser)return;
+ await db.collection('audit_logs').add({action,entityType,entityId,details:details||{},actorUid:currentUser.uid,actorEmail:currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+}
+$('breakdownForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!db||!currentUser||!['admin','technician'].includes(currentRole)){alert('Anda harus masuk dengan akun teknisi atau admin untuk mencatat breakdown.');return}
+ const unitCode=$('bdUnit').value,unit=by[unitCode.toLowerCase()];if(!unit){alert('Pilih unit yang valid.');return}
+ const payload={unitCode,unitDescription:unit.d||'',unitType:unit.t||'',pmMethod:pmMethodForUnit(unit),date:$('bdDate').value,meterAtEvent:Number($('bdMeter').value),severity:$('bdSeverity').value,symptom:$('bdSymptom').value.trim(),action:$('bdAction').value.trim(),reportedByUid:currentUser.uid,reportedByEmail:currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp(),status:'reported'};
+ if(!payload.date||!payload.symptom||!Number.isFinite(payload.meterAtEvent)||payload.meterAtEvent<0){alert('Lengkapi tanggal, meter, dan gejala kerusakan.');return}
+ const btn=$('bdSubmit');btn.disabled=true;try{const ref=await db.collection('breakdown_reports').add(payload);await writeWorkflowAudit('breakdown_created','breakdown_reports',ref.id,{unitCode,date:payload.date,severity:payload.severity});$('breakdownForm').reset();$('bdDate').value=workflowDateNow();alert('Laporan breakdown berhasil disimpan.');}catch(err){console.error(err);alert('Gagal menyimpan laporan. Periksa koneksi dan aturan akses Firestore.')}finally{btn.disabled=!['admin','technician'].includes(currentRole)}
+});
+$('rescheduleForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!db||!currentUser||!['admin','technician'].includes(currentRole)){alert('Anda harus masuk dengan akun teknisi atau admin untuk mengajukan perubahan.');return}
+ const unitCode=$('rsUnit').value,unit=by[unitCode.toLowerCase()];if(!unit){alert('Pilih unit yang valid.');return}
+ const currentDate=$('rsCurrentDate').value,proposedDate=$('rsProposedDate').value,reason=$('rsReason').value.trim(),technicianEvaluation=$('rsEvaluation').value.trim();
+ if(!currentDate||!proposedDate||!reason||!technicianEvaluation){alert('Lengkapi jadwal, alasan, dan evaluasi teknisi.');return}
+ if(currentDate===proposedDate){alert('Tanggal usulan sama dengan jadwal saat ini.');return}
+ const payload={unitCode,unitDescription:unit.d||'',unitType:unit.t||'',pmMethod:pmMethodForUnit(unit),currentDate,proposedDate,meterAtRequest:$('rsMeter').value===''?null:Number($('rsMeter').value),reason,technicianEvaluation,requestedByUid:currentUser.uid,requestedByEmail:currentUser.email||'',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp(),decidedAt:null,approverUid:null,approverEmail:null,decisionComment:''};
+ const btn=$('rsSubmit');btn.disabled=true;try{const ref=await db.collection('pm_reschedule_requests').add(payload);await writeWorkflowAudit('pm_reschedule_requested','pm_reschedule_requests',ref.id,{unitCode,currentDate,proposedDate,pmMethod:payload.pmMethod});$('rescheduleForm').reset();alert('Pengajuan tersimpan dan menunggu persetujuan. Jadwal aktif belum berubah.');}catch(err){console.error(err);alert('Gagal mengajukan perubahan. Periksa koneksi dan aturan akses Firestore.')}finally{btn.disabled=!['admin','technician'].includes(currentRole)}
+});
+async function decideReschedule(id,decision){
+ if(!db||!currentUser||!workflowRoleCanApprove()||!['approved','rejected'].includes(decision)){alert('Akun Anda tidak memiliki kewenangan persetujuan.');return}
+ let comment='';if(decision==='rejected'){comment=prompt('Masukkan alasan penolakan (wajib):','')||'';if(!comment.trim()){alert('Alasan penolakan wajib diisi.');return}}else{comment=prompt('Catatan persetujuan (opsional):','')||''}
+ const ref=db.collection('pm_reschedule_requests').doc(id);try{await db.runTransaction(async tx=>{const snap=await tx.get(ref);if(!snap.exists)throw new Error('Pengajuan tidak ditemukan.');const data=snap.data();if(data.status!=='pending')throw new Error('Pengajuan sudah diputuskan.');tx.update(ref,{status:decision,approverUid:currentUser.uid,approverEmail:currentUser.email||'',approverRole:currentRole,decidedAt:firebase.firestore.FieldValue.serverTimestamp(),decisionComment:comment.trim()});});await writeWorkflowAudit('pm_reschedule_'+decision,'pm_reschedule_requests',id,{decision,comment:comment.trim()});alert(decision==='approved'?'Pengajuan disetujui. Pastikan jadwal baru diterapkan pada master jadwal sesuai prosedur.':'Pengajuan ditolak. Jadwal lama tetap berlaku.');}catch(err){console.error(err);alert('Keputusan tidak tersimpan: '+(err.message||'periksa izin Firestore.'))}
+}
+initWorkflowForms();
+
 banner(); render();
 </script>
 <!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
