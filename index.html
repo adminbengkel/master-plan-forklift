@@ -447,11 +447,15 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .workflow-status.rejected{background:rgba(248,113,113,.14);color:#fca5a5}
 @media(max-width:800px){.workflow-grid{grid-template-columns:1fr}}
 @media(max-width:560px){.workflow-form{grid-template-columns:1fr}.workflow-form .field.full{grid-column:auto}}
+.workflow-page[hidden]{display:none!important}.form-actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}.workflow-form .form-actions button{grid-column:auto}.reset-btn{background:#334155!important;color:#f8fafc!important;border:1px solid #475569!important}.firestore-message{font-size:12px;line-height:1.5;margin-top:10px;white-space:pre-wrap}.firestore-message.error{color:#fca5a5}.firestore-message.success{color:#86efac}.history-section{margin-top:18px}.history-section h2{margin-bottom:10px}.directory-group{margin:18px 0}.directory-group h3{font-size:14px;color:#fef3c7;padding:10px 12px;border:1px solid #334155;border-radius:9px;background:#172033;margin:0 0 8px}.directory-group .directory-group-meta{font-size:11px;color:var(--mu);font-weight:500;margin-left:8px}
 
 /* Penjagaan tampilan menu agar render jadwal tidak membuka kembali tabel di Dashboard */
 #appShell[data-active-view="dashboard"] #appMain [data-view]:not([data-view="dashboard"]),
 #appShell[data-active-view="schedule"] #appMain [data-view]:not([data-view="schedule"]),
-#appShell[data-active-view="units"] #appMain [data-view]:not([data-view="units"]) {display:none!important}
+#appShell[data-active-view="breakdown"] #appMain [data-view]:not([data-view="breakdown"]),
+#appShell[data-active-view="reschedule"] #appMain [data-view]:not([data-view="reschedule"]),
+#appShell[data-active-view="units"] #appMain [data-view]:not([data-view="units"]),
+#appShell[data-active-view="history"] #appMain [data-view]:not([data-view="history"]) {display:none!important}
 /* Navigasi sidebar MBK dan tampilan per menu */
 .app-layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px;align-items:start}
 .app-sidebar{position:sticky;top:12px;align-self:start;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;min-height:calc(100vh - 32px)}
@@ -728,17 +732,13 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
   </div>
 
-  <!-- Breakdown, PM aktual, dan persetujuan penjadwalan ulang -->
-  <section class="card" id="maintenanceWorkflowCard" aria-labelledby="maintenanceWorkflowTitle">
-    <div class="overview-head" style="padding:0 0 12px;margin-bottom:14px">
-      <div><h2 id="maintenanceWorkflowTitle"><i class="fa-solid fa-screwdriver-wrench"></i> Breakdown &amp; Penjadwalan Ulang PM</h2>
-      <div class="overview-meta">Pencatatan pekerjaan, evaluasi teknisi, dan persetujuan jadwal</div></div>
-      <span class="table-chip">Alur persetujuan</span>
-    </div>
-    <p class="workflow-note">Forklift dan traktor menggunakan acuan pelaksanaan aktual PM. Perbaikan breakdown bukan otomatis pelaksanaan PM. Unit dengan metode jadwal tetap mempertahankan target awal kecuali ada perubahan yang disetujui. Data unit seperti Loader, L300, dan R3 dapat dipilih setelah didaftarkan ke master data.</p>
+  <!-- Menu Laporan Breakdown: hanya formulir dan daftar breakdown -->
+  <section class="card workflow-page" id="breakdownPage" data-view="breakdown" hidden aria-labelledby="breakdownPageTitle">
+    <div class="overview-head"><div><h2 id="breakdownPageTitle"><i class="fa-solid fa-triangle-exclamation"></i> Laporan Breakdown</h2><div class="overview-meta">Catat kerusakan unit dan lihat laporan breakdown.</div></div></div>
+    <p class="workflow-note">Perbaikan breakdown tidak otomatis mereset atau mengubah jadwal PM.</p>
     <div class="workflow-grid">
-      <div id="breakdownFormPanel" data-workflow-panel="breakdown">
-        <h2><i class="fa-solid fa-triangle-exclamation"></i> Laporan Breakdown</h2>
+      <div>
+        <h2>Catat Breakdown</h2>
         <form id="breakdownForm" class="workflow-form">
           <div class="field"><label for="bdUnit">Kode Unit</label><select id="bdUnit" required></select></div>
           <div class="field"><label for="bdDate">Tanggal Kejadian</label><input id="bdDate" type="date" required></div>
@@ -746,11 +746,24 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
           <div class="field"><label for="bdSeverity">Tingkat Keparahan</label><select id="bdSeverity"><option value="Rendah">Rendah</option><option value="Sedang" selected>Sedang</option><option value="Tinggi">Tinggi</option><option value="Kritis">Kritis</option></select></div>
           <div class="field full"><label for="bdSymptom">Gejala / Kerusakan</label><textarea id="bdSymptom" required placeholder="Jelaskan gejala atau kerusakan"></textarea></div>
           <div class="field full"><label for="bdAction">Diagnosis / Tindakan (jika sudah ada)</label><textarea id="bdAction" placeholder="Diagnosis awal, perbaikan, atau kebutuhan spare part"></textarea></div>
-          <button type="submit" id="bdSubmit"><i class="fa-solid fa-floppy-disk"></i> Simpan Laporan Breakdown</button>
+          <div class="form-actions"><button type="submit" id="bdSubmit"><i class="fa-solid fa-floppy-disk"></i> Simpan Laporan Breakdown</button><button type="button" class="reset-btn" id="bdReset"><i class="fa-solid fa-rotate-left"></i> Reset Form</button></div>
         </form>
+        <div class="firestore-message" id="breakdownDbStatus" role="status" aria-live="polite"></div>
       </div>
-      <div id="rescheduleFormPanel" data-workflow-panel="reschedule">
-        <h2><i class="fa-solid fa-calendar-check"></i> Pengajuan Jadwal Ulang PM</h2>
+      <div>
+        <div class="overview-head"><div><h2>Daftar Laporan Breakdown</h2><div class="overview-meta">Laporan terbaru yang tersimpan</div></div><button type="button" class="reset-btn" id="bdRefresh" title="Muat ulang daftar"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div>
+        <div id="breakdownList" class="workflow-list"><div class="workflow-empty">Memuat data breakdown…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Menu Perubahan PM: hanya pengajuan dan daftar pengajuan PM -->
+  <section class="card workflow-page" id="reschedulePage" data-view="reschedule" hidden aria-labelledby="reschedulePageTitle">
+    <div class="overview-head"><div><h2 id="reschedulePageTitle"><i class="fa-solid fa-clipboard-check"></i> Pengajuan Perubahan PM</h2><div class="overview-meta">Pengajuan, evaluasi teknisi, dan keputusan persetujuan jadwal.</div></div></div>
+    <p class="workflow-note">Jadwal aktif tidak berubah saat pengajuan menunggu keputusan. Perubahan memerlukan evaluasi teknisi dan persetujuan Supervisor atau Kepala Bengkel sesuai kewenangan.</p>
+    <div class="workflow-grid">
+      <div>
+        <h2>Ajukan Perubahan Jadwal PM</h2>
         <form id="rescheduleForm" class="workflow-form">
           <div class="field"><label for="rsUnit">Kode Unit</label><select id="rsUnit" required></select></div>
           <div class="field"><label for="rsCurrentDate">Jadwal Saat Ini</label><input id="rsCurrentDate" type="date" required></div>
@@ -758,21 +771,23 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
           <div class="field"><label for="rsMeter">HM / Odometer terkini</label><input id="rsMeter" type="number" min="0" step="0.1" placeholder="Opsional"></div>
           <div class="field full"><label for="rsReason">Alasan Perubahan</label><textarea id="rsReason" required placeholder="Contoh: unit breakdown, spare part belum tersedia, atau kesiapan operasional"></textarea></div>
           <div class="field full"><label for="rsEvaluation">Evaluasi Teknisi</label><textarea id="rsEvaluation" required placeholder="Jelaskan pemeriksaan, risiko, dan rekomendasi teknisi"></textarea></div>
-          <button type="submit" id="rsSubmit"><i class="fa-solid fa-paper-plane"></i> Ajukan Persetujuan</button>
+          <div class="form-actions"><button type="submit" id="rsSubmit"><i class="fa-solid fa-paper-plane"></i> Ajukan Persetujuan</button><button type="button" class="reset-btn" id="rsReset"><i class="fa-solid fa-rotate-left"></i> Reset Form</button></div>
         </form>
-        <p class="workflow-note">Jadwal aktif tidak berubah saat pengajuan menunggu keputusan. Hanya supervisor, kepala bengkel, atau admin berwenang yang dapat menyetujui/menolak.</p>
+        <div class="firestore-message" id="rescheduleDbStatus" role="status" aria-live="polite"></div>
       </div>
-    </div>
-    <div class="workflow-grid" style="margin-top:18px">
-      <div id="breakdownHistoryPanel" data-workflow-panel="history">
-        <h2><i class="fa-solid fa-list-check"></i> Riwayat Breakdown</h2>
-        <div id="breakdownList" class="workflow-list"><div class="workflow-empty">Memuat data breakdown…</div></div>
-      </div>
-      <div id="rescheduleApprovalPanel" data-workflow-panel="history reschedule">
-        <h2><i class="fa-solid fa-user-check"></i> Persetujuan Penjadwalan Ulang</h2>
+      <div>
+        <div class="overview-head"><div><h2>Daftar Pengajuan Perubahan PM</h2><div class="overview-meta">Status pengajuan dan tindakan persetujuan</div></div><button type="button" class="reset-btn" id="rsRefresh" title="Muat ulang daftar"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div>
         <div id="rescheduleList" class="workflow-list"><div class="workflow-empty">Memuat pengajuan…</div></div>
       </div>
     </div>
+  </section>
+
+  <!-- Riwayat hanya berisi daftar rekaman, tanpa formulir input -->
+  <section class="card workflow-page" id="historyPage" data-view="history" hidden aria-labelledby="historyPageTitle">
+    <div class="overview-head"><div><h2 id="historyPageTitle"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat &amp; Laporan</h2><div class="overview-meta">Rekaman historis breakdown dan pengajuan perubahan PM.</div></div><button type="button" class="reset-btn" id="historyRefresh"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div>
+    <div class="history-section"><h2>Riwayat Laporan Breakdown</h2><div id="breakdownHistoryList" class="workflow-list"><div class="workflow-empty">Memuat riwayat breakdown…</div></div></div>
+    <div class="history-section"><h2>Riwayat Pengajuan Perubahan PM</h2><div id="rescheduleHistoryList" class="workflow-list"><div class="workflow-empty">Memuat riwayat pengajuan…</div></div></div>
+    <div class="firestore-message" id="historyDbStatus" role="status" aria-live="polite"></div>
   </section>
 
   <section class="card" id="unitDirectoryCard" data-view="units" hidden>
@@ -882,11 +897,11 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
   try{const profile=await db.collection('users').doc(user.uid).get();const role=profile.exists?profile.data().role:null;
    if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
    showApp(user,role);
-   db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error(err)});
-   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error(err)});
+   db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error('Firestore downtime:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection downtime: '+firestoreErrorText(err),'error')});
+   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
    workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];
-   workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(50).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists()},err=>{console.error('Breakdown listener:',err);$('breakdownList').innerHTML='<div class="workflow-empty">Data breakdown tidak dapat dibaca. Periksa izin Firestore.</div>'}));
-   workflowUnsubs.push(db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists()},err=>{console.error('Reschedule listener:',err);$('rescheduleList').innerHTML='<div class="workflow-empty">Data pengajuan tidak dapat dibaca. Periksa izin Firestore.</div>'}));
+   workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Data breakdown berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Breakdown listener:',err);const msg='Gagal membaca laporan breakdown: '+firestoreErrorText(err);['breakdownList','breakdownHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('breakdownDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
+   workflowUnsubs.push(db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Data pengajuan berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Reschedule listener:',err);const msg='Gagal membaca pengajuan PM: '+firestoreErrorText(err);['rescheduleList','rescheduleHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('rescheduleDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
   }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses.')}
  });
  }catch(err){showAuth('Firebase gagal dimulai: '+err.message)}}
@@ -1110,14 +1125,28 @@ function workflowRoleCanApprove(){return ['admin','supervisor','head_bengkel','k
 function workflowEsc(v){return escapeHtml(v==null?'':v)}
 function workflowStatusLabel(s){const m={pending:'Menunggu Persetujuan',approved:'Disetujui',rejected:'Ditolak'};return m[s]||s||'—'}
 function renderWorkflowLists(){
- const bl=$('breakdownList'),rl=$('rescheduleList');if(!bl||!rl)return;
- if(!breakdownRows.length)bl.innerHTML='<div class="workflow-empty">Belum ada laporan breakdown.</div>';
- else bl.innerHTML=breakdownRows.slice(0,20).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.date||'')+'</strong><span class="workflow-status">'+workflowEsc(x.severity||'Dilaporkan')+'</span></div><div>HM/Odometer: <b>'+workflowEsc(x.meterAtEvent)+'</b> · Pelapor: '+workflowEsc(x.reportedByEmail||'')+'</div><p><b>Gejala:</b> '+workflowEsc(x.symptom)+'</p>'+(x.action?'<p><b>Diagnosis/tindakan:</b> '+workflowEsc(x.action)+'</p>':'')+'</div>').join('');
- if(!rescheduleRows.length)rl.innerHTML='<div class="workflow-empty">Belum ada pengajuan jadwal ulang.</div>';
- else rl.innerHTML=rescheduleRows.slice(0,30).map(x=>{const canDecide=workflowRoleCanApprove()&&x.status==='pending';return '<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Metode: <b>'+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</b> · Pengaju: '+workflowEsc(x.requestedByEmail||'')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p><p><b>Evaluasi teknisi:</b> '+workflowEsc(x.technicianEvaluation)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+(canDecide?'<div class="actions"><button class="approve" type="button" data-decision="approved" data-id="'+workflowEsc(x.id)+'">Setujui</button><button class="reject" type="button" data-decision="rejected" data-id="'+workflowEsc(x.id)+'">Tolak</button></div>':'')+'</div>'}).join('');
- rl.querySelectorAll('button[data-decision]').forEach(b=>b.addEventListener('click',()=>decideReschedule(b.dataset.id,b.dataset.decision)));
+ const bl=$('breakdownList'),rl=$('rescheduleList'),bh=$('breakdownHistoryList'),rh=$('rescheduleHistoryList');
+ const breakdownHtml=!breakdownRows.length?'<div class="workflow-empty">Belum ada laporan breakdown.</div>':breakdownRows.slice(0,50).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.date||'')+'</strong><span class="workflow-status">'+workflowEsc(x.severity||'Dilaporkan')+'</span></div><div>HM/Odometer: <b>'+workflowEsc(x.meterAtEvent)+'</b> · Pelapor: '+workflowEsc(x.reportedByEmail||'')+'</div><p><b>Gejala:</b> '+workflowEsc(x.symptom)+'</p>'+(x.action?'<p><b>Diagnosis/tindakan:</b> '+workflowEsc(x.action)+'</p>':'')+'</div>').join('');
+ const rescheduleHtml=!rescheduleRows.length?'<div class="workflow-empty">Belum ada pengajuan jadwal ulang.</div>':rescheduleRows.slice(0,100).map(x=>{const canDecide=workflowRoleCanApprove()&&x.status==='pending';return '<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Metode: <b>'+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</b> · Pengaju: '+workflowEsc(x.requestedByEmail||'')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p><p><b>Evaluasi teknisi:</b> '+workflowEsc(x.technicianEvaluation)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+(canDecide?'<div class="actions"><button class="approve" type="button" data-decision="approved" data-id="'+workflowEsc(x.id)+'">Setujui</button><button class="reject" type="button" data-decision="rejected" data-id="'+workflowEsc(x.id)+'">Tolak</button></div>':'')+'</div>'}).join('');
+ const rescheduleHistoryHtml=!rescheduleRows.length?'<div class="workflow-empty">Belum ada riwayat pengajuan PM.</div>':rescheduleRows.slice(0,100).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Pengaju: '+workflowEsc(x.requestedByEmail||'')+' · Metode: '+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+'</div>').join('');
+ [bl,bh].forEach(el=>{if(el)el.innerHTML=breakdownHtml});if(rl)rl.innerHTML=rescheduleHtml;if(rh)rh.innerHTML=rescheduleHistoryHtml;
+ if(rl)rl.querySelectorAll('button[data-decision]').forEach(b=>b.addEventListener('click',()=>decideReschedule(b.dataset.id,b.dataset.decision)));
  if(typeof renderDashboardNotifications==='function')renderDashboardNotifications();
 }
+function firestoreErrorText(err){
+ const code=err&&err.code||'unknown';
+ const messages={
+  'permission-denied':'Akses ditolak oleh Firestore Rules. Periksa aturan untuk collection yang dipakai dan role akun pada users/{uid}.',
+  'unauthenticated':'Sesi Firebase Auth tidak aktif. Silakan keluar lalu masuk kembali.',
+  'unavailable':'Firestore tidak tersedia atau koneksi internet bermasalah. Coba lagi.',
+  'failed-precondition':'Operasi memerlukan prasyarat/index Firestore atau database belum siap.',
+  'not-found':'Database/collection yang diminta tidak ditemukan atau konfigurasi project keliru.',
+  'invalid-argument':'Data yang dikirim tidak sesuai format yang diterima Firestore.',
+  'resource-exhausted':'Batas kuota/permintaan Firebase mungkin tercapai.'
+ };
+ return '['+code+'] '+(messages[code]||'Periksa Firebase Console dan detail error pada Console browser.')+(err&&err.message?' Detail: '+err.message:'');
+}
+function setFirestoreMessage(id,message,type){const el=$(id);if(el){el.textContent=message||'';el.className='firestore-message'+(type?' '+type:'')}}
 async function writeWorkflowAudit(action,entityType,entityId,details){
  if(!db||!currentUser)return;
  await db.collection('audit_logs').add({action,entityType,entityId,details:details||{},actorUid:currentUser.uid,actorEmail:currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
@@ -1127,7 +1156,12 @@ $('breakdownForm').addEventListener('submit',async e=>{
  const unitCode=$('bdUnit').value,unit=by[unitCode.toLowerCase()];if(!unit){alert('Pilih unit yang valid.');return}
  const payload={unitCode,unitDescription:unit.d||'',unitType:unit.t||'',pmMethod:pmMethodForUnit(unit),date:$('bdDate').value,meterAtEvent:Number($('bdMeter').value),severity:$('bdSeverity').value,symptom:$('bdSymptom').value.trim(),action:$('bdAction').value.trim(),reportedByUid:currentUser.uid,reportedByEmail:currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp(),status:'reported'};
  if(!payload.date||!payload.symptom||!Number.isFinite(payload.meterAtEvent)||payload.meterAtEvent<0){alert('Lengkapi tanggal, meter, dan gejala kerusakan.');return}
- const btn=$('bdSubmit');btn.disabled=true;try{const ref=await db.collection('breakdown_reports').add(payload);await writeWorkflowAudit('breakdown_created','breakdown_reports',ref.id,{unitCode,date:payload.date,severity:payload.severity});$('breakdownForm').reset();$('bdDate').value=workflowDateNow();alert('Laporan breakdown berhasil disimpan.');}catch(err){console.error(err);alert('Gagal menyimpan laporan. Periksa koneksi dan aturan akses Firestore.')}finally{btn.disabled=!['admin','technician'].includes(currentRole)}
+ const btn=$('bdSubmit');btn.disabled=true;setFirestoreMessage('breakdownDbStatus','Menyimpan laporan breakdown…','');
+ try{const ref=await db.collection('breakdown_reports').add(payload);breakdownRows.unshift({id:ref.id,...payload,createdAt:new Date()});renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Laporan berhasil disimpan ke Firestore.','success');$('breakdownForm').reset();$('bdDate').value=workflowDateNow();
+  try{await writeWorkflowAudit('breakdown_created','breakdown_reports',ref.id,{unitCode,date:payload.date,severity:payload.severity})}catch(auditErr){console.error('Audit breakdown gagal:',auditErr);setFirestoreMessage('breakdownDbStatus','Laporan tersimpan, tetapi audit log gagal ditulis. '+firestoreErrorText(auditErr),'error')}
+  if(!($('breakdownDbStatus').textContent||'').startsWith('Laporan tersimpan'))alert('Laporan breakdown berhasil disimpan.');
+ }catch(err){console.error(err);setFirestoreMessage('breakdownDbStatus','Gagal menyimpan laporan: '+firestoreErrorText(err),'error');alert('Gagal menyimpan laporan breakdown. Lihat pesan diagnostik di bawah formulir.')}
+ finally{btn.disabled=!['admin','technician'].includes(currentRole)}
 });
 $('rescheduleForm').addEventListener('submit',async e=>{
  e.preventDefault();if(!db||!currentUser||!['admin','technician'].includes(currentRole)){alert('Anda harus masuk dengan akun teknisi atau admin untuk mengajukan perubahan.');return}
@@ -1136,8 +1170,17 @@ $('rescheduleForm').addEventListener('submit',async e=>{
  if(!currentDate||!proposedDate||!reason||!technicianEvaluation){alert('Lengkapi jadwal, alasan, dan evaluasi teknisi.');return}
  if(currentDate===proposedDate){alert('Tanggal usulan sama dengan jadwal saat ini.');return}
  const payload={unitCode,unitDescription:unit.d||'',unitType:unit.t||'',pmMethod:pmMethodForUnit(unit),currentDate,proposedDate,meterAtRequest:$('rsMeter').value===''?null:Number($('rsMeter').value),reason,technicianEvaluation,requestedByUid:currentUser.uid,requestedByEmail:currentUser.email||'',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp(),decidedAt:null,approverUid:null,approverEmail:null,decisionComment:''};
- const btn=$('rsSubmit');btn.disabled=true;try{const ref=await db.collection('pm_reschedule_requests').add(payload);await writeWorkflowAudit('pm_reschedule_requested','pm_reschedule_requests',ref.id,{unitCode,currentDate,proposedDate,pmMethod:payload.pmMethod});$('rescheduleForm').reset();alert('Pengajuan tersimpan dan menunggu persetujuan. Jadwal aktif belum berubah.');}catch(err){console.error(err);alert('Gagal mengajukan perubahan. Periksa koneksi dan aturan akses Firestore.')}finally{btn.disabled=!['admin','technician'].includes(currentRole)}
+ const btn=$('rsSubmit');btn.disabled=true;setFirestoreMessage('rescheduleDbStatus','Menyimpan pengajuan perubahan PM…','');
+ try{const ref=await db.collection('pm_reschedule_requests').add(payload);rescheduleRows.unshift({id:ref.id,...payload,createdAt:new Date()});renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Pengajuan berhasil disimpan ke Firestore. Jadwal aktif belum berubah.','success');$('rescheduleForm').reset();
+  try{await writeWorkflowAudit('pm_reschedule_requested','pm_reschedule_requests',ref.id,{unitCode,currentDate,proposedDate,pmMethod:payload.pmMethod})}catch(auditErr){console.error('Audit pengajuan gagal:',auditErr);setFirestoreMessage('rescheduleDbStatus','Pengajuan tersimpan, tetapi audit log gagal ditulis. '+firestoreErrorText(auditErr),'error')}
+ }catch(err){console.error(err);setFirestoreMessage('rescheduleDbStatus','Gagal mengajukan perubahan: '+firestoreErrorText(err),'error');alert('Gagal mengajukan perubahan PM. Lihat pesan diagnostik di bawah formulir.')}
+ finally{btn.disabled=!['admin','technician'].includes(currentRole)}
 });
+$('bdReset').addEventListener('click',()=>{$('breakdownForm').reset();$('bdDate').value=workflowDateNow();setFirestoreMessage('breakdownDbStatus','Form breakdown direset. Laporan yang sudah tersimpan tidak dihapus.','')});
+$('rsReset').addEventListener('click',()=>{$('rescheduleForm').reset();setFirestoreMessage('rescheduleDbStatus','Form perubahan PM direset. Pengajuan yang sudah tersimpan tidak dihapus.','')});
+$('bdRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('breakdownDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('breakdownDbStatus','Memuat ulang laporan…','');try{const sn=await db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).get();breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Berhasil memuat '+breakdownRows.length+' laporan.','success')}catch(err){setFirestoreMessage('breakdownDbStatus','Gagal memuat ulang: '+firestoreErrorText(err),'error')}});
+$('rsRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('rescheduleDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('rescheduleDbStatus','Memuat ulang pengajuan…','');try{const sn=await db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).get();rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Berhasil memuat '+rescheduleRows.length+' pengajuan.','success')}catch(err){setFirestoreMessage('rescheduleDbStatus','Gagal memuat ulang: '+firestoreErrorText(err),'error')}});
+$('historyRefresh').addEventListener('click',async()=>{if(!db){setFirestoreMessage('historyDbStatus','Firestore belum terhubung.','error');return}setFirestoreMessage('historyDbStatus','Memuat ulang riwayat…','');try{const [bs,rs]=await Promise.all([db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).get(),db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).get()]);breakdownRows=bs.docs.map(d=>({id:d.id,...d.data()}));rescheduleRows=rs.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('historyDbStatus','Riwayat berhasil dimuat ulang.','success')}catch(err){setFirestoreMessage('historyDbStatus','Gagal memuat ulang riwayat: '+firestoreErrorText(err),'error')}});
 async function decideReschedule(id,decision){
  if(!db||!currentUser||!workflowRoleCanApprove()||!['approved','rejected'].includes(decision)){alert('Akun Anda tidak memiliki kewenangan persetujuan.');return}
  let comment='';if(decision==='rejected'){comment=prompt('Masukkan alasan penolakan (wajib):','')||'';if(!comment.trim()){alert('Alasan penolakan wajib diisi.');return}}else{comment=prompt('Catatan persetujuan (opsional):','')||''}
@@ -1147,10 +1190,10 @@ async function decideReschedule(id,decision){
 const VIEW_META={
  dashboard:['Dashboard','Ringkasan kondisi PM dan notifikasi penting.'],
  schedule:['Jadwal PM','Cari jadwal, filter kategori, dan buka detail unit.'],
- breakdown:['Laporan Breakdown','Catat kerusakan dan lihat formulir pelaporan.'],
- reschedule:['Pengajuan Perubahan PM','Ajukan perubahan dan tinjau status persetujuan.'],
+ breakdown:['Laporan Breakdown','Formulir dan daftar laporan breakdown saja.'],
+ reschedule:['Pengajuan Perubahan PM','Formulir dan daftar pengajuan perubahan PM saja.'],
  units:['Data Unit','Cari dan filter daftar unit yang tersedia di master.'],
- history:['Riwayat & Laporan','Lihat riwayat breakdown dan keputusan pengajuan PM.']
+ history:['Riwayat & Laporan','Riwayat laporan breakdown dan pengajuan PM saja.']
 };
 let activeView='dashboard';
 function setActiveView(view){
@@ -1159,8 +1202,6 @@ function setActiveView(view){
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];$('activeViewSubtitle').textContent=VIEW_META[view][1];
  document.querySelectorAll('#appMain [data-view]').forEach(el=>{el.hidden=el.dataset.view!==view});
- const showWorkflow=['breakdown','reschedule','history'].includes(view);$('maintenanceWorkflowCard').hidden=!showWorkflow;
- document.querySelectorAll('[data-workflow-panel]').forEach(el=>{const allowed=el.dataset.workflowPanel.split(/\s+/);el.hidden=!allowed.includes(view)});
  if(view==='schedule'){render();}
  if(view==='units')renderUnitDirectory();
  if(view==='dashboard')renderDashboardNotifications();
@@ -1176,9 +1217,11 @@ function renderDashboardNotifications(){
 }
 function renderUnitDirectory(){
  const query=($('unitDirectorySearch').value||'').trim().toLowerCase(),cat=$('unitDirectoryFilter').value;
- const rows=DATA.filter(r=>{const kind=r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel';const hay=(r.c+' '+(r.d||'')+' '+kind).toLowerCase();return (!query||hay.includes(query))&&(cat==='ALL'||r.t===cat)});
- $('unitDirectoryCount').textContent=rows.length.toLocaleString('id-ID')+' unit';
- $('unitDirectoryTable').innerHTML=rows.length?'<table><thead><tr><th>Kode Unit</th><th>Jenis</th><th>Departemen</th><th>Interval PM</th><th>Aksi</th></tr></thead><tbody>'+rows.map(r=>'<tr><td><strong>'+escapeHtml(r.c)+'</strong></td><td>'+(r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel')+'</td><td class="l">'+escapeHtml(r.d||'-')+'</td><td>'+(r.h||200)+' HM</td><td><button type="button" class="unit-directory-detail" data-unit="'+escapeHtml(r.c)+'">Lihat detail</button></td></tr>').join('')+'</tbody></table>':'<div class="workflow-empty">Tidak ada unit yang sesuai dengan filter.</div>';
+ const groups=[{key:'D',title:'Forklift Diesel'},{key:'B',title:'Forklift Baterai'},{key:'T',title:'Traktor'}];
+ const filtered=DATA.filter(r=>{const kind=r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel';const hay=(r.c+' '+(r.d||'')+' '+kind).toLowerCase();return (!query||hay.includes(query))&&(cat==='ALL'||r.t===cat)});
+ $('unitDirectoryCount').textContent=filtered.length.toLocaleString('id-ID')+' unit';
+ const tableFor=rows=>'<table><thead><tr><th>Kode Unit</th><th>Jenis</th><th>Departemen</th><th>Interval PM</th><th>Aksi</th></tr></thead><tbody>'+rows.map(r=>'<tr><td><strong>'+escapeHtml(r.c)+'</strong></td><td>'+(r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':'Forklift Diesel')+'</td><td class="l">'+escapeHtml(r.d||'-')+'</td><td>'+(r.h||200)+' HM</td><td><button type="button" class="unit-directory-detail" data-unit="'+escapeHtml(r.c)+'">Lihat detail</button></td></tr>').join('')+'</tbody></table>';
+ $('unitDirectoryTable').innerHTML=filtered.length?groups.map(g=>{const rows=filtered.filter(r=>g.key==='D'?(r.t!=='B'&&r.t!=='T'):r.t===g.key);return rows.length?'<section class="directory-group"><h3>'+g.title+' <span class="directory-group-meta">'+rows.length+' unit</span></h3>'+tableFor(rows)+'</section>':''}).join(''):'<div class="workflow-empty">Tidak ada unit yang sesuai dengan filter.</div>';
  $('unitDirectoryTable').querySelectorAll('[data-unit]').forEach(b=>b.addEventListener('click',()=>{$('q').value=b.dataset.unit;setActiveView('schedule');render();window.scrollTo({top:0,behavior:'smooth'})}));
 }
 $('unitDirectorySearch').addEventListener('input',renderUnitDirectory);$('unitDirectoryFilter').addEventListener('change',renderUnitDirectory);
