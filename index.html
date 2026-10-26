@@ -540,6 +540,26 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .simple-login-card #resetPane .login-pane h2 { text-align: left; }
 @media(max-width: 480px) { #authGate { padding: 22px; } .simple-login-card { width: 100%; } .simple-login-logo { margin-bottom: 20px; } }
 
+
+/* Responsif pada zoom browser 100%: hindari toolbar dan panel melebar keluar layar */
+html { width:100%; overflow-x:hidden; }
+body { width:100%; max-width:1600px; padding:clamp(10px,1.4vw,20px); overflow-x:hidden; }
+.app-layout { grid-template-columns:minmax(190px,220px) minmax(0,1fr); gap:12px; }
+.app-main, #appMain, [data-view], .card, .overview-card, .overview-table-wrap, .wrap { min-width:0; }
+.control-toolbar { grid-template-columns: minmax(150px, .8fr) minmax(160px, 1.1fr) minmax(150px, .8fr) auto; }
+.toolbar-actions { min-width:0; }
+.toolbar-actions button { white-space:normal; }
+.dashboard-grid { grid-template-columns:minmax(0, .85fr) minmax(0, 1.5fr); }
+.info { grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr)); }
+.mode-control { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 12px; margin:0 0 12px; border:1px solid #475569; border-radius:10px; background:rgba(15,23,42,.94); }
+.mode-control label { color:#fcd34d; font-size:12px; font-weight:800; }
+.mode-control select { max-width:100%; background:#0b1220; color:#f8fafc; border:1px solid #475569; border-radius:8px; padding:9px 10px; }
+.test-mode-banner { display:none; margin:0 0 12px; padding:10px 12px; border:1px solid #d97706; border-radius:9px; color:#fde68a; background:rgba(120,53,15,.25); font-size:12px; font-weight:800; }
+#appShell.test-december .test-mode-banner { display:block; }
+@media(max-width:1150px) { .app-layout { grid-template-columns:1fr; } .app-sidebar { position:static; min-height:0; } .sidebar-nav { grid-template-columns:repeat(4,minmax(0,1fr)); } .control-toolbar { grid-template-columns:repeat(2,minmax(0,1fr)); } .dashboard-grid { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:700px) { .sidebar-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } .control-toolbar { grid-template-columns:minmax(0,1fr); } .toolbar-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } .toolbar-actions #exportPdfBtnMain { grid-column:1/-1; } .kpi-grid { grid-template-columns:1fr; } .workflow-form { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:420px) { .sidebar-nav { grid-template-columns:1fr 1fr; } .toolbar-actions { grid-template-columns:1fr; } .toolbar-actions #exportPdfBtnMain { grid-column:auto; } .mode-control select { width:100%; } }
+
 </style>
 </head>
 <body>
@@ -650,6 +670,15 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
   </section>
 
+  <div class="test-mode-banner" id="testModeBanner"><i class="fa-solid fa-flask"></i> MODE UJI — DESEMBER 2026. Jadwal 2027 asli tidak diubah.</div>
+  <div class="mode-control" data-view="schedule">
+    <label for="scheduleMode"><i class="fa-solid fa-calendar-days"></i> Periode Jadwal</label>
+    <select id="scheduleMode" aria-label="Pilih periode jadwal">
+      <option value="2027">Operasional — Januari sampai Desember 2027</option>
+      <option value="2026-12">MODE UJI — Desember 2026</option>
+    </select>
+    <span class="unit-kind">Mode uji hanya mengubah tampilan jadwal; tidak menulis data jadwal ke Firestore.</span>
+  </div>
   <!-- Control Toolbar: kategori, kode unit, tanggal servis, laporan -->
   <div class="control-toolbar" data-view="schedule">
     <div class="search-box-wrapper category-select-wrapper">
@@ -683,7 +712,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   <!-- Status Bar Info -->
   <div class="status-bar-info" data-view="schedule">
     <div id="st">Pilih atau ketik kode forklift atau traktor untuk menampilkan rincian master plan.</div>
-    <div>Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</div>
+    <div><span id="scheduleStatusPeriod">Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</span></div>
   </div>
 
 
@@ -693,7 +722,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div class="overview-head">
       <div>
         <h2 id="upcomingTitle"><i class="fa-solid fa-calendar-check"></i> Jadwal Servis Mendatang</h2>
-        <div class="overview-meta">Preventive Maintenance • Master Plan 2027</div>
+        <div class="overview-meta"><span id="upcomingPeriodLabel">Preventive Maintenance • Master Plan 2027</span></div>
       </div>
       <span class="table-chip" id="upcomingCount">Memuat jadwal…</span>
     </div>
@@ -729,7 +758,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <!-- Right Column: Schedule & Matrix -->
       <div style="display:flex; flex-direction:column; gap:14px;">
         <div class="card" style="margin-bottom:0;">
-          <h2>Jadwal &amp; Estimasi PM 2027</h2>
+          <h2 id="unitScheduleTitle">Jadwal &amp; Estimasi PM 2027</h2>
           <div class="wrap"><table id="tb"></table></div>
           <div class="note" id="upd"></div>
           <div class="note">Isi kolom Downtime CM (hari) untuk menggeser servis tersebut dan semua servis sesudahnya. Baris abu-abu = jatuh di luar 2027.</div>
@@ -737,7 +766,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
         </div>
 
         <div class="card" style="margin-bottom:0;">
-          <h2>Matriks Bulanan 2027 (HM)</h2>
+          <h2 id="unitMatrixTitle">Matriks Bulanan 2027 (HM)</h2>
           <div class="wrap"><table class="mx" id="mx"></table></div>
         </div>
       </div>
@@ -1034,11 +1063,30 @@ function find(v){
   return unit;
 }
 
+let scheduleMode='2027';
+function getModeRows(r){
+ if(scheduleMode!=='2026-12') return getScheduleRowsForDateSearch(r).filter(x=>x.rv.getUTCFullYear()===2027).map(x=>({...x,modeDate:x.rv}));
+ // Jadwal uji dihitung mundur dari tanggal servis pertama 2027 menggunakan interval hari unit.
+ const first=new Date(r.f+'T00:00:00Z'), interval=Math.max(1,Number(r.i)||30), start=Date.UTC(2026,11,1), end=Date.UTC(2026,11,31,23,59,59);
+ const dates=[]; let t=first.getTime(), guard=0;
+ while(t>end && guard++<30) t-=interval*864e5;
+ while(t>=start && t<=end && guard++<40){dates.push(new Date(t));t-=interval*864e5;}
+ return dates.map((rv,k)=>({k,rv,norm:new Date(r.f+'T00:00:00Z'),p:r.p+k,j:r.t==='B'?100:jenis(r.p+k,r),targetHM:r.t==='T'?(r.p+k)*100:(k+1)*(r.h||200),d:0,pekerjaan:r.t==='T'?TRACTOR_JOBS[ r.t==='T'?(r.p+k)%20===0?2000:(r.p+k)%10===0?1000:(r.p+k)%5===0?500:(r.p+k)%2===0?200:100:100]:KJ[r.t==='B'?100:jenis(r.p+k,r)]}));
+}
+function updateScheduleMode(){
+ scheduleMode=$('scheduleMode')?.value||'2027';
+ $('appShell').classList.toggle('test-december',scheduleMode==='2026-12');
+ const test=scheduleMode==='2026-12';
+ if($('scheduleStatusPeriod'))$('scheduleStatusPeriod').textContent=test?'MODE UJI • DESEMBER 2026':'Master Plan Preventive Maintenance Forklift & Traktor • Tahun 2027';
+ if($('upcomingPeriodLabel'))$('upcomingPeriodLabel').textContent=test?'MODE UJI • Jadwal proyeksi Desember 2026':'Preventive Maintenance • Master Plan 2027';
+ if($('serviceDate'))$('serviceDate').placeholder=test?'DD/MM/2026':'DD/MM/2027';
+ if($('serviceDatePicker')){$('serviceDatePicker').min=test?'2026-12-01':'2027-01-01';$('serviceDatePicker').max=test?'2026-12-31':'2027-12-31';}
+ upcomingPage=1;render();
+}
+$('scheduleMode')?.addEventListener('change',updateScheduleMode);
 function renderOverview(){
  const rows=[];
- DATA.forEach(r=>getScheduleRowsForDateSearch(r).forEach(x=>{
-   if(x.rv.getUTCFullYear()===2027) rows.push({r,...x});
- }));
+ DATA.forEach(r=>getModeRows(r).forEach(x=>rows.push({r,...x})));
  $('kpiUnits').textContent=DATA.length.toLocaleString('id-ID');
  $('kpiServices').textContent=rows.length.toLocaleString('id-ID');
 }
@@ -1046,12 +1094,11 @@ function renderOverview(){
 let upcomingPage=1;
 const UPCOMING_PAGE_SIZE=10;
 function dateId(d){return d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'});}
-function parseIndonesianDate(v){const m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return '';const d=+m[1],mo=+m[2],y=+m[3];const x=new Date(Date.UTC(y,mo-1,d));return x.getUTCFullYear()===y&&x.getUTCMonth()===mo-1&&x.getUTCDate()===d&&y===2027?y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'):'';}
+function parseIndonesianDate(v){const m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return '';const d=+m[1],mo=+m[2],y=+m[3];const x=new Date(Date.UTC(y,mo-1,d));const allowedYear=scheduleMode==='2026-12'?2026:2027;return x.getUTCFullYear()===y&&x.getUTCMonth()===mo-1&&x.getUTCDate()===d&&y===allowedYear&&(scheduleMode!=='2026-12'||mo===12)?y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0'):'';}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function getUpcomingRows(){
  const rows=[];
- DATA.forEach(r=>getScheduleRowsForDateSearch(r).forEach(x=>{
-  if(x.rv.getUTCFullYear()!==2027)return;
+ DATA.forEach(r=>getModeRows(r).forEach(x=>{
   rows.push({r,...x,kind:r.t==='T'?'Traktor':r.t==='B'?'Baterai':'Diesel',priority:(x.rv.getTime()<Date.now()?'critical':x.rv.getTime()<=Date.now()+7*864e5?'high':'normal')});
  }));
  return rows.sort((a,b)=>a.rv-b.rv||a.r.c.localeCompare(b.r.c,undefined,{numeric:true}));
@@ -1101,8 +1148,14 @@ function render(){
   if(k==0){cur=+f0+d*864e5}else{n=stepDays(cur,rate,r.h||200);nm=nm+stepDays(nm,rate,r.h||200)*864e5;cur=cur+(n+d)*864e5}
   rows.push({k,norm:new Date(nm),d,n,rv:new Date(cur),p:r.p+k})}
  rows.forEach(x=>{const in27=x.rv.getUTCFullYear()==2027;x.m=in27?x.rv.getUTCMonth()+1:0;x.w=in27?Math.min(4,Math.floor((x.rv.getUTCDate()-1)/7)+1):0;x.j=r.t==='B'?100:jenis(x.p,r)});
+ if(scheduleMode==='2026-12'){
+  rows.length=0;
+  getModeRows(r).forEach((x,k)=>rows.push({k,norm:x.norm||new Date(r.f+'T00:00:00Z'),d:0,n:Number(r.i)||0,rv:x.rv,p:x.p,m:12,w:Math.min(4,Math.floor((x.rv.getUTCDate()-1)/7)+1),j:x.j,targetHM:x.targetHM,pekerjaan:x.pekerjaan,testMode:true}));
+ }
  const tot=dt.reduce((a,b)=>a+(+b||0),0),n27=rows.filter(x=>x.m>0).length;
 
+ if($('unitScheduleTitle'))$('unitScheduleTitle').textContent=scheduleMode==='2026-12'?'Jadwal PM Desember 2026 (Mode Uji)':'Jadwal & Estimasi PM 2027';
+ if($('unitMatrixTitle'))$('unitMatrixTitle').textContent=scheduleMode==='2026-12'?'Matriks Bulanan Desember 2026 (Uji)':'Matriks Bulanan 2027 (HM)';
  $('info').innerHTML=[
   ['Kode Unit', r.c],
   ['Jenis Machine', (r.t==='T'?'Traktor':r.t==='B'?'Baterai':'Diesel') + (r.t==='T'?'':' Engine Fuel')],
@@ -1111,33 +1164,34 @@ function render(){
   ['Laju Awal', (+lj.base).toFixed(1)+' HM/hr'],
   ['Laju Sekarang', rate(Date.now()).toFixed(1)+' HM/hr'],
   ['Downtime CM', tot+' Hari'],
-  ['Est. Servis 2027', n27+'x']
+  [scheduleMode==='2026-12'?'Est. Servis Des 2026':'Est. Servis 2027', n27+'x']
  ].map(a=>'<div><b>'+a[0]+'</b><span>'+a[1]+'</span></div>').join('');
 
  let h='<tr><th>Bulan</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th></tr>';
  for(let m=1;m<=12;m++){h+='<tr><td>'+BL[m-1]+'</td>';for(let w=1;w<=4;w++){const x=rows.find(y=>y.m==m&&y.w==w);h+=x?'<td class="t'+x.j+'">'+x.j+'</td>':'<td></td>'}h+='</tr>'}
  $('mx').innerHTML=h;
 
- h='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
+ if(scheduleMode==='2026-12') h='<tr><td colspan=8 class="l">Mode uji: tanggal dihitung mundur dari acuan servis 2027 berdasarkan interval hari. Perubahan downtime dan laju kerja dinonaktifkan agar data operasional tidak berubah.</td></tr>'; 
+ h+='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
  rows.forEach(x=>{
-  const targetHM = r.t==='T' ? x.p*100 : (x.k + 1) * (r.h || 200);
-  const intervalVal = x.k === 0 ? '-' : x.n + ' hari';
-  const pekerjaan=r.t==='T'?TRACTOR_JOBS[x.j]:KJ[x.j];
-  h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+targetHM+' HM</td><td><b>'+fmt(x.rv)+'</b></td><td>'+intervalVal+'</td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+pekerjaan+'</td></tr>';
+  const targetHM = x.targetHM || (r.t==='T' ? x.p*100 : (x.k + 1) * (r.h || 200));
+  const intervalVal = x.testMode ? (Number(r.i)||'-')+' hari (proyeksi)' : (x.k === 0 ? '-' : x.n + ' hari');
+  const pekerjaan=x.pekerjaan||(r.t==='T'?TRACTOR_JOBS[x.j]:KJ[x.j]);
+  h+='<tr'+(x.m?'':' class="out"')+'><td>#'+(x.k+1)+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td>'+targetHM+' HM</td><td><b>'+fmt(x.rv)+'</b></td><td>'+intervalVal+'</td><td><input type="number" min="0" data-k="'+x.k+'" value="'+x.d+'"'+(canWrite===false||scheduleMode==='2026-12'?' disabled':'')+'></td><td>'+fmt(x.norm)+'</td><td class="l">'+pekerjaan+'</td></tr>';
  });
  $('tb').innerHTML=h;
 
  $('tb').querySelectorAll('input').forEach(i=>i.onchange=()=>{const k=+i.dataset.k,nv=Math.max(0,+i.value||0),old=+dt[k]||0;if(nv===old){render();return}
   ask('Ubah downtime '+r.c+' — Servis ke-'+(k+1)+'\n\nDari '+old+' hari menjadi '+nv+' hari?',()=>{const a=load(r);a[k]=nv;save(r,a)},{cancel:()=>render()})});
 
- {const ro=canWrite===false?' disabled':'';let q='<div style="margin-bottom:8px">Laju Awal (HM/hari)<br><input id="lb" type="number" step="0.1" min="0.1" value="'+lj.base+'"'+ro+' style="width:100%; margin-top:4px;"></div>';
+ {const ro=(canWrite===false||scheduleMode==='2026-12')?' disabled':'';let q='<div style="margin-bottom:8px">Laju Awal (HM/hari)<br><input id="lb" type="number" step="0.1" min="0.1" value="'+lj.base+'"'+ro+' style="width:100%; margin-top:4px;"></div>';
  lj.ch.forEach((c,i)=>{q+='<div style="margin-top:6px; font-size:11px;">Mulai <b>'+c.f+'</b> → <b>'+c.l+'</b> HM/hari <button data-i="'+i+'"'+ro+' style="padding:2px 6px; font-size:10px;">Hapus</button></div>'});
  q+='<div style="margin-top:12px; border-top:1px solid var(--bd); pt:10px;"><div style="font-weight:600; margin-bottom:6px;">Simulasi Laju Kerja Sekarang (HM/hari)</div><input id="ll" type="number" step="0.1" min="0.1" placeholder="HM/hari" value="'+rate(Date.now()).toFixed(1)+'" style="width:100%; margin-bottom:6px;"'+ro+'><div style="font-size:11px; margin-bottom:6px;">Tanggal Berlaku:</div><input id="ld" type="date" value="'+fmt(new Date())+'" style="width:100%; margin-bottom:8px;"'+ro+'><button id="la"'+ro+' style="width:100%; background:var(--card-hover);"><i class="fa-solid fa-plus"></i> Terapkan Simulasi</button></div>';
  $('lj').innerHTML=q;
  $('lb').onchange=()=>{const v=+$('lb').value;if(!(v>0)||v===+lj.base){render();return}ask('Ubah laju awal '+r.c+'?',()=>{const o=lget(r);o.base=v;lsave(r,o)},{cancel:()=>render()})};
  $('lj').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const c=lj.ch[+b.dataset.i];ask('Hapus perubahan laju?',()=>{const o=lget(r);o.ch.splice(+b.dataset.i,1);lsave(r,o)})});$('la').onclick=()=>{const v=+$('ll').value,d=$('ld').value;if(!(v>0)||!d){alert('Isi tanggal dan laju.');return}ask('Simpan perubahan laju kerja?',()=>{const o=lget(r);o.ch=o.ch.filter(c=>c.f!=d);o.ch.push({f:d,l:v});lsave(r,o)})}}
 
- $('rs').disabled=canWrite===false;$('rs').onclick=()=>ask('RESET semua downtime '+r.c+' menjadi 0 hari?\nKetik kode unit untuk konfirmasi.',()=>save(r,r.dt.slice()),{need:r.c,yes:'Ya, reset'});
+ $('rs').disabled=canWrite===false||scheduleMode==='2026-12';$('rs').onclick=()=>ask('RESET semua downtime '+r.c+' menjadi 0 hari?\nKetik kode unit untuk konfirmasi.',()=>save(r,r.dt.slice()),{need:r.c,yes:'Ya, reset'});
  const u=shared[did(r.c)];$('upd').textContent=u&&u.at?'Terakhir diubah: '+new Date(u.at).toLocaleString('id-ID'):'';
 }
 
