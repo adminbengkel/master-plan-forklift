@@ -561,8 +561,13 @@ body { width:100%; max-width:1600px; padding:clamp(10px,1.4vw,20px); overflow-x:
 @media(max-width:420px) { .sidebar-nav { grid-template-columns:1fr 1fr; } .toolbar-actions { grid-template-columns:1fr; } .toolbar-actions #exportPdfBtnMain { grid-column:auto; } .mode-control select { width:100%; } }
 
 
-/* Perapian menu Jadwal PM: sembunyikan tabel jadwal duplikat, pertahankan matriks bulanan */
-#unitScheduleCard { display: none !important; }
+/* Perapian menu Jadwal PM: pertahankan panel detail jadwal dan letakkan matriks di bawahnya */
+#unitScheduleCard { display: block; }
+#unitScheduleCard, #unitMatrixCard { min-width: 0; width: 100%; }
+#unitScheduleCard .wrap { width: 100%; overflow-x: auto; }
+#unitScheduleCard table { width: 100%; min-width: 760px; table-layout: auto; }
+#unitScheduleCard th, #unitScheduleCard td { white-space: nowrap; }
+#unitScheduleCard td.l { white-space: normal; min-width: 150px; }
 #unitMatrixCard { min-width: 0; width: 100%; }
 .dashboard-grid { grid-template-columns: minmax(250px, 0.36fr) minmax(0, 1fr); align-items: start; }
 .dashboard-grid > div:last-child { min-width: 0; }
