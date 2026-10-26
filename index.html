@@ -560,6 +560,26 @@ body { width:100%; max-width:1600px; padding:clamp(10px,1.4vw,20px); overflow-x:
 @media(max-width:700px) { .sidebar-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } .control-toolbar { grid-template-columns:minmax(0,1fr); } .toolbar-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } .toolbar-actions #exportPdfBtnMain { grid-column:1/-1; } .kpi-grid { grid-template-columns:1fr; } .workflow-form { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:420px) { .sidebar-nav { grid-template-columns:1fr 1fr; } .toolbar-actions { grid-template-columns:1fr; } .toolbar-actions #exportPdfBtnMain { grid-column:auto; } .mode-control select { width:100%; } }
 
+
+/* Perapian menu Jadwal PM: sembunyikan tabel jadwal duplikat, pertahankan matriks bulanan */
+#unitScheduleCard { display: none !important; }
+#unitMatrixCard { min-width: 0; width: 100%; }
+.dashboard-grid { grid-template-columns: minmax(250px, 0.36fr) minmax(0, 1fr); align-items: start; }
+.dashboard-grid > div:last-child { min-width: 0; }
+#unitMatrixCard .wrap { width: 100%; overflow-x: auto; }
+#unitMatrixCard table { width: 100%; table-layout: fixed; }
+#unitMatrixCard th, #unitMatrixCard td { padding: 10px 8px; }
+#unitMatrixCard th:first-child, #unitMatrixCard td:first-child { width: 28%; text-align: left; }
+#unitMatrixCard th:not(:first-child), #unitMatrixCard td:not(:first-child) { width: 18%; }
+@media (max-width: 1100px) {
+  .dashboard-grid { grid-template-columns: minmax(230px, 0.32fr) minmax(0, 1fr); gap: 12px; }
+}
+@media (max-width: 760px) {
+  .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+  #unitMatrixCard table { min-width: 480px; table-layout: auto; }
+  #unitMatrixCard th:first-child, #unitMatrixCard td:first-child,
+  #unitMatrixCard th:not(:first-child), #unitMatrixCard td:not(:first-child) { width: auto; }
+}
 </style>
 </head>
 <body>
@@ -757,7 +777,7 @@ body { width:100%; max-width:1600px; padding:clamp(10px,1.4vw,20px); overflow-x:
 
       <!-- Right Column: Schedule & Matrix -->
       <div style="display:flex; flex-direction:column; gap:14px;">
-        <div class="card" style="margin-bottom:0;">
+        <div class="card" id="unitScheduleCard" style="margin-bottom:0;">
           <h2 id="unitScheduleTitle">Jadwal &amp; Estimasi PM 2027</h2>
           <div class="wrap"><table id="tb"></table></div>
           <div class="note" id="upd"></div>
@@ -765,7 +785,7 @@ body { width:100%; max-width:1600px; padding:clamp(10px,1.4vw,20px); overflow-x:
           <p style="margin-top:12px;"><button id="rs"><i class="fa-solid fa-rotate-left"></i> Reset downtime unit ini</button></p>
         </div>
 
-        <div class="card" style="margin-bottom:0;">
+        <div class="card" id="unitMatrixCard" style="margin-bottom:0;">
           <h2 id="unitMatrixTitle">Matriks Bulanan 2027 (HM)</h2>
           <div class="wrap"><table class="mx" id="mx"></table></div>
         </div>
