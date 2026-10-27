@@ -1119,7 +1119,8 @@ let scheduleMode='2027';
 function getModeRows(r){
  if(scheduleMode!=='2026-12') return getScheduleRowsForDateSearch(r).filter(x=>x.rv.getUTCFullYear()===2027).map(x=>({...x,modeDate:x.rv}));
  // Proyeksi Desember 2026 dihitung mundur dari acuan servis pertama 2027; tidak mengubah master.
- const first=new Date(r.f+'T00:00:00Z'), interval=Math.max(1,Number(r.i)||30), start=Date.UTC(2026,11,1), end=Date.UTC(2026,11,31,23,59,59);
+ const first=new Date(String(r.f||'')+'T00:00:00Z'), interval=Math.max(1,Number(r.i)||30), start=Date.UTC(2026,11,1), end=Date.UTC(2026,11,31,23,59,59);
+ if(!r.f || !Number.isFinite(first.getTime())) return [];
  const dates=[]; let t=first.getTime(), guard=0;
  while(t>end && guard++<30) t-=interval*864e5;
  while(t>=start && t<=end && guard++<40){dates.push(new Date(t));t-=interval*864e5;}
@@ -1215,7 +1216,7 @@ function render(){
  ].map(a=>'<div><b>'+a[0]+'</b><span>'+a[1]+'</span></div>').join('');
 
  let h='<tr><th>Bulan</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th></tr>';
- for(let m=1;m<=12;m++){h+='<tr><td>'+BL[m-1]+'</td>';for(let w=1;w<=4;w++){const x=rows.find(y=>y.m==m&&y.w==w);h+=x?'<td class="t'+x.j+'">'+x.j+'</td>':'<td></td>'}h+='</tr>'}
+ for(let m=1;m<=12;m++){h+='<tr><td>'+BL[m-1]+'</td>';for(let w=1;w<=4;w++){const x=rows.find(y=>y&&y.m===m&&y.w===w);h+=x?'<td class="t'+x.j+'">'+x.j+'</td>':'<td></td>'}h+='</tr>'}
  $('mx').innerHTML=h;
 
  h=scheduleMode==='2026-12'?'<tr><td colspan=8 class="l">Mode uji: jadwal Desember 2026 diproyeksikan mundur dari acuan servis 2027. Tidak ada perubahan jadwal yang disimpan.</td></tr>':'';h+='<tr><th>No</th><th>Kategori PM</th><th>Target HM</th><th>Estimasi Tanggal</th><th>Interval</th><th>Downtime (Hari)</th><th>Revisi</th><th>Pekerjaan</th></tr>';
