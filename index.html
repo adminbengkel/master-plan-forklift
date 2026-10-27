@@ -459,6 +459,17 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #appShell[data-active-view="units"] #appMain [data-view]:not([data-view="units"]),
 #appShell[data-active-view="history"] #appMain [data-view]:not([data-view="history"]),
 #appShell[data-active-view="unitReports"] #appMain [data-view]:not([data-view="unitReports"]) {display:none!important}
+/* Navigation and simulator start compact; expand only on user request */
+#appShell.sidebar-collapsed .app-layout{grid-template-columns:68px minmax(0,1fr)}
+.simulator-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:0}
+.simulator-heading h2{margin:0}
+.simulator-subtitle{font-size:11px;color:var(--mu);margin-top:5px}
+.simulator-toggle{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.simulator-chevron{transition:transform .18s ease}
+.simulator-collapsed .simulator-content{display:none}
+.simulator-card:not(.simulator-collapsed) .simulator-heading{margin-bottom:12px}
+.simulator-card:not(.simulator-collapsed) .simulator-chevron{transform:rotate(180deg)}
+@media(max-width:900px){#appShell.sidebar-collapsed .app-layout{grid-template-columns:minmax(0,1fr)!important}}
 /* Navigasi sidebar MBK dan tampilan per menu */
 .app-layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px;align-items:start}
 .app-sidebar{position:sticky;top:12px;align-self:start;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;min-height:calc(100vh - 32px)}
@@ -609,7 +620,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </div>
 </div>
 
-<div id="appShell" class="date-home" hidden>
+<div id="appShell" class="date-home sidebar-collapsed" hidden>
   <!-- Top App Header -->
   <div class="app-header">
     <div class="brand-left">
@@ -635,31 +646,31 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
   <div class="app-layout">
     <aside class="app-sidebar" id="appSidebar" aria-label="Navigasi utama MBK">
-      <div class="sidebar-topline"><div class="sidebar-label">Navigasi</div><button type="button" id="sidebarCollapseBtn" class="sidebar-collapse-btn" aria-label="Ciutkan menu" title="Ciutkan menu"><i class="fa-solid fa-angles-left"></i></button></div>
+      <div class="sidebar-topline"><div class="sidebar-label">Navigasi</div><button type="button" id="sidebarCollapseBtn" class="sidebar-collapse-btn" aria-label="Tampilkan menu navigasi" title="Tampilkan menu navigasi"><i class="fa-solid fa-angles-right"></i></button></div>
       <nav class="sidebar-nav" id="mainNavigation">
         <button type="button" class="active" data-view-target="dashboard" title="Dashboard"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></button>
-        <div class="nav-group" data-nav-group="planning">
-          <button type="button" class="nav-group-toggle" aria-expanded="true"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">Perencanaan PM</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+        <div class="nav-group is-collapsed" data-nav-group="planning">
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">Perencanaan PM</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="schedule" title="Jadwal PM"><i class="fa-solid fa-calendar-days"></i><span class="nav-text">Jadwal PM</span></button>
           </div>
         </div>
-        <div class="nav-group" data-nav-group="operations">
-          <button type="button" class="nav-group-toggle" aria-expanded="true"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">Operasional Servis</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+        <div class="nav-group is-collapsed" data-nav-group="operations">
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">Operasional Servis</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="dailyService" id="dailyServiceNav" title="Rekap Servis Harian"><i class="fa-solid fa-list-check"></i><span class="nav-text">Rekap Servis Harian</span></button>
             <button type="button" data-view-target="breakdown" title="Laporan Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Laporan Breakdown</span></button>
           </div>
         </div>
-        <div class="nav-group" data-nav-group="assets">
-          <button type="button" class="nav-group-toggle" aria-expanded="true"><i class="fa-solid fa-truck"></i><span class="nav-text">Data Unit</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+        <div class="nav-group is-collapsed" data-nav-group="assets">
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-truck"></i><span class="nav-text">Data Unit</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Daftar Unit</span></button>
             <button type="button" data-view-target="unitReports" title="Laporan per Unit"><i class="fa-solid fa-file-lines"></i><span class="nav-text">Laporan per Unit</span></button>
           </div>
         </div>
-        <div class="nav-group" data-nav-group="approvals">
-          <button type="button" class="nav-group-toggle" aria-expanded="true"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan &amp; Riwayat</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+        <div class="nav-group is-collapsed" data-nav-group="approvals">
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan &amp; Riwayat</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="reschedule" title="Pengajuan Perubahan PM"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Pengajuan Perubahan PM</span></button>
             <button type="button" data-view-target="history" title="Riwayat &amp; Laporan"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-text">Riwayat &amp; Laporan</span></button>
@@ -760,13 +771,15 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <!-- Dashboard Grid: Simulator Laju Kerja & Jadwal/Matrix -->
     <div class="dashboard-grid">
       <!-- Left Column: Simulator Laju Kerja -->
-      <div class="card" style="margin-bottom:0;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <h2>Simulator Laju Kerja</h2>
-          <span style="background:rgba(245,158,11,0.1); color:var(--ac); border:1px solid rgba(245,158,11,0.2); font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px;">Interactive</span>
+      <div class="card simulator-card simulator-collapsed" style="margin-bottom:0;">
+        <div class="simulator-heading">
+          <div><h2>Simulator Laju Kerja</h2><div class="simulator-subtitle">Opsional · buka saat perlu mengubah proyeksi laju kerja</div></div>
+          <button type="button" id="toggleSimulatorBtn" class="simulator-toggle" aria-expanded="false"><i class="fa-solid fa-sliders"></i><span>Tampilkan</span><i class="fa-solid fa-chevron-down simulator-chevron"></i></button>
         </div>
-        <div id="lj" style="font-size:12px;"></div>
-        <div class="note" style="margin-top:12px;">Laju baru berlaku mulai tanggal yang dipilih. Servis sesudah tanggal itu dihitung ulang secara otomatis.</div>
+        <div class="simulator-content" id="simulatorContent">
+          <div id="lj" style="font-size:12px;"></div>
+          <div class="note" style="margin-top:12px;">Laju baru berlaku mulai tanggal yang dipilih. Servis sesudah tanggal itu dihitung ulang secara otomatis.</div>
+        </div>
       </div>
 
       <!-- Right Column: Schedule & Matrix -->
@@ -1498,9 +1511,15 @@ document.querySelectorAll('#mainNavigation .nav-group-toggle').forEach(toggle=>t
 const sidebarCollapseBtn=document.getElementById('sidebarCollapseBtn');
 if(sidebarCollapseBtn)sidebarCollapseBtn.addEventListener('click',()=>{
  const shell=document.getElementById('appShell');const collapsed=shell.classList.toggle('sidebar-collapsed');
- sidebarCollapseBtn.setAttribute('aria-label',collapsed?'Perluas menu':'Ciutkan menu');
- sidebarCollapseBtn.title=collapsed?'Perluas menu':'Ciutkan menu';
+ sidebarCollapseBtn.setAttribute('aria-label',collapsed?'Tampilkan menu navigasi':'Ciutkan menu navigasi');
+ sidebarCollapseBtn.title=collapsed?'Tampilkan menu navigasi':'Ciutkan menu navigasi';
  sidebarCollapseBtn.innerHTML=collapsed?'<i class="fa-solid fa-angles-right"></i>':'<i class="fa-solid fa-angles-left"></i>';
+});
+const toggleSimulatorBtn=document.getElementById('toggleSimulatorBtn');
+if(toggleSimulatorBtn)toggleSimulatorBtn.addEventListener('click',()=>{
+ const card=toggleSimulatorBtn.closest('.simulator-card');const collapsed=card.classList.toggle('simulator-collapsed');
+ toggleSimulatorBtn.setAttribute('aria-expanded',String(!collapsed));
+ toggleSimulatorBtn.innerHTML=collapsed?'<i class="fa-solid fa-sliders"></i><span>Tampilkan</span><i class="fa-solid fa-chevron-down simulator-chevron"></i>':'<i class="fa-solid fa-sliders"></i><span>Sembunyikan</span><i class="fa-solid fa-chevron-down simulator-chevron"></i>';
 });
 document.querySelectorAll('[data-open-view]').forEach(b=>b.addEventListener('click',()=>setActiveView(b.dataset.openView)));
 function renderDashboardNotifications(){
