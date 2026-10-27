@@ -461,14 +461,16 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #appShell[data-active-view="unitReports"] #appMain [data-view]:not([data-view="unitReports"]) {display:none!important}
 /* Navigation and simulator start compact; expand only on user request */
 #appShell.sidebar-collapsed .app-layout{grid-template-columns:68px minmax(0,1fr)}
-.simulator-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:0}
+.simulator-card{display:flex;align-items:flex-start;gap:14px}
+.simulator-heading{display:flex;flex:0 0 150px;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:12px;margin-bottom:0}
 .simulator-heading h2{margin:0}
 .simulator-subtitle{font-size:11px;color:var(--mu);margin-top:5px}
 .simulator-toggle{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
 .simulator-chevron{transition:transform .18s ease}
 .simulator-collapsed .simulator-content{display:none}
-.simulator-card:not(.simulator-collapsed) .simulator-heading{margin-bottom:12px}
-.simulator-card:not(.simulator-collapsed) .simulator-chevron{transform:rotate(180deg)}
+.simulator-card:not(.simulator-collapsed) .simulator-content{display:block;flex:1;min-width:0;border-left:1px solid var(--bd);padding-left:14px}
+.simulator-card:not(.simulator-collapsed) .simulator-chevron{transform:rotate(90deg)}
+@media(max-width:1024px){.simulator-card{display:block}.simulator-heading{flex-direction:row;align-items:center;justify-content:space-between}.simulator-card:not(.simulator-collapsed) .simulator-content{border-left:0;border-top:1px solid var(--bd);padding:12px 0 0;margin-top:12px}}
 @media(max-width:900px){#appShell.sidebar-collapsed .app-layout{grid-template-columns:minmax(0,1fr)!important}}
 /* Navigasi sidebar MBK dan tampilan per menu */
 .app-layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px;align-items:start}
