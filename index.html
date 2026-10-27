@@ -468,6 +468,15 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .simulator-toggle{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0}
 .simulator-chevron{transition:transform .18s ease}
 .simulator-collapsed .simulator-content{display:none}
+/* Saat simulator diminimalkan, sisakan panel tipis di kiri dan lebarkan jadwal */
+.dashboard-grid.simulator-minimized{grid-template-columns:48px minmax(0,1fr)}
+.dashboard-grid.simulator-minimized .simulator-card{padding:10px 6px;align-items:center;justify-content:flex-start;min-width:0}
+.dashboard-grid.simulator-minimized .simulator-heading{flex:0 0 auto;width:100%;align-items:center;gap:8px}
+.dashboard-grid.simulator-minimized .simulator-heading h2,
+.dashboard-grid.simulator-minimized .simulator-subtitle,
+.dashboard-grid.simulator-minimized .simulator-toggle span,
+.dashboard-grid.simulator-minimized .simulator-chevron{display:none}
+.dashboard-grid.simulator-minimized .simulator-toggle{width:34px;min-width:34px;justify-content:center;padding:8px 0}
 .simulator-card:not(.simulator-collapsed) .simulator-content{display:block;flex:1;min-width:0;border-left:1px solid var(--bd);padding-left:14px}
 .simulator-card:not(.simulator-collapsed) .simulator-chevron{transform:rotate(90deg)}
 @media(max-width:1024px){.simulator-card{display:block}.simulator-heading{flex-direction:row;align-items:center;justify-content:space-between}.simulator-card:not(.simulator-collapsed) .simulator-content{border-left:0;border-top:1px solid var(--bd);padding:12px 0 0;margin-top:12px}}
@@ -771,7 +780,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
 
     <!-- Dashboard Grid: Simulator Laju Kerja & Jadwal/Matrix -->
-    <div class="dashboard-grid">
+    <div class="dashboard-grid simulator-minimized">
       <!-- Left Column: Simulator Laju Kerja -->
       <div class="card simulator-card simulator-collapsed" style="margin-bottom:0;">
         <div class="simulator-heading">
@@ -1519,7 +1528,7 @@ if(sidebarCollapseBtn)sidebarCollapseBtn.addEventListener('click',()=>{
 });
 const toggleSimulatorBtn=document.getElementById('toggleSimulatorBtn');
 if(toggleSimulatorBtn)toggleSimulatorBtn.addEventListener('click',()=>{
- const card=toggleSimulatorBtn.closest('.simulator-card');const collapsed=card.classList.toggle('simulator-collapsed');
+ const card=toggleSimulatorBtn.closest('.simulator-card');const collapsed=card.classList.toggle('simulator-collapsed');const grid=card.closest('.dashboard-grid');if(grid)grid.classList.toggle('simulator-minimized',collapsed);
  toggleSimulatorBtn.setAttribute('aria-expanded',String(!collapsed));
  toggleSimulatorBtn.innerHTML=collapsed?'<i class="fa-solid fa-sliders"></i><span>Tampilkan</span><i class="fa-solid fa-chevron-down simulator-chevron"></i>':'<i class="fa-solid fa-sliders"></i><span>Sembunyikan</span><i class="fa-solid fa-chevron-down simulator-chevron"></i>';
 });
