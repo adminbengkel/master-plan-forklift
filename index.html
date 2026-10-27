@@ -705,6 +705,15 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </div>
 
   <section id="dashboardOverview" data-view="dashboard" aria-label="Notifikasi penting">
+    <div class="test-mode-banner" id="testModeBanner"><i class="fa-solid fa-flask"></i> MODE UJI — DESEMBER 2026. Jadwal 2027 asli tidak diubah.</div>
+    <div class="mode-control" data-view="dashboard">
+      <label for="scheduleMode"><i class="fa-solid fa-calendar-days"></i> Periode Jadwal</label>
+      <select id="scheduleMode" aria-label="Pilih periode jadwal">
+        <option value="2027">Operasional — Januari sampai Desember 2027</option>
+        <option value="2026-12">MODE UJI — Desember 2026</option>
+      </select>
+      <span class="unit-kind">Pilih periode di sini; tampilan jadwal akan mengikuti pilihan ini.</span>
+    </div>
     <div class="notice-grid">
       <div class="notice-card danger"><div class="notice-label">PM Terlambat / Mendesak</div><div class="notice-number" id="dashboardUrgentCount">—</div><div class="notice-desc">Jadwal yang lewat atau mendekati jatuh tempo</div></div>
       <div class="notice-card warn"><div class="notice-label">Pengajuan Menunggu Persetujuan</div><div class="notice-number" id="dashboardPendingCount">0</div><div class="notice-desc">Perlu ditinjau Supervisor / Kepala Bengkel</div></div>
@@ -721,15 +730,6 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
   </section>
 
-  <div class="test-mode-banner" id="testModeBanner"><i class="fa-solid fa-flask"></i> MODE UJI — DESEMBER 2026. Jadwal 2027 asli tidak diubah.</div>
-  <div class="mode-control" data-view="schedule">
-    <label for="scheduleMode"><i class="fa-solid fa-calendar-days"></i> Periode Jadwal</label>
-    <select id="scheduleMode" aria-label="Pilih periode jadwal">
-      <option value="2027">Operasional — Januari sampai Desember 2027</option>
-      <option value="2026-12">MODE UJI — Desember 2026</option>
-    </select>
-    <span class="unit-kind">Mode uji hanya mengubah tampilan jadwal proyeksi. Perubahan downtime dan laju kerja dinonaktifkan.</span>
-  </div>
   <!-- Control Toolbar: kategori, kode unit, tanggal servis, laporan -->
   <div class="control-toolbar" data-view="schedule">
     <div class="search-box-wrapper category-select-wrapper">
@@ -896,7 +896,6 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       </div>
       <div><div class="overview-head"><div><h2>Daftar Rekap Servis</h2><div class="overview-meta">Filter berdasarkan tanggal, kategori unit, dan status.</div></div><div class="export-controls"><input id="dsFilterDate" type="date" aria-label="Filter tanggal servis"><select id="dsCategoryFilter" aria-label="Filter kategori unit"><option value="all">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option></select><select id="dsFilterStatus" aria-label="Filter status"><option value="all">Semua status</option><option value="completed">Selesai</option><option value="in_progress">Dalam proses</option><option value="pending">Belum dikerjakan</option></select><label class="sr-only" for="dsExportFormat">Format ekspor rekap</label><select id="dsExportFormat" aria-label="Pilihan format ekspor"><option value="pdf">PDF</option><option value="excel">Excel</option></select><button type="button" class="reset-btn" id="dsExport"><i class="fa-solid fa-file-export"></i> Export File</button><button type="button" class="reset-btn" id="dsRefresh"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div></div>
         <div class="notice-grid" id="dsSummary"><div class="notice-card"><div class="notice-label">Selesai</div><div class="notice-number">0</div></div><div class="notice-card"><div class="notice-label">Dalam proses</div><div class="notice-number">0</div></div><div class="notice-card"><div class="notice-label">Belum dikerjakan</div><div class="notice-number">0</div></div></div>
-        <div class="notice-grid" id="pmComplianceSummary"><div class="notice-card"><div class="notice-label">PM jatuh tempo</div><div class="notice-number">0</div></div><div class="notice-card"><div class="notice-label">PM terlambat dari jadwal awal</div><div class="notice-number">0%</div></div><div class="notice-card"><div class="notice-label">PM terlambat dari revisi disetujui</div><div class="notice-number">—</div></div></div><p class="workflow-note">Persentase dihitung dari PM yang targetnya jatuh tempo pada tanggal filter atau sebelumnya. Keterlambatan terjadi jika tanggal aktual atau HM/odometer melewati target. Breakdown dicatat sebagai penyebab dan tidak mereset siklus PM.</p>
         <div id="dailyServiceList" class="workflow-list"><div class="workflow-empty">Memuat rekap servis…</div></div>
       </div>
     </div>
