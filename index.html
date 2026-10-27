@@ -585,6 +585,59 @@ body { width:100%; max-width:1600px; padding:clamp(10px,1.4vw,20px); overflow-x:
   #unitMatrixCard th:first-child, #unitMatrixCard td:first-child,
   #unitMatrixCard th:not(:first-child), #unitMatrixCard td:not(:first-child) { width: auto; }
 }
+
+
+/* Detail unit: visual refresh only; no data, calculations, or event handlers changed */
+#res { max-width:100%; min-width:0; }
+#res > .card:first-child {
+  padding:16px 18px; margin:0 0 14px; border:1px solid rgba(148,163,184,.20);
+  border-radius:14px; background:linear-gradient(135deg,rgba(20,30,48,.96),rgba(12,18,30,.96));
+  box-shadow:0 8px 22px rgba(0,0,0,.14);
+}
+#res > .card:first-child .section-header-title {
+  display:flex; align-items:center; gap:9px; margin:0 0 12px; padding:0;
+  color:#e2e8f0; font-size:13px; font-weight:800; letter-spacing:.01em;
+}
+#res > .card:first-child .section-header-title i { color:#fbbf24; }
+#res #info {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:9px;
+  min-width:0;
+}
+#res #info > * {
+  min-width:0; margin:0; padding:11px 12px; border:1px solid rgba(148,163,184,.20);
+  border-radius:10px; background:rgba(7,13,23,.62); overflow-wrap:anywhere;
+}
+#res #info > *:first-child { border-color:rgba(251,191,36,.34); }
+#res .dashboard-grid {
+  display:grid; grid-template-columns:minmax(245px,.78fr) minmax(0,1.8fr); align-items:start;
+  gap:14px; min-width:0;
+}
+#res .dashboard-grid > .card,
+#res #unitScheduleCard, #res #unitMatrixCard { min-width:0; border-radius:13px; border:1px solid rgba(148,163,184,.18); box-shadow:0 7px 20px rgba(0,0,0,.12); }
+#res .dashboard-grid > .card { padding:16px; }
+#res .dashboard-grid h2 { font-size:14px; line-height:1.35; margin:0 0 12px; color:#f1f5f9; }
+#res #unitScheduleCard, #res #unitMatrixCard { padding:14px; }
+#res #unitScheduleCard .wrap, #res #unitMatrixCard .wrap { max-width:100%; overflow-x:auto; border-radius:9px; }
+#res #tb, #res #mx { width:100%; margin:0; border-collapse:separate; border-spacing:0; font-size:11px; }
+#res #tb th, #res #mx th { position:sticky; top:0; z-index:1; padding:9px 8px; background:#1e293b; color:#e2e8f0; white-space:nowrap; }
+#res #tb td, #res #mx td { padding:8px; border-bottom:1px solid rgba(100,116,139,.22); vertical-align:middle; }
+#res #tb tbody tr:nth-child(even), #res #mx tbody tr:nth-child(even) { background:rgba(148,163,184,.035); }
+#res #tb tbody tr:hover, #res #mx tbody tr:hover { background:rgba(251,191,36,.055); }
+#res #unitScheduleCard .note, #res #unitMatrixCard .note { font-size:10px; line-height:1.5; }
+#res #unitScheduleCard p { margin:10px 0 0; }
+#res #lj { min-width:0; }
+#res #lj input, #res #lj select { max-width:100%; }
+@media (max-width:900px) {
+  #res .dashboard-grid { grid-template-columns:minmax(0,1fr); }
+  #res #info { grid-template-columns:repeat(auto-fit,minmax(125px,1fr)); }
+}
+@media (max-width:560px) {
+  #res > .card:first-child, #res .dashboard-grid > .card { padding:12px; }
+  #res #info { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
+  #res #info > * { padding:9px; }
+  #res #unitScheduleCard, #res #unitMatrixCard { padding:10px; }
+}
+
 </style>
 </head>
 <body>
