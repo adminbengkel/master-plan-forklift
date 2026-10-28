@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Master Plan PM Forklift &amp; Traktor 2027 — Enterprise Dashboard</title>
+<title>Master Plan PM MBK — Tema Terang Biru Profesional v13</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -591,6 +591,187 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .mode-control select { max-width:100%; background:#0b1220; color:#f8fafc; border:1px solid #475569; border-radius:8px; padding:9px 10px; }
 .test-mode-banner { display:none; margin:0 0 12px; padding:10px 12px; border:1px solid #d97706; border-radius:9px; color:#fde68a; background:rgba(120,53,15,.25); font-size:12px; font-weight:800; }
 #appShell.test-december .test-mode-banner { display:block; }
+
+/* MBK v12 visual-only light theme: professional white + blue, dark navy sidebar */
+:root {
+  color-scheme: light;
+  --bg: #f3f6fb;
+  --card: #ffffff;
+  --card-hover: #eff6ff;
+  --tx: #1f2937;
+  --mu: #64748b;
+  --ac: #2563eb;
+  --ac-glow: rgba(37, 99, 235, 0.12);
+  --bd: #dbe3ee;
+  --bd-focus: #2563eb;
+  --in: #ffffff;
+  --c200: #fef3c7; --t200: #92400e;
+  --c400: #e0f2fe; --t400: #075985;
+  --c1200: #ffedd5; --t1200: #9a3412;
+  --c2400: #fee2e2; --t2400: #991b1b;
+  --c100: #dcfce7; --t100: #166534;
+  --c500: #ede9fe; --t500: #5b21b6;
+  --c1000: #fce7f3; --t1000: #9d174d;
+  --c2000: #fee2e2; --t2000: #991b1b;
+}
+body, body[style] { background: #f3f6fb !important; color: #1f2937; }
+body { background-image: none !important; }
+h1, h2 { color: #1e3a5f; }
+.card, .notice-card, .unit-report-stat, .workflow-item, .date-search-table,
+.wrap, .unit-report-table, #unitDirectoryTable, .info-card, .info,
+.simulator-card, .kpi-card { background: #fff; color: #1f2937; border-color: #dbe3ee; box-shadow: 0 3px 12px rgba(15, 23, 42, .045); }
+.kpi-card { background: #fff; }
+.kpi-card::after { background: rgba(37,99,235,.055); }
+.control-toolbar { background: #eaf0f8; border-color: #dbe3ee; }
+#q, #q:focus, #categoryFilter, #serviceDate, .toolbar-date input,
+.date-search-controls input[type="date"], input, select, textarea,
+.workflow-form input, .workflow-form select, .workflow-form textarea,
+.unit-report-tools select, .unit-report-tools input,
+#unitDirectorySearch, #unitDirectoryFilter { background-color: #fff; color: #1f2937; border-color: #cbd5e1; color-scheme: light; }
+#q { background: #fff !important; color: #1f2937 !important; border-color: #cbd5e1 !important; }
+#serviceDate { background: #fff; color: #1f2937; color-scheme: light; }
+#openServiceDatePicker { background: #eaf0f8; color: #1e3a5f; border-color: #cbd5e1; }
+#openServiceDatePicker:hover { background: #dbeafe; border-color: #2563eb; }
+th, #overviewTable th { background: #eaf0f8; color: #1e3a5f; border-color: #dbe3ee; }
+td { color: #334155; border-color: #e2e8f0; }
+tr:hover td, #overviewTable tbody tr:hover { background: #f1f7ff; }
+tr.out td { color: #64748b; background: #f8fafc; }
+button { color: #334155; }
+button:hover { background: #eff6ff; border-color: #93c5fd; }
+.btn-primary, .workflow-form button, .pdf-btn, .cat-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; box-shadow: none; }
+.btn-primary:hover, .workflow-form button:hover, .pdf-btn:hover, .cat-btn.active:hover { background: #1d4ed8; color: #fff; }
+.workflow-form button { background: #2563eb; color: #fff; }
+.reset-btn { background: #e2e8f0 !important; color: #334155 !important; border-color: #cbd5e1 !important; }
+.workflow-status { background: #e2e8f0; color: #334155; }
+.workflow-status.pending { background: #fef3c7; color: #92400e; }
+.workflow-status.approved { background: #dcfce7; color: #166534; }
+.workflow-status.rejected { background: #fee2e2; color: #991b1b; }
+.priority.critical { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+.priority.high { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.priority.normal { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+.unit-icon { background: #dbeafe; color: #1d4ed8; }
+.directory-group h3 { color: #1e3a5f; background: #eff6ff; border-color: #dbeafe; }
+.empty-state { background: #fff; border-color: #cbd5e1; }
+.firestore-message.error { color: #b91c1c; }
+.firestore-message.success { color: #166534; }
+/* Keep navigation navy as requested */
+.app-sidebar { background: #1e3a5f; border-color: #1e3a5f; box-shadow: 0 4px 14px rgba(15,23,42,.12); }
+.sidebar-brand { border-color: rgba(255,255,255,.16); }
+.sidebar-mark { background: #60a5fa; color: #102a43; }
+.sidebar-brand strong { color: #fff; }
+.sidebar-brand small { color: #cbd5e1; }
+.sidebar-label { color: #bfdbfe; }
+.sidebar-nav button { color: #e2e8f0; }
+.sidebar-nav button i { color: #bfdbfe; }
+.sidebar-nav button:hover { background: #274a73; border-color: #3b6090; }
+.sidebar-nav button.active { background: #dbeafe; border-color: #bfdbfe; color: #1e3a5f; }
+.sidebar-nav button.active i { color: #1d4ed8; }
+/* Light login screen while preserving the existing login flow */
+#authGate { background: #f3f6fb !important; color: #1f2937; }
+.simple-login-card { color: #1f2937; }
+.fld input { background: #fff; color: #1f2937; border-color: #cbd5e1; }
+.pwd-toggle { color: #64748b; }
+.btn-ghost { background: #eff6ff; border-color: #cbd5e1; color: #1e3a5f; }
+.login-right { background: linear-gradient(135deg, #eff6ff, #dbeafe 60%, #bfdbfe); }
+.hero-shade { background: linear-gradient(to top, rgba(30,58,95,.82), rgba(30,58,95,.18) 50%, transparent); }
+.glass { background: rgba(255,255,255,.78); border-color: rgba(30,58,95,.12); color: #1f2937; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+/* MBK v13: accessible light content + professional navy sidebar */
+:root {
+  color-scheme: light;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --card-hover: #f8fafc;
+  --tx: #1f2937;
+  --mu: #64748b;
+  --ac: #2563eb;
+  --ac-glow: rgba(37, 99, 235, 0.16);
+  --bd: #dbe3ee;
+  --bd-focus: #2563eb;
+  --in: #ffffff;
+  --c200: #fffbeb; --t200: #92400e;
+  --c400: #eff6ff; --t400: #075985;
+  --c1200: #fff7ed; --t1200: #9a3412;
+  --c2400: #fef2f2; --t2400: #b91c1c;
+  --c100: #f0fdf4; --t100: #166534;
+  --c500: #f5f3ff; --t500: #6d28d9;
+  --c1000: #fdf2f8; --t1000: #9d174d;
+  --c2000: #fef2f2; --t2000: #b91c1c;
+}
+html, body { background: var(--bg) !important; color: var(--tx) !important; color-scheme: light; }
+body { background: var(--bg) !important; color: var(--tx) !important; }
+h1,h2,h3,h4,h5,h6, .view-heading h2 { color: #0f2747 !important; }
+.card, .app-header, .control-toolbar, .notice-card, .unit-report-stat,
+.workflow-card, .workflow-item, .simulator-card, .view-section,
+#unitDirectoryCard, #reportUnitView, .panel, .modal-content {
+  background: #fff !important; color: #1f2937 !important; border-color: #dbe3ee !important;
+  box-shadow: 0 2px 8px rgba(15,39,71,.045) !important;
+}
+.app-main, .app-main * { --tx: #1f2937; }
+.app-sidebar { background: #17365d !important; color: #f8fafc !important; border-color: #23466f !important; box-shadow: 0 4px 16px rgba(15,39,71,.12); }
+.sidebar-brand, .sidebar-brand strong, .sidebar-brand small, .sidebar-label { color: #e2e8f0 !important; }
+.sidebar-mark { background: #60a5fa !important; color: #102a4c !important; }
+.sidebar-nav button, .nav-group-toggle { color: #e2e8f0 !important; background: transparent !important; border-color: transparent !important; }
+.sidebar-nav button i, .nav-group-toggle>i:first-child { color: #bfdbfe !important; }
+.sidebar-nav button:hover, .nav-group-toggle:hover { background: #23466f !important; border-color: #3b5f8a !important; }
+.sidebar-nav button.active { background: #dbeafe !important; border-color: #93c5fd !important; color: #12345a !important; }
+.sidebar-nav button.active i { color: #1d4ed8 !important; }
+.sidebar-collapse-btn { color: #e2e8f0 !important; border-color: #52749b !important; }
+/* All common copy and helper text in the content area */
+.app-main p, .app-main label, .app-main small, .app-main .user-line,
+.app-main .notice-label, .app-main .notice-desc, .app-main .unit-report-note,
+.app-main .search-label, .app-main .date-search-controls label,
+.app-main .unit-report-tools label, .app-main .status-bar-info,
+.app-main .section-header-title, .app-main .workflow-label,
+.app-main .form-hint, .app-main .muted, .app-main .text-muted { color: #526174 !important; }
+.app-main strong, .app-main b, .app-main .notice-number, .app-main .info span { color: #1e293b !important; }
+.main-title-bar h1, .title-sub { color: #12345a !important; }
+.badge-tag { background: #dbeafe !important; color: #1d4ed8 !important; border-color: #bfdbfe !important; }
+.sync-badge { color: #15803d !important; }
+.sync-badge::before { background: #16a34a !important; box-shadow: none !important; }
+/* Inputs: explicitly set foreground and background to prevent inherited dark styles */
+input, select, textarea, #q, #unitDirectorySearch, #unitDirectoryFilter,
+.unit-report-tools select, .unit-report-tools input, .export-controls select,
+.workflow-form input, .workflow-form select, .workflow-form textarea,
+.date-search-controls input[type="date"], td input {
+  background: #fff !important; color: #1f2937 !important; border-color: #cbd5e1 !important;
+}
+input::placeholder, textarea::placeholder { color: #8794a5 !important; opacity: 1; }
+input:focus, select:focus, textarea:focus, #q:focus { border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.15) !important; outline: none; }
+select option { background: #fff !important; color: #1f2937 !important; }
+/* Readable tables */
+.wrap, .date-search-table, .unit-report-table, #unitDirectoryTable { background: #fff !important; border-color: #dbe3ee !important; }
+table { color: #1f2937 !important; }
+th { background: #eaf1fb !important; color: #17365d !important; border-color: #d3deed !important; }
+td, td.l, .mx td:first-child { color: #334155 !important; border-color: #e2e8f0 !important; }
+tbody tr:nth-child(even) td { background-color: #f8fafc !important; }
+tr:hover td { background-color: #eff6ff !important; }
+tr.out td { color: #64748b !important; background: #f1f5f9 !important; }
+.info div, .unit-report-stat { background: #f8fafc !important; border-color: #dbe3ee !important; }
+.info b, .unit-report-stat span { color: #64748b !important; }
+.info span, .unit-report-stat strong { color: #1e293b !important; }
+.section-header-title { color: #1d4ed8 !important; }
+/* Consistent action buttons */
+button, .pdf-btn { transition: background-color .15s ease, border-color .15s ease; }
+button:not(.sidebar-nav button):not(.nav-group-toggle):not(.sidebar-collapse-btn) { color: #1e293b; }
+.pdf-btn, .cat-btn.active, .notice-actions button.primary, button.primary,
+button[type="submit"] { background: #2563eb !important; color: #fff !important; border-color: #2563eb !important; box-shadow: none !important; }
+.pdf-btn:hover, .cat-btn.active:hover, button.primary:hover, button[type="submit"]:hover { background: #1d4ed8 !important; }
+.cat-btn { background: #fff !important; color: #475569 !important; border-color: #cbd5e1 !important; }
+.cat-btn:hover { border-color: #2563eb !important; color: #1d4ed8 !important; }
+.delete-breakdown, .danger, button.danger { background: #fff1f2 !important; color: #be123c !important; border-color: #fecdd3 !important; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+/* Status badges retain meaning but with readable text contrast */
+.t200,.t400,.t1200,.t2400,.t100,.t500,.t1000,.t2000 { border-width: 1px !important; }
+.t200 { background: #fffbeb !important; color: #92400e !important; }
+.t400 { background: #eff6ff !important; color: #075985 !important; }
+.t1200 { background: #fff7ed !important; color: #9a3412 !important; }
+.t2400,.t2000 { background: #fef2f2 !important; color: #b91c1c !important; }
+.t100 { background: #f0fdf4 !important; color: #166534 !important; }
+.t500 { background: #f5f3ff !important; color: #6d28d9 !important; }
+.t1000 { background: #fdf2f8 !important; color: #9d174d !important; }
+/* Sign-in may use its own centered layout; keep it readable in light mode */
 
 </style>
 </head>
