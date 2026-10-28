@@ -905,9 +905,9 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </section>
 
 
-  <!-- Laporan per unit: jadwal PM estimasi + breakdown + perubahan PM dari data yang tersedia -->
+  <!-- Laporan per unit: riwayat PM aktual, rekap harian, breakdown, perubahan PM, dan jadwal estimasi -->
   <section class="card workflow-page" id="unitReportsPage" data-view="unitReports" hidden aria-labelledby="unitReportsTitle">
-    <div class="overview-head"><div><h2 id="unitReportsTitle"><i class="fa-solid fa-file-lines"></i> Laporan per Unit</h2><div class="overview-meta">Cari satu unit, pisahkan laporan servis dan perbaikan, lalu ekspor PDF atau CSV.</div></div></div>
+    <div class="overview-head"><div><h2 id="unitReportsTitle"><i class="fa-solid fa-file-lines"></i> Laporan per Unit</h2><div class="overview-meta">Cari satu unit untuk melihat riwayat servis/PM aktual, perbaikan/breakdown, perubahan jadwal, dan estimasi PM; lalu ekspor PDF atau CSV.</div></div></div>
     <div class="unit-report-tools">
       <div><label for="unitReportUnitSearch">Cari kode/nama unit</label><input id="unitReportUnitSearch" type="search" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><label for="unitReportUnit">Pilih unit</label><select id="unitReportUnit"><option value="">Pilih unit…</option></select></div>
       <div><label for="unitReportCategory">Kategori laporan</label><select id="unitReportCategory"><option value="service">Servis / Jadwal PM</option><option value="repair">Perbaikan / Breakdown</option><option value="all">Gabungan aktivitas</option></select></div>
@@ -922,7 +922,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div id="unitReportStatus" class="firestore-message" role="status" aria-live="polite">Pilih unit lalu klik Tampilkan Laporan.</div>
     <div id="unitReportPreview"></div>
-    <div class="unit-report-note">Keterangan: jadwal PM yang berasal dari master plan adalah estimasi, bukan bukti servis selesai. Koleksi yang tersedia mencatat laporan breakdown dan pengajuan perubahan PM. Angka downtime yang ditampilkan berasal dari field downtime CM pada jadwal PM, bukan durasi aktual setiap breakdown.</div>
+    <div class="unit-report-note">Keterangan: jadwal PM master plan adalah estimasi, bukan bukti servis selesai. Riwayat aktual menggunakan rekap harian yang tersimpan, sedangkan laporan breakdown dan pengajuan perubahan PM ditampilkan dari koleksi masing-masing. Nomor WO ditampilkan jika tersedia pada catatan; website tidak mengimpor laporan Excel WO secara otomatis. Downtime CM berasal dari jadwal PM, bukan durasi aktual breakdown.</div>
   </section>
 
   <section class="card" id="unitDirectoryCard" data-view="units" hidden>
@@ -1438,8 +1438,15 @@ function reportDateLabel(v){if(!v)return '—';const d=new Date(v+'T00:00:00Z');
 function reportText(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
 function reportEsc(v){return escapeHtml(v==null?'':v);}
 function reportDateInRange(date,from,to){return (!from||!date||date>=from)&&(!to||!date||date<=to);}
-function reportBuildRows(unit,breakdowns,requests){
+function reportBuildRows(unit,breakdowns,requests,dailyServices=[]){
  const cat=$('unitReportCategory').value,from=$('unitReportFrom').value,to=$('unitReportTo').value,rows=[];
+ dailyServices.forEach(x=>{
+  const date=String(x.serviceDate||'');if(!reportDateInRange(date,from,to))return;
+  const isPm=x.serviceType==='PM';
+  if(cat==='service'&&!isPm||cat==='repair'&&isPm)return;
+  const wo=x.workOrderNumber||x.woNumber||x.wo||x.workOrder||x.nomorWO||'';
+  rows.push({date,category:isPm?'Servis / PM aktual':'Perbaikan / Breakdown (rekap harian)',title:(wo?'WO '+wo+' · ':'')+(isPm?(x.pmLabel||'PM'):'Breakdown / Perbaikan'),details:(x.notes||'')+(x.technician?'; Pelaksana: '+x.technician:'')+(x.unitDescription?'; Unit: '+x.unitDescription:''),status:dailyStatusLabel(x.status),meter:x.meter==null?'':String(x.meter),source:'daily_service_records',wo});
+ });
  if(cat==='service'||cat==='all'){
   getScheduleRowsForDateSearch(unit).forEach(x=>{
    const date=fmt(x.rv);if(!reportDateInRange(date,from,to))return;
@@ -1454,7 +1461,7 @@ function reportBuildRows(unit,breakdowns,requests){
  }
  if(cat==='repair'||cat==='all'){
   breakdowns.forEach(x=>{const date=String(x.date||'');if(!reportDateInRange(date,from,to))return;
-   rows.push({date,category:'Perbaikan / Breakdown',title:x.severity||'Breakdown',details:'Gejala: '+(x.symptom||'—')+(x.action?'; Diagnosis/tindakan: '+x.action:''),status:x.status||'Dilaporkan',meter:x.meterAtEvent==null?'':String(x.meterAtEvent),source:'breakdown_reports'});
+   const wo=x.workOrderNumber||x.woNumber||x.wo||x.workOrder||x.nomorWO||'';rows.push({date,category:'Perbaikan / Breakdown',title:(wo?'WO '+wo+' · ':'')+(x.severity||'Breakdown'),details:'Gejala: '+(x.symptom||'—')+(x.action?'; Diagnosis/tindakan: '+x.action:''),status:x.status||'Dilaporkan',meter:x.meterAtEvent==null?'':String(x.meterAtEvent),source:'breakdown_reports',wo});
   });
  }
  return rows.sort((a,b)=>String(a.date).localeCompare(String(b.date))||a.category.localeCompare(b.category));
@@ -1464,29 +1471,32 @@ function reportRepeatedIssues(breakdowns){
  return Array.from(map.values()).filter(x=>x.count>1).sort((a,b)=>b.count-a.count);
 }
 async function loadUnitReportData(unit){
- if(!db){return {breakdowns:breakdownRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),requests:rescheduleRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),limited:true};}
- const [bSnap,rSnap]=await Promise.all([
+ if(!db){return {breakdowns:breakdownRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),requests:rescheduleRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),dailyServices:dailyServiceRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),limited:true,partial:false};}
+ const results=await Promise.allSettled([
   db.collection('breakdown_reports').where('unitCode','==',unit.c).get(),
-  db.collection('pm_reschedule_requests').where('unitCode','==',unit.c).get()
+  db.collection('pm_reschedule_requests').where('unitCode','==',unit.c).get(),
+  db.collection('daily_service_records').where('unitCode','==',unit.c).get()
  ]);
- return {breakdowns:bSnap.docs.map(d=>({id:d.id,...d.data()})),requests:rSnap.docs.map(d=>({id:d.id,...d.data()})),limited:false};
+ const value=(i)=>results[i].status==='fulfilled'?results[i].value.docs.map(d=>({id:d.id,...d.data()})):[];
+ const failed=results.map((r,i)=>r.status==='rejected'?['laporan breakdown','pengajuan perubahan PM','rekap servis harian'][i]:null).filter(Boolean);
+ return {breakdowns:value(0),requests:value(1),dailyServices:value(2),limited:false,partial:failed.length>0,failed};
 }
 function renderUnitReport(data,unit){
- const rows=reportBuildRows(unit,data.breakdowns,data.requests),repeat=reportRepeatedIssues(data.breakdowns),dt=load(unit),cmDays=dt.reduce((sum,n)=>sum+(Number(n)||0),0);
- unitReportCurrent={unit,rows,breakdowns:data.breakdowns,requests:data.requests,repeat,cmDays,category:$('unitReportCategory').value,from:$('unitReportFrom').value,to:$('unitReportTo').value,limited:data.limited};
+ const rows=reportBuildRows(unit,data.breakdowns,data.requests,data.dailyServices||[]),repeat=reportRepeatedIssues(data.breakdowns),dt=load(unit),cmDays=dt.reduce((sum,n)=>sum+(Number(n)||0),0);
+ unitReportCurrent={unit,rows,breakdowns:data.breakdowns,requests:data.requests,dailyServices:data.dailyServices||[],repeat,cmDays,category:$('unitReportCategory').value,from:$('unitReportFrom').value,to:$('unitReportTo').value,limited:data.limited};
  const countService=rows.filter(x=>x.category.indexOf('Servis')===0||x.category==='Perubahan jadwal PM').length;
- const countRepair=rows.filter(x=>x.category==='Perbaikan / Breakdown').length;
+ const countRepair=rows.filter(x=>x.category.indexOf('Perbaikan / Breakdown')===0).length;
  let html='<div class="unit-report-summary"><div class="unit-report-stat"><span>Unit</span><strong>'+reportEsc(unit.c)+'</strong></div><div class="unit-report-stat"><span>Catatan servis/PM</span><strong>'+countService.toLocaleString('id-ID')+'</strong></div><div class="unit-report-stat"><span>Laporan perbaikan</span><strong>'+countRepair.toLocaleString('id-ID')+'</strong></div><div class="unit-report-stat"><span>Downtime CM di jadwal (hari)</span><strong>'+cmDays.toLocaleString('id-ID')+'</strong></div></div>';
  html+='<div class="history-section"><h2>Kronologi Aktivitas ('+rows.length.toLocaleString('id-ID')+' catatan)</h2>';
  if(!rows.length)html+='<div class="workflow-empty">Tidak ada catatan yang sesuai filter ini.</div>';
- else {html+='<div class="unit-report-table"><table><thead><tr><th>Tanggal</th><th>Kategori</th><th>Aktivitas</th><th>Detail</th><th>Status</th><th>HM/Odometer</th><th>Sumber</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+reportEsc(reportDateLabel(x.date))+'</td><td>'+reportEsc(x.category)+'</td><td>'+reportEsc(x.title)+'</td><td class="l">'+reportEsc(x.details)+'</td><td>'+reportEsc(x.status)+'</td><td>'+reportEsc(x.meter||'—')+'</td><td>'+reportEsc(x.source)+'</td></tr>').join('')+'</tbody></table></div>'}
+ else {html+='<div class="unit-report-table"><table><thead><tr><th>Tanggal</th><th>Kategori</th><th>Aktivitas</th><th>Detail</th><th>Status</th><th>HM/Odometer</th><th>Nomor WO</th><th>Sumber</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+reportEsc(reportDateLabel(x.date))+'</td><td>'+reportEsc(x.category)+'</td><td>'+reportEsc(x.title)+'</td><td class="l">'+reportEsc(x.details)+'</td><td>'+reportEsc(x.status)+'</td><td>'+reportEsc(x.meter||'—')+'</td><td>'+reportEsc(x.wo||'—')+'</td><td>'+reportEsc(x.source)+'</td></tr>').join('')+'</tbody></table></div>'}
  if($('unitReportCategory').value!=='service'){html+='</div><div class="history-section"><h2>Analisis kerusakan berulang</h2>';
  if(!repeat.length)html+='<div class="workflow-empty">Belum ditemukan gejala dengan deskripsi yang sama lebih dari satu kali pada laporan breakdown unit ini.</div>';
  else html+='<div class="unit-report-table"><table><thead><tr><th>Gejala (teks yang sama)</th><th>Jumlah kejadian</th><th>Tanggal tercatat</th></tr></thead><tbody>'+repeat.map(x=>'<tr><td class="l">'+reportEsc(x.symptom)+'</td><td>'+x.count+'</td><td>'+reportEsc(x.dates.map(reportDateLabel).join(', '))+'</td></tr>').join('')+'</tbody></table></div>';html+='</div>';}
  html+='<p class="unit-report-note">Downtime CM '+cmDays.toLocaleString('id-ID')+' hari dijumlahkan dari data downtime yang tersimpan untuk jadwal unit ini. Ini tidak mewakili total durasi breakdown karena form breakdown saat ini belum mencatat durasi downtime aktual.</p>';
- if(data.limited)html+='<p class="unit-report-note">Peringatan: Firestore tidak tersedia; laporan hanya menggunakan data yang sudah termuat di halaman dan mungkin tidak mencakup seluruh riwayat.</p>';
+ if(data.limited)html+='<p class="unit-report-note">Peringatan: Firestore tidak tersedia; laporan hanya menggunakan data yang sudah termuat di halaman dan mungkin tidak mencakup seluruh riwayat.</p>';if(data.partial)html+='<p class="unit-report-note">Peringatan: tidak semua koleksi berhasil dibaca ('+reportEsc(data.failed.join(', '))+'). Periksa izin Firestore atau koneksi sebelum menggunakan laporan untuk keputusan.</p>'; 
  $('unitReportPreview').innerHTML=html;
- $('unitReportStatus').textContent='Laporan '+unit.c+' berhasil disusun dari '+data.breakdowns.length+' laporan breakdown dan '+data.requests.length+' pengajuan perubahan PM yang ditemukan.'+(data.limited?' Data bersifat terbatas karena Firestore tidak terhubung.':' Data riwayat dimuat langsung dari Firestore.');
+ $('unitReportStatus').textContent='Laporan '+unit.c+' berhasil disusun: '+(data.dailyServices||[]).length+' rekap harian, '+data.breakdowns.length+' laporan breakdown, dan '+data.requests.length+' pengajuan perubahan PM.'+(data.partial?' Peringatan: sebagian sumber gagal dibaca ('+data.failed.join(', ')+'); hasil belum lengkap.':data.limited?' Data terbatas karena Firestore tidak terhubung.':' Data dimuat dari Firestore.');
 }
 async function searchUnitReport(){
  const code=$('unitReportUnit').value,unit=DATA.find(r=>r.c===code);if(!unit){$('unitReportStatus').textContent='Pilih unit terlebih dahulu.';$('unitReportPreview').innerHTML='';unitReportCurrent=null;return}
@@ -1498,7 +1508,7 @@ async function searchUnitReport(){
 function csvCell(value){let s=String(value==null?'':value);if(/^[=+@\-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
 function exportUnitReportCsv(){
  if(!unitReportCurrent){alert('Tampilkan laporan unit terlebih dahulu.');return}
- const r=unitReportCurrent,lines=[['Laporan Unit MBK',r.unit.c],['Kategori',r.category],['Periode dari',r.from||'Semua'],['Periode sampai',r.to||'Semua'],['Downtime CM pada jadwal PM (hari)',r.cmDays],[],['Tanggal','Kategori','Aktivitas','Detail','Status','HM/Odometer','Sumber'],...r.rows.map(x=>[x.date,x.category,x.title,x.details,x.status,x.meter,x.source]),[],['Analisis gejala berulang','Jumlah kejadian','Tanggal'],...r.repeat.map(x=>[x.symptom,x.count,x.dates.join(', ')])];
+ const r=unitReportCurrent,lines=[['Laporan Unit MBK',r.unit.c],['Kategori',r.category],['Periode dari',r.from||'Semua'],['Periode sampai',r.to||'Semua'],['Downtime CM pada jadwal PM (hari)',r.cmDays],[],['Tanggal','Kategori','Aktivitas','Detail','Status','HM/Odometer','Nomor WO','Sumber'],...r.rows.map(x=>[x.date,x.category,x.title,x.details,x.status,x.meter,x.wo||'',x.source]),[],['Analisis gejala berulang','Jumlah kejadian','Tanggal'],...r.repeat.map(x=>[x.symptom,x.count,x.dates.join(', ')])];
  const csv='\ufeff'+lines.map(row=>row.map(csvCell).join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Laporan-MBK-'+r.unit.c+'-'+r.category+'-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
 }
 function exportUnitReportPdf(){
@@ -1506,7 +1516,7 @@ function exportUnitReportPdf(){
  const r=unitReportCurrent,w=window.open('','_blank');if(!w){alert('Popup diblokir browser. Izinkan popup untuk membuka laporan PDF.');return}
  const rows=r.rows.map(x=>'<tr><td>'+reportEsc(reportDateLabel(x.date))+'</td><td>'+reportEsc(x.category)+'</td><td>'+reportEsc(x.title)+'</td><td>'+reportEsc(x.details)+'</td><td>'+reportEsc(x.status)+'</td><td>'+reportEsc(x.meter||'—')+'</td></tr>').join('');
  const repeats=r.repeat.map(x=>'<tr><td>'+reportEsc(x.symptom)+'</td><td>'+x.count+'</td><td>'+reportEsc(x.dates.map(reportDateLabel).join(', '))+'</td></tr>').join('');
- const doc='<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Unit MBK '+reportEsc(r.unit.c)+'</title><style>body{font:12px Arial,sans-serif;color:#111;padding:22px}h1{font-size:20px;margin:0 0 5px}h2{font-size:15px;margin:22px 0 8px}.meta{color:#444;margin-bottom:15px}.stats{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}.stats div{border:1px solid #bbb;padding:9px;min-width:130px}table{border-collapse:collapse;width:100%;font-size:10px;margin:8px 0 16px}th,td{border:1px solid #bbb;padding:6px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eee}p{line-height:1.5}.note{font-size:10px;color:#444}@media print{body{padding:0}@page{size:A4 landscape;margin:12mm}button{display:none}}</style></head><body><h1>Laporan Riwayat Unit MBK — '+reportEsc(r.unit.c)+'</h1><div class="meta">Kategori: '+reportEsc(r.category)+' · Periode: '+reportEsc(r.from||'Semua')+' sampai '+reportEsc(r.to||'Semua')+' · Dicetak: '+reportEsc(new Date().toLocaleString('id-ID'))+'</div><div class="stats"><div><b>Unit</b><br>'+reportEsc(r.unit.c)+'</div><div><b>Catatan kronologi</b><br>'+r.rows.length+'</div><div><b>Kerusakan berulang</b><br>'+r.repeat.length+' jenis gejala</div><div><b>Downtime CM pada jadwal PM</b><br>'+r.cmDays+' hari</div></div><h2>Kronologi aktivitas</h2><table><thead><tr><th>Tanggal</th><th>Kategori</th><th>Aktivitas</th><th>Detail</th><th>Status</th><th>HM/Odometer</th></tr></thead><tbody>'+rows+'</tbody></table><h2>Analisis gejala berulang</h2><table><thead><tr><th>Gejala (teks yang sama)</th><th>Jumlah</th><th>Tanggal tercatat</th></tr></thead><tbody>'+repeats+'</tbody></table><p class="note">Jadwal PM adalah estimasi master plan, bukan konfirmasi pelaksanaan. Downtime CM dihitung dari data downtime jadwal PM dan bukan durasi aktual breakdown.</p><script>window.onload=function(){setTimeout(function(){window.print()},300)};<\/script></body></html>';
+ const doc='<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Unit MBK '+reportEsc(r.unit.c)+'</title><style>body{font:12px Arial,sans-serif;color:#111;padding:22px}h1{font-size:20px;margin:0 0 5px}h2{font-size:15px;margin:22px 0 8px}.meta{color:#444;margin-bottom:15px}.stats{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}.stats div{border:1px solid #bbb;padding:9px;min-width:130px}table{border-collapse:collapse;width:100%;font-size:10px;margin:8px 0 16px}th,td{border:1px solid #bbb;padding:6px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eee}p{line-height:1.5}.note{font-size:10px;color:#444}@media print{body{padding:0}@page{size:A4 landscape;margin:12mm}button{display:none}}</style></head><body><h1>Laporan Riwayat Unit MBK — '+reportEsc(r.unit.c)+'</h1><div class="meta">Kategori: '+reportEsc(r.category)+' · Periode: '+reportEsc(r.from||'Semua')+' sampai '+reportEsc(r.to||'Semua')+' · Dicetak: '+reportEsc(new Date().toLocaleString('id-ID'))+'</div><div class="stats"><div><b>Unit</b><br>'+reportEsc(r.unit.c)+'</div><div><b>Catatan kronologi</b><br>'+r.rows.length+'</div><div><b>Kerusakan berulang</b><br>'+r.repeat.length+' jenis gejala</div><div><b>Downtime CM pada jadwal PM</b><br>'+r.cmDays+' hari</div></div><h2>Kronologi aktivitas</h2><table><thead><tr><th>Tanggal</th><th>Kategori</th><th>Aktivitas</th><th>Detail</th><th>Status</th><th>HM/Odometer</th><th>Nomor WO</th></tr></thead><tbody>'+rows+'</tbody></table><h2>Analisis gejala berulang</h2><table><thead><tr><th>Gejala (teks yang sama)</th><th>Jumlah</th><th>Tanggal tercatat</th></tr></thead><tbody>'+repeats+'</tbody></table><p class="note">Jadwal PM adalah estimasi master plan, bukan konfirmasi pelaksanaan. Downtime CM dihitung dari data downtime jadwal PM dan bukan durasi aktual breakdown.</p><script>window.onload=function(){setTimeout(function(){window.print()},300)};<\/script></body></html>';
  w.document.open();w.document.write(doc);w.document.close();
 }
 $('unitReportSearch').addEventListener('click',searchUnitReport);
