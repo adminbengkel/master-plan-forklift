@@ -746,10 +746,11 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div class="search-box-wrapper category-select-wrapper">
       <label class="search-label" for="categoryFilter">Kategori Kendaraan</label>
       <select id="categoryFilter" aria-label="Kategori Kendaraan">
-        <option value="ALL">Semua Unit (201)</option>
+        <option value="ALL">Semua Unit (209)</option>
         <option value="D">Forklift Diesel (103)</option>
         <option value="B">Forklift Baterai (73)</option>
         <option value="T">Traktor (25)</option>
+        <option value="W">Wheel Loader (8)</option>
       </select>
     </div>
     <div class="search-box-wrapper">
@@ -1000,7 +1001,7 @@ const $=id=>document.getElementById(id),by={};DATA.forEach(r=>by[r.c.toLowerCase
 function updateDatalist(cat = 'ALL') {
   const dl = $('dl');
   dl.innerHTML = '';
-  const filtered = cat === 'ALL' ? DATA : DATA.filter(r => cat === 'T' ? r.t === 'T' : cat === 'B' ? r.t === 'B' : cat === 'D' ? r.t !== 'B' && r.t !== 'T' : true);
+  const filtered = cat === 'ALL' ? DATA : DATA.filter(r => cat === 'T' ? r.t === 'T' : cat === 'B' ? r.t === 'B' : cat === 'W' ? r.t === 'W' : cat === 'D' ? r.t !== 'B' && r.t !== 'T' && r.t !== 'W' : true);
   filtered.forEach(r => {
     const opt = document.createElement('option');
     opt.value = r.c;
@@ -1132,7 +1133,8 @@ function find(v){
   if(currentCat !== 'ALL') {
     if(currentCat === 'T' && unit.t !== 'T') return null;
     if(currentCat === 'B' && unit.t !== 'B') return null;
-    if(currentCat === 'D' && (unit.t === 'B' || unit.t === 'T')) return null;
+    if(currentCat === 'D' && (unit.t === 'B' || unit.t === 'T' || unit.t === 'W')) return null;
+    if(currentCat === 'W' && unit.t !== 'W') return null;
   }
   return unit;
 }
@@ -1179,6 +1181,7 @@ function renderUpcomingTable(){
  if(cat==='T')rows=rows.filter(x=>x.r.t==='T');
  else if(cat==='D')rows=rows.filter(x=>x.r.t!=='B'&&x.r.t!=='T');
  else if(cat==='B')rows=rows.filter(x=>x.r.t==='B');
+ else if(cat==='W')rows=rows.filter(x=>x.r.t==='W');
  if(dateFilter)rows=rows.filter(x=>fmt(x.rv)===dateFilter);
  $('upcomingCount').textContent=rows.length.toLocaleString('id-ID')+' jadwal';
  $('kpiUrgent').textContent=getUpcomingRows().filter(x=>x.priority!=='normal').length.toLocaleString('id-ID');
@@ -1261,7 +1264,7 @@ $('categoryFilter').addEventListener('change', () => {
   updateDatalist(getActiveCategory());
   $('q').value = '';
   const cat = getActiveCategory();
-  const filteredCount = cat === 'ALL' ? DATA.length : DATA.filter(r => cat === 'T' ? r.t === 'T' : cat === 'B' ? r.t === 'B' : cat === 'D' ? r.t !== 'B' && r.t !== 'T' : true).length;
+  const filteredCount = cat === 'ALL' ? DATA.length : DATA.filter(r => cat === 'T' ? r.t === 'T' : cat === 'B' ? r.t === 'B' : cat === 'W' ? r.t === 'W' : cat === 'D' ? r.t !== 'B' && r.t !== 'T' && r.t !== 'W' : true).length;
   $('st').textContent = filteredCount + ' unit tersedia dalam kategori ini.';
   render();
 });
