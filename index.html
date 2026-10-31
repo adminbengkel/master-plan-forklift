@@ -473,7 +473,8 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #appShell[data-active-view="dailyService"] #appMain [data-view]:not([data-view="dailyService"]),
 #appShell[data-active-view="units"] #appMain [data-view]:not([data-view="units"]),
 #appShell[data-active-view="history"] #appMain [data-view]:not([data-view="history"]),
-#appShell[data-active-view="unitReports"] #appMain [data-view]:not([data-view="unitReports"]), #appShell[data-active-view="woImport"] #appMain [data-view]:not([data-view="woImport"]) {display:none!important}
+#appShell[data-active-view="unitReports"] #appMain [data-view]:not([data-view="unitReports"]) {display:none!important}
+#appShell[data-active-view="woImport"] #appMain [data-view]:not([data-view="woImport"]) {display:none!important}
 /* Navigation and simulator start compact; expand only on user request */
 #appShell.sidebar-collapsed .app-layout{grid-template-columns:68px minmax(0,1fr)}
 .simulator-card{display:flex;align-items:flex-start;gap:14px}
@@ -607,6 +608,16 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 .test-mode-banner { display:none; margin:0 0 12px; padding:10px 12px; border:1px solid #d97706; border-radius:9px; color:#fde68a; background:rgba(120,53,15,.25); font-size:12px; font-weight:800; }
 #appShell.test-december .test-mode-banner { display:block; }
 
+
+/* Add-on MBK: Import & Analisis WO (isolated styles) */
+.wo-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+.wo-kpi{background:#111c30;border:1px solid #334155;border-radius:10px;padding:13px;min-width:0}
+.wo-kpi small{display:block;color:#94a3b8;font-size:10px;font-weight:800;text-transform:uppercase}.wo-kpi strong{display:block;font-size:24px;color:#f8fafc;margin-top:5px}
+.wo-tools{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0}.wo-tools input,.wo-tools select{background:#0b0f17;color:#f8fafc;border:1px solid #334155;border-radius:8px;padding:10px;max-width:100%}
+.wo-table-wrap{overflow:auto;border:1px solid #334155;border-radius:10px;margin-top:10px}.wo-table-wrap table{min-width:760px}.wo-status{font-size:11px;color:#94a3b8;white-space:pre-wrap;line-height:1.5}.wo-pill{display:inline-block;border:1px solid #475569;border-radius:99px;padding:3px 8px;font-size:10px;font-weight:800}.wo-pill.new{color:#6ee7b7;border-color:#166534}.wo-pill.updated{color:#fcd34d;border-color:#a16207}.wo-pill.same{color:#94a3b8}.wo-pill.warn{color:#fca5a5;border-color:#991b1b}
+.wo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.wo-panel{border:1px solid #334155;background:#0b1220;border-radius:10px;padding:13px;min-width:0}.wo-panel h3{font-size:13px;margin:0 0 8px;color:#fef3c7}.wo-note{font-size:11px;color:#94a3b8;line-height:1.55}.wo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.wo-actions .primary{background:linear-gradient(135deg,#fbbf24,#d97706);color:#070a0f;border:0}
+@media(max-width:760px){.wo-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wo-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -709,7 +720,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
           </div>
         </div>
         <button type="button" data-view-target="unitReports" title="Report"><i class="fa-solid fa-chart-column"></i><span class="nav-text">Report</span></button>
-<button type="button" data-view-target="woImport" title="Impor &amp; Analisis WO"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor &amp; Analisis WO</span></button>
+        <button type="button" data-view-target="woImport" title="Impor & Analisis WO"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor &amp; Analisis WO</span></button>
       </nav>
     </aside>
     <main class="app-main" id="appMain">
@@ -951,6 +962,27 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div class="unit-report-note">Keterangan: jadwal PM master plan adalah estimasi, bukan bukti servis selesai. Riwayat aktual menggunakan rekap harian yang tersimpan, sedangkan laporan breakdown dan pengajuan perubahan PM ditampilkan dari koleksi masing-masing. Nomor WO ditampilkan jika tersedia pada catatan; website tidak mengimpor laporan Excel WO secara otomatis. Downtime CM berasal dari jadwal PM, bukan durasi aktual breakdown.</div>
   </section>
 
+  <section class="card workflow-page" id="woImportPage" data-view="woImport" hidden aria-labelledby="woImportTitle">
+    <div class="overview-head"><div><h2 id="woImportTitle"><i class="fa-solid fa-file-import"></i> Impor &amp; Analisis WO Selesai</h2><div class="overview-meta">Impor report WO selesai dari sistem resmi. Data hanya disimpan lokal di browser untuk tahap uji; belum menulis ke Firebase.</div></div></div>
+    <div class="wo-panel">
+      <h3>1. Unggah report Excel WO selesai</h3>
+      <div class="wo-tools"><input id="woExcelFile" type="file" accept=".xlsx,.xls,.csv"><button type="button" class="pdf-btn" id="woPreviewBtn"><i class="fa-solid fa-magnifying-glass"></i> Baca &amp; Pratinjau</button><button type="button" id="woClearPreview">Bersihkan pratinjau</button></div>
+      <div class="wo-note">Gunakan report WO selesai dari sistem resmi. Identitas utama adalah WO ID. Baris Task dan Material yang tidak mengulang WO ID akan dikelompokkan ke WO induk. Periksa hasil pratinjau sebelum menyimpan.</div>
+      <div id="woImportStatus" class="wo-status" role="status" aria-live="polite">Belum ada file yang dibaca.</div>
+      <div class="wo-actions"><button type="button" class="primary" id="woCommitBtn" disabled><i class="fa-solid fa-database"></i> Simpan hasil impor uji</button></div>
+    </div>
+    <div class="wo-kpi-grid" id="woKpis">
+      <div class="wo-kpi"><small>Total WO</small><strong id="woTotal">0</strong></div><div class="wo-kpi"><small>Total Task</small><strong id="woTaskTotal">0</strong></div><div class="wo-kpi"><small>Total Material Detail</small><strong id="woMaterialTotal">0</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong id="woUnitTotal">0</strong></div>
+    </div>
+    <div class="wo-grid">
+      <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
+      <div class="wo-panel"><h3>3. Analisis data tersimpan</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><button type="button" id="woApplyFilter">Terapkan</button></div><div id="woAnalytics" class="wo-status">Belum ada data tersimpan.</div></div>
+    </div>
+    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat WO per unit</h3><div class="wo-tools"><select id="woUnitFilter"><option value="">Semua unit</option></select></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
+    <div class="wo-panel" style="margin-top:12px"><h3>5. Riwayat impor dan perubahan</h3><div id="woAuditHistory" class="wo-status">Belum ada riwayat impor.</div></div>
+    <p class="wo-note">Catatan: data biaya tidak tersedia pada report ini, sehingga tidak dihitung sebagai Rp0. Data WO aktual dipisahkan dari jadwal PM dan catatan operasional MBK. Penyimpanan prototipe menggunakan localStorage pada browser/perangkat ini; hapus data browser dapat menghilangkan data uji.</p>
+  </section>
+
   <section class="card" id="unitDirectoryCard" data-view="units" hidden>
     <div class="overview-head"><div><h2><i class="fa-solid fa-truck"></i> Master Data Unit</h2><div class="overview-meta">Daftar unit yang saat ini tersedia di master plan.</div></div><span class="table-chip" id="unitDirectoryCount">0 unit</span></div>
     <div class="directory-tools"><input id="unitDirectorySearch" type="search" placeholder="Cari kode unit atau departemen…" aria-label="Cari data unit"><select id="unitDirectoryFilter" aria-label="Filter jenis unit"><option value="ALL">Semua jenis unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select></div>
@@ -958,12 +990,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <p class="workflow-note">Loader, L300, R3, dan unit lain yang belum dimasukkan ke master data belum muncul di daftar ini.</p>
   </section>
 
-  <section class="card" id="woImportPage" data-view="woImport" hidden style="margin-top:18px">
-<div class="overview-head"><div><h2><i class="fa-solid fa-file-import"></i> Impor &amp; Analisis WO</h2><div class="overview-meta">Prototipe lokal untuk report WO selesai. Tidak menulis ke Firebase.</div></div><span class="table-chip">Uji lokal</span></div>
-<div class="card" style="padding:16px;margin:14px 0"><h3>1. Unggah report WO selesai</h3><p>Pilih Excel dari sistem resmi. WO ID menjadi identitas unik; Task dan Material dikelompokkan ke WO induk.</p><input id="woExcelFile" type="file" accept=".xlsx,.xls"> <button id="woParseBtn" type="button">Baca &amp; pratinjau</button><div id="woImportStatus" class="firestore-message">Belum ada file diproses.</div></div>
-<div id="woPreviewArea" hidden><h3>2. Hasil pencocokan</h3><div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))"><div class="kpi-card"><div class="kpi-label">WO baru</div><div class="kpi-value" id="woNewCount">0</div></div><div class="kpi-card"><div class="kpi-label">Diperbarui</div><div class="kpi-value" id="woChangedCount">0</div></div><div class="kpi-card"><div class="kpi-label">Tidak berubah</div><div class="kpi-value" id="woSameCount">0</div></div><div class="kpi-card"><div class="kpi-label">Perlu diperiksa</div><div class="kpi-value" id="woInvalidCount">0</div></div></div><div style="overflow:auto"><table class="data-table"><thead><tr><th>WO ID</th><th>Equipment Code</th><th>Actual Order Finish</th><th>Task</th><th>Material</th><th>Status</th></tr></thead><tbody id="woPreviewRows"></tbody></table></div><button id="woCommitBtn" type="button">Simpan ke prototipe lokal</button> <button id="woCancelBtn" type="button">Batalkan</button></div>
-<div class="card" style="padding:16px;margin-top:16px"><h3>3. Ringkasan data uji</h3><div id="woLocalSummary">Belum ada data WO tersimpan.</div><button id="woClearLocalBtn" type="button">Hapus data uji lokal</button><p>Data hanya tersimpan di browser ini. Belum terhubung ke Firebase atau database bersama.</p></div></section>
-</main>
+  </main>
   </div>
 
   <!-- Modal Dialog -->
@@ -1395,9 +1422,7 @@ $('dsReset')?.addEventListener('click',()=>{ const wasEditing=!!editingDailyServ
 $('dsFilterDate')?.addEventListener('change',renderDailyServiceList);$('dsFilterStatus')?.addEventListener('change',renderDailyServiceList);$('dsCategoryFilter')?.addEventListener('change',renderDailyServiceList);
 $('rsUnit')?.addEventListener('change',()=>fillCycleSelect('rsCycle',$('rsUnit').value));$('dsUnit')?.addEventListener('change',()=>fillCycleSelect('dsCycle',$('dsUnit').value));$('rsCycle')?.addEventListener('change',()=>{const c=selectedCycle('rsCycle');if(c)$('rsCurrentDate').value=c.plannedDate});$('dsType')?.addEventListener('change',()=>{const isPm=$('dsType').value==='PM';$('dsCycleField').hidden=!isPm;if(!isPm)$('dsCycle').value=''});$('rsUnitSearch')?.addEventListener('change',()=>fillCycleSelect('rsCycle',$('rsUnit').value));$('dsUnitSearch')?.addEventListener('change',()=>fillCycleSelect('dsCycle',$('dsUnit').value));$('rsUnitSearch')?.addEventListener('input',()=>{const u=DATA.find(r=>r.c.toLowerCase()===$('rsUnitSearch').value.trim().toLowerCase());if(u)fillCycleSelect('rsCycle',u.c)});$('dsUnitSearch')?.addEventListener('input',()=>{const u=DATA.find(r=>r.c.toLowerCase()===$('dsUnitSearch').value.trim().toLowerCase());if(u)fillCycleSelect('dsCycle',u.c)});
 $('bdCategoryFilter')?.addEventListener('change',renderWorkflowLists);$('bdFilterDate')?.addEventListener('change',renderWorkflowLists);$('rsCategoryFilter')?.addEventListener('change',renderWorkflowLists);
-function exportDailyService(format){const date=$('dsFilterDate')?.value||'',status=$('dsFilterStatus')?.value||'all',category=$('dsCategoryFilter')?.value||'all';const rows=dailyServiceRows.filter(x=>(!date||x.serviceDate===date)&&(status==='all'||x.status===status)&&categoryMatches(x.unitCode,category));if(!rows.length){alert('Tidak ada rekap servis sesuai filter untuk diekspor.');return}const headers=['Tanggal','Kode Unit','Nama/Departemen','Kategori','Jenis Servis','Status','Teknisi/Pelaksana','HM/Odometer','Keterangan'];const data=rows.map(x=>[x.serviceDate,x.unitCode,x.unitDescription,unitCategoryForCode(x.unitCode)==='D'?'Forklift Diesel':unitCategoryForCode(x.unitCode)==='B'?'Forklift Baterai':unitCategoryForCode(x.unitCode)==='T'?'Traktor':'Tidak diketahui',x.serviceType==='PM'?'PM':'Breakdown',dailyStatusLabel(x.status),x.technician,x.meter,x.notes]);const stamp=new Date().toISOString().slice(0,10);const title='Rekap Servis Harian MBK';const table='<table border="1"><thead><tr>'+headers.map(h=>'<th>'+workflowEsc(h)+'</th>').join('')+'</tr></thead><tbody>'+data.map(r=>'<tr>'+r.map(v=>'<td>'+workflowEsc(v==null?'':v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';if(format==='excel'){const blob=new Blob(['\ufeff','<!doctype html><html><head><meta charset="utf-8"></head><body><h2>'+title+'</h2>'+table+'<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script>
-(()=>{const $=id=>document.getElementById(id),KEY='mbk_wo_prototype_v1';let pending=null;const norm=x=>String(x??'').trim(),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{"records":{},"imports":[],"changes":[]}')}catch(e){return {records:{},imports:[],changes:[]}}};function summary(){let s=read(),a=Object.values(s.records);$('woLocalSummary').textContent=`${a.length} WO • ${a.reduce((n,x)=>n+x.tasks.length,0)} Task • ${a.reduce((n,x)=>n+x.materials.length,0)} baris Material • ${s.imports.length} impor.`}function parse(rows){let map={},cur=null,bad=[];rows.forEach((r,i)=>{let id=norm(r['WO ID']);if(id){cur=map[id]||{woId:id,equipmentCode:'',main:{},tasks:[],materials:[]};map[id]=cur;if(norm(r['Equipment Code']))cur.equipmentCode=norm(r['Equipment Code']);Object.keys(r).forEach(k=>{if(norm(r[k])&&!['Task Code','Task Desc','Task Start','Task Finish','Task Start vs Task Finish','Estimated Time','Estimated Time vs Actual Finish','Part Code','Item','Qty'].includes(k))cur.main[k]=r[k]})}if(!cur){if(Object.values(r).some(norm))bad.push({row:i+2,reason:'Detail tidak memiliki WO induk'});return}let task={};['Task Code','Task Desc','Task Start','Task Finish','Task Start vs Task Finish','Estimated Time','Estimated Time vs Actual Finish'].forEach(k=>{if(norm(r[k]))task[k]=r[k]});if(Object.keys(task).length&&!cur.tasks.some(x=>JSON.stringify(x)===JSON.stringify(task)))cur.tasks.push(task);let mat={};['Part Code','Item','Qty'].forEach(k=>{if(norm(r[k]))mat[k]=r[k]});if(Object.keys(mat).length&&!cur.materials.some(x=>JSON.stringify(x)===JSON.stringify(mat)))cur.materials.push(mat)});return {records:Object.values(map),bad}}$('woParseBtn').addEventListener('click',async()=>{let f=$('woExcelFile').files[0];if(!f)return $('woImportStatus').textContent='Pilih file Excel terlebih dahulu.';if(!window.XLSX)return $('woImportStatus').textContent='Pustaka Excel belum termuat; periksa koneksi internet.';try{let wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}),p=parse(rows),old=read(),c={'Baru':0,'Diperbarui':0,'Tidak berubah':0};p.records.forEach(x=>{let prev=old.records[x.woId];x.status=!prev?'Baru':JSON.stringify(prev)===JSON.stringify(x)?'Tidak berubah':'Diperbarui';c[x.status]++});pending={...p,file:f.name,counts:c};$('woNewCount').textContent=c.Baru;$('woChangedCount').textContent=c.Diperbarui;$('woSameCount').textContent=c['Tidak berubah'];$('woInvalidCount').textContent=p.bad.length;$('woPreviewRows').innerHTML=p.records.slice(0,300).map(x=>`<tr><td>${esc(x.woId)}</td><td>${esc(x.equipmentCode)}</td><td>${esc(x.main['Actual Order Finish']||'')}</td><td>${x.tasks.length}</td><td>${x.materials.length}</td><td>${x.status}</td></tr>`).join('')+p.bad.map(x=>`<tr><td colspan="6">Baris ${x.row}: ${esc(x.reason)}</td></tr>`).join('');$('woPreviewArea').hidden=false;$('woImportStatus').textContent=`${p.records.length} WO unik terbaca dari ${rows.length} baris.`}catch(e){$('woImportStatus').textContent='Gagal membaca Excel: '+e.message}});$('woCommitBtn').addEventListener('click',()=>{if(!pending)return;let s=read(),now=new Date().toISOString();pending.records.forEach(x=>{let old=s.records[x.woId],clean={...x};delete clean.status;if(old&&JSON.stringify(old)!==JSON.stringify(clean))s.changes.push({woId:x.woId,at:now,before:old,after:clean,file:pending.file});s.records[x.woId]=clean});s.imports.push({at:now,file:pending.file,counts:pending.counts,invalid:pending.bad.length});localStorage.setItem(KEY,JSON.stringify(s));pending=null;$('woPreviewArea').hidden=true;$('woImportStatus').textContent='Tersimpan di prototipe lokal; Firebase tidak disentuh.';summary()});$('woCancelBtn').addEventListener('click',()=>{$('woPreviewArea').hidden=true;pending=null});$('woClearLocalBtn').addEventListener('click',()=>{if(confirm('Hapus data uji WO dari browser ini?')){localStorage.removeItem(KEY);summary()}});summary()})();
-</script></body></html>'],{type:'application/vnd.ms-excel;charset=utf-8;'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Rekap-Servis-Harian-'+stamp+'.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);return}const w=window.open('','_blank');if(!w){alert('Popup diblokir. Izinkan popup untuk membuat PDF.');return}w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:11px Arial;padding:18px}table{border-collapse:collapse;width:100%;font-size:9px}th,td{border:1px solid #888;padding:5px;text-align:left}th{background:#eee}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>'+title+'</h1><p>Tanggal filter: '+workflowEsc(date||'Semua tanggal')+' · Total: '+rows.length+'</p>'+table+'<script>window.onload=function(){setTimeout(function(){window.print()},250)};<\/script></body></html>');w.document.close()}
+function exportDailyService(format){const date=$('dsFilterDate')?.value||'',status=$('dsFilterStatus')?.value||'all',category=$('dsCategoryFilter')?.value||'all';const rows=dailyServiceRows.filter(x=>(!date||x.serviceDate===date)&&(status==='all'||x.status===status)&&categoryMatches(x.unitCode,category));if(!rows.length){alert('Tidak ada rekap servis sesuai filter untuk diekspor.');return}const headers=['Tanggal','Kode Unit','Nama/Departemen','Kategori','Jenis Servis','Status','Teknisi/Pelaksana','HM/Odometer','Keterangan'];const data=rows.map(x=>[x.serviceDate,x.unitCode,x.unitDescription,unitCategoryForCode(x.unitCode)==='D'?'Forklift Diesel':unitCategoryForCode(x.unitCode)==='B'?'Forklift Baterai':unitCategoryForCode(x.unitCode)==='T'?'Traktor':'Tidak diketahui',x.serviceType==='PM'?'PM':'Breakdown',dailyStatusLabel(x.status),x.technician,x.meter,x.notes]);const stamp=new Date().toISOString().slice(0,10);const title='Rekap Servis Harian MBK';const table='<table border="1"><thead><tr>'+headers.map(h=>'<th>'+workflowEsc(h)+'</th>').join('')+'</tr></thead><tbody>'+data.map(r=>'<tr>'+r.map(v=>'<td>'+workflowEsc(v==null?'':v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';if(format==='excel'){const blob=new Blob(['\ufeff','<!doctype html><html><head><meta charset="utf-8"></head><body><h2>'+title+'</h2>'+table+'</body></html>'],{type:'application/vnd.ms-excel;charset=utf-8;'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Rekap-Servis-Harian-'+stamp+'.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);return}const w=window.open('','_blank');if(!w){alert('Popup diblokir. Izinkan popup untuk membuat PDF.');return}w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:11px Arial;padding:18px}table{border-collapse:collapse;width:100%;font-size:9px}th,td{border:1px solid #888;padding:5px;text-align:left}th{background:#eee}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>'+title+'</h1><p>Tanggal filter: '+workflowEsc(date||'Semua tanggal')+' · Total: '+rows.length+'</p>'+table+'<script>window.onload=function(){setTimeout(function(){window.print()},250)};<\/script></body></html>');w.document.close()}
 $('dsExport')?.addEventListener('click',()=>exportDailyService($('dsExportFormat').value));
 $('dsRefresh')?.addEventListener('click',async()=>{if(!db||currentRole!=='admin'){alert('Hanya admin yang dapat membuka rekap harian.');return}try{const sn=await db.collection('daily_service_records').orderBy('serviceDate','desc').limit(500).get();dailyServiceRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderDailyServiceList();setFirestoreMessage('dailyServiceStatus','Rekap dimuat ulang.','success')}catch(e){setFirestoreMessage('dailyServiceStatus','Gagal memuat ulang: '+firestoreErrorText(e),'error')}});
 function workflowRoleCanApprove(){return ['admin','supervisor','head_bengkel','kepala_bengkel'].includes(currentRole)}
@@ -1610,11 +1635,11 @@ const VIEW_META={
  schedule:['Jadwal PM','Cari jadwal, filter kategori, dan buka detail unit.'],
  breakdown:['Catat Breakdown','Formulir dan daftar catatan breakdown saja.'],
  unitReports:['Report Unit','Filter dan ekspor gabungan laporan servis dan breakdown per unit.'],
+ woImport:['Impor & Analisis WO','Impor report WO selesai, periksa perubahan, dan analisis riwayat pekerjaan unit.'],
  reschedule:['Pengajuan Perubahan PM','Formulir dan daftar pengajuan perubahan PM saja.'],
  units:['Data Unit','Cari dan filter daftar unit yang tersedia di master.'],
  history:['Riwayat & Laporan','Riwayat laporan breakdown dan pengajuan PM saja.'],
- dailyService:['Rekap Servis Harian','Catat dan pantau status pekerjaan PM dan breakdown harian.'],
- woImport:['Impor & Analisis WO','Impor report WO selesai dan analisis data aktual dari sistem resmi.']
+ dailyService:['Rekap Servis Harian','Catat dan pantau status pekerjaan PM dan breakdown harian.']
 };
 let activeView='dashboard';
 function setActiveView(view){
@@ -1668,6 +1693,74 @@ initUnitReportOptions();
 setActiveView('dashboard');
 
 banner(); render();renderDashboardNotifications();
+</script>
+<!-- SheetJS untuk membaca file Excel report WO; tidak mengubah alur Firebase yang sudah ada -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(()=>{
+'use strict';
+const $wo=id=>document.getElementById(id), STORE='mbk_wo_import_local_v1';
+let pending=null;
+const norm=s=>String(s??'').trim().toLowerCase().replace(/[\s_./()-]+/g,'');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const readStore=()=>{try{return JSON.parse(localStorage.getItem(STORE)||'{"records":{},"audit":[]}')}catch(e){return {records:{},audit:[]}}};
+const writeStore=x=>localStorage.setItem(STORE,JSON.stringify(x));
+const fmt=n=>Number(n||0).toLocaleString('id-ID');
+const headerMap={woid:['woid','workorderid','nomorwo','nowo'],equipmentcode:['equipmentcode','kodeunit','equipment'],ordercreate:['ordercreate','tanggalbuatwo'],actualorderfinish:['actualorderfinish','actualfinish','tanggalwofinish'],actualorderstart:['actualorderstart'],planorderfinish:['planorderfinish'],description:['description','deskripsi'],diagnosa:['diagnosa','diagnosis'],actualordertime:['actualordertime'],plantasktime:['estimatedtime'],taskcode:['taskcode'],taskdesc:['taskdesc','taskdescription'],taskstart:['taskstart'],taskfinish:['taskfinish'],estimatedtime:['estimatedtime'],partcode:['partcode'],item:['item','material'],qty:['qty','quantity']};
+function pick(row,aliases){for(const k of Object.keys(row)){if(aliases.includes(norm(k)))return row[k]}return ''}
+function blank(v){return v===undefined||v===null||String(v).trim()===''}
+function parseRows(rows){
+ if(!rows.length)throw Error('Sheet pertama kosong.');
+ const headers=rows[0].map(x=>String(x??'').trim());
+ if(!headers.some(h=>headerMap.woid.includes(norm(h))))throw Error('Kolom WO ID tidak ditemukan pada baris header pertama.');
+ const objects=rows.slice(1).filter(r=>r.some(v=>!blank(v))).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]??''])));
+ const out={}, errors=[]; let current=null;
+ for(let i=0;i<objects.length;i++){
+  const row=objects[i], rawId=pick(row,headerMap.woid), rawEq=pick(row,headerMap.equipmentcode);
+  if(!blank(rawId)){
+   const id=String(rawId).trim(); current=id;
+   if(!out[id])out[id]={woId:id,equipmentCode:String(rawEq||'').trim(),fields:{},tasks:[],materials:[],sourceRows:0};
+   if(!blank(rawEq))out[id].equipmentCode=String(rawEq).trim();
+  }
+  if(!current){errors.push('Baris Excel '+(i+2)+': tidak memiliki WO ID induk.');continue}
+  const wo=out[current];wo.sourceRows++;
+  // Salin kolom WO utama non-kosong; data baris induk menjadi nilai utama.
+  for(const [key,aliases] of Object.entries(headerMap)){
+   if(['woid','taskcode','taskdesc','taskstart','taskfinish','estimatedtime','partcode','item','qty'].includes(key))continue;
+   const v=pick(row,aliases);if(!blank(v))wo.fields[key]=v;
+  }
+  const taskCode=pick(row,headerMap.taskcode),taskDesc=pick(row,headerMap.taskdesc);
+  if(!blank(taskCode)||!blank(taskDesc))wo.tasks.push({taskCode,taskDesc,taskStart:pick(row,headerMap.taskstart),taskFinish:pick(row,headerMap.taskfinish),estimatedTime:pick(row,headerMap.estimatedtime)});
+  const partCode=pick(row,headerMap.partcode),item=pick(row,headerMap.item),qty=pick(row,headerMap.qty);
+  if(!blank(partCode)||!blank(item)||!blank(qty))wo.materials.push({partCode,item,qty});
+ }
+ // Deduplicate exact task/material lines caused by repeated export rows, while preserving distinct quantities/details.
+ for(const wo of Object.values(out)){
+  const unique=a=>[...new Map(a.map(x=>[JSON.stringify(x),x])).values()];wo.tasks=unique(wo.tasks);wo.materials=unique(wo.materials);
+  if(!wo.equipmentCode)wo.warning='Equipment Code kosong';
+ }
+ return {records:out,errors,sourceRows:objects.length};
+}
+function summaryHtml(records){const a=Object.values(records),tasks=a.reduce((n,x)=>n+x.tasks.length,0),materials=a.reduce((n,x)=>n+x.materials.length,0),units=new Set(a.map(x=>x.equipmentCode).filter(Boolean));return `Jumlah WO: <b>${fmt(a.length)}</b> · Task: <b>${fmt(tasks)}</b> · Detail Material: <b>${fmt(materials)}</b> · Unit teridentifikasi: <b>${fmt(units.size)}</b>`}
+function classify(incoming){const db=readStore(),result={fresh:[],updated:[],same:[],unmatched:[]};for(const [id,record] of Object.entries(incoming)){const old=db.records[id];if(!old)result.fresh.push(record);else if(JSON.stringify(old.current)!==JSON.stringify(record))result.updated.push({record,old:old.current});else result.same.push(record);if(record.equipmentCode&&!by[String(record.equipmentCode).toLowerCase()])result.unmatched.push(record)}return result}
+function preview(){const f=$wo('woExcelFile').files[0];if(!f){alert('Pilih file Excel terlebih dahulu.');return}if(!window.XLSX){$wo('woImportStatus').textContent='Library pembaca Excel belum termuat. Periksa koneksi internet lalu muat ulang.';return}
+ const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});const parsed=parseRows(rows);pending=parsed;const c=classify(parsed.records);$wo('woImportStatus').textContent=`File: ${f.name}\nSheet: ${wb.SheetNames[0]} · Baris data: ${parsed.sourceRows}\n${summaryHtml(parsed.records)}\nBaris tanpa WO induk: ${parsed.errors.length}`;$wo('woPreviewSummary').innerHTML=`<span class="wo-pill new">${fmt(c.fresh.length)} WO baru</span> <span class="wo-pill updated">${fmt(c.updated.length)} WO berubah</span> <span class="wo-pill same">${fmt(c.same.length)} tidak berubah</span> <span class="wo-pill warn">${fmt(c.unmatched.length)} unit belum terdaftar</span><br><br>${parsed.errors.slice(0,8).map(esc).join('<br>')||'Tidak ditemukan baris tanpa WO induk.'}`;
+ const rowsHtml=Object.values(parsed.records).slice(0,100).map(r=>{const st=c.fresh.some(x=>x.woId===r.woId)?'Baru':c.updated.some(x=>x.record.woId===r.woId)?'Berubah':'Sama';return `<tr><td>${esc(r.woId)}</td><td>${esc(r.equipmentCode||'—')}</td><td>${esc(r.fields.actualorderfinish||'—')}</td><td>${r.tasks.length}</td><td>${r.materials.length}</td><td>${esc(st)}</td></tr>`}).join('');$wo('woPreviewTable').innerHTML=`<table><thead><tr><th>WO ID</th><th>Equipment Code</th><th>Actual Finish</th><th>Task</th><th>Material</th><th>Status</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;$wo('woCommitBtn').disabled=false;
+ }catch(err){pending=null;$wo('woCommitBtn').disabled=true;$wo('woImportStatus').textContent='Gagal membaca file: '+err.message}}
+ reader.readAsArrayBuffer(f)}
+function commit(){if(!pending)return;const db=readStore(),c=classify(pending.records),now=new Date().toISOString(),changes=[];for(const r of c.fresh){db.records[r.woId]={current:r,createdAt:now,updatedAt:now,versions:[{at:now,source:'import',data:r}]};changes.push({woId:r.woId,type:'baru'})}for(const x of c.updated){const rec=db.records[x.record.woId];rec.current=x.record;rec.updatedAt=now;rec.versions=rec.versions||[];rec.versions.push({at:now,source:'import',data:x.record});changes.push({woId:x.record.woId,type:'diperbarui'})}
+ db.audit.unshift({at:now,file:$wo('woExcelFile').files[0]?.name||'File Excel',period:'Berdasarkan Actual Order Finish',total:Object.keys(pending.records).length,new:c.fresh.length,updated:c.updated.length,same:c.same.length,unmatched:c.unmatched.length,errors:pending.errors.length,changes});writeStore(db);pending=null;$wo('woCommitBtn').disabled=true;$wo('woImportStatus').textContent='Impor uji tersimpan di browser. '+summaryHtml(Object.fromEntries(Object.entries(db.records).map(([k,v])=>[k,v.current])));renderSaved();alert('Impor uji selesai. Data tersimpan lokal di browser ini, belum ke Firebase.')}
+function renderSaved(){const db=readStore(),all=Object.values(db.records).map(x=>x.current),totalTask=all.reduce((n,x)=>n+x.tasks.length,0),totalMat=all.reduce((n,x)=>n+x.materials.length,0),units=[...new Set(all.map(x=>x.equipmentCode).filter(Boolean))];$wo('woTotal').textContent=fmt(all.length);$wo('woTaskTotal').textContent=fmt(totalTask);$wo('woMaterialTotal').textContent=fmt(totalMat);$wo('woUnitTotal').textContent=fmt(units.length);
+ const sel=$wo('woUnitFilter'),old=sel.value;sel.innerHTML='<option value="">Semua unit</option>'+units.sort().map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');sel.value=old;
+ const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');$wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';renderAnalytics();renderUnitHistory();}
+function filteredRecords(){const db=readStore(),from=$wo('woFrom').value,to=$wo('woTo').value;return Object.values(db.records).map(x=>x.current).filter(r=>{const d=String(r.fields.actualorderfinish||'').slice(0,10);return (!from||d>=from)&&(!to||d<=to)})}
+function renderAnalytics(){const a=filteredRecords(),byUnit={},byTask={},byDate={};for(const w of a){const u=w.equipmentCode||'Unit tidak diketahui';byUnit[u]=(byUnit[u]||0)+1;const d=String(w.fields.actualorderfinish||'Tanggal tidak tersedia');byDate[d]=(byDate[d]||0)+1;w.tasks.forEach(t=>{const k=String(t.taskDesc||t.taskCode||'Task tanpa nama');byTask[k]=(byTask[k]||0)+1})}const top=o=>Object.entries(o).sort((x,y)=>y[1]-x[1]).slice(0,8).map(([k,v])=>`<tr><td class="l">${esc(k)}</td><td>${v}</td></tr>`).join('');$wo('woAnalytics').innerHTML=`<b>${fmt(a.length)} WO selesai pada filter periode</b><br>Jumlah Task: ${fmt(a.reduce((n,x)=>n+x.tasks.length,0))}<div class="wo-grid"><div><h3>WO per unit</h3><div class="wo-table-wrap"><table><tbody>${top(byUnit)||'<tr><td>Belum ada data</td></tr>'}</tbody></table></div></div><div><h3>Task paling sering</h3><div class="wo-table-wrap"><table><tbody>${top(byTask)||'<tr><td>Belum ada data</td></tr>'}</tbody></table></div></div></div><h3>WO berdasarkan tanggal selesai</h3><div class="wo-table-wrap"><table><tbody>${top(byDate)||'<tr><td>Belum ada data</td></tr>'}</tbody></table></div>`}
+function renderUnitHistory(){const u=$wo('woUnitFilter').value,a=filteredRecords().filter(x=>!u||x.equipmentCode===u).sort((x,y)=>String(y.fields.actualorderfinish||'').localeCompare(String(x.fields.actualorderfinish||'')));$wo('woUnitHistory').innerHTML=a.length?`<div class="wo-table-wrap"><table><thead><tr><th>WO ID</th><th>Unit</th><th>Tanggal selesai</th><th>Diagnosa/Deskripsi</th><th>Task</th><th>Material</th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc(x.woId)}</td><td>${esc(x.equipmentCode||'—')}</td><td>${esc(x.fields.actualorderfinish||'—')}</td><td class="l">${esc(x.fields.diagnosa||x.fields.description||'—')}</td><td>${x.tasks.length}</td><td>${x.materials.length}</td></tr>`).join('')}</tbody></table></div>`:'Belum ada WO untuk unit/periode ini.'}
+$wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});$wo('woApplyFilter').addEventListener('click',()=>{renderAnalytics();renderUnitHistory()});$wo('woUnitFilter').addEventListener('change',renderUnitHistory);
+ const prior=window.setActiveView; // Existing view handler is retained; hook only for rendering this add-on.
+ document.querySelectorAll('#mainNavigation [data-view-target="woImport"]').forEach(b=>b.addEventListener('click',renderSaved));
+ renderSaved();
+})();
 </script>
 <!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
 <script src="export-pdf-forklift.js?v=1"></script>
