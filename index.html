@@ -1821,7 +1821,7 @@ function renderWoCards(records,statusFor){
  const list=Array.isArray(records)?records:Object.values(records||{}),groups={};
  for(const r of list){const unit=r.equipmentCode||'Unit belum diketahui';(groups[unit]??=[]).push(r)}
  const units=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'id'));
- if(!list.length)return '<div class="wo-empty">Belum ada data WO.</div>';
+ if(!list.length)return '<div class="wo-empty">Tidak ada WO yang cocok dengan filter saat ini. Periksa rentang tanggal atau kategori unit.</div>';
  return units.map(unit=>{const rows=groups[unit].sort((a,b)=>String(b.fields?.actualorderfinish||'').localeCompare(String(a.fields?.actualorderfinish||'')));
   return `<section class="wo-unit-group"><div class="wo-unit-head"><h4>${esc(unit)}</h4><span>${fmt(rows.length)} WO</span></div>${rows.map(r=>{
    const hm=splitDescriptionHM(r.fields?.description||'');const status=statusFor?statusFor(r):'';const detailId='wo-detail-'+String(r.woId).replace(/[^a-zA-Z0-9_-]/g,'_');
@@ -1841,7 +1841,7 @@ function preview(){const f=$wo('woExcelFile').files[0];if(!f){alert('Pilih file 
 function commit(){if(!pending)return;const db=readStore(),c=classify(pending.records),now=new Date().toISOString(),changes=[];for(const r of c.fresh){db.records[r.woId]={current:r,createdAt:now,updatedAt:now,versions:[{at:now,source:'import',data:r}]};changes.push({woId:r.woId,type:'baru'})}for(const x of c.updated){const rec=db.records[x.record.woId];rec.current=x.record;rec.updatedAt=now;rec.versions=rec.versions||[];rec.versions.push({at:now,source:'import',data:x.record});changes.push({woId:x.record.woId,type:'diperbarui'})}
  db.audit.unshift({at:now,file:$wo('woExcelFile').files[0]?.name||'File Excel',period:'Berdasarkan Actual Order Finish',total:Object.keys(pending.records).length,new:c.fresh.length,updated:c.updated.length,same:c.same.length,unmatched:c.unmatched.length,errors:pending.errors.length,changes});writeStore(db);pending=null;$wo('woCommitBtn').disabled=true;$wo('woImportStatus').textContent='Impor uji tersimpan di browser. '+summaryHtml(Object.fromEntries(Object.entries(db.records).map(([k,v])=>[k,v.current])));renderSaved();alert('Impor uji selesai. Data tersimpan lokal di browser ini, belum ke Firebase.')}
 function renderSaved(){const db=readStore(),all=Object.values(db.records).map(x=>x.current),totalTask=all.reduce((n,x)=>n+x.tasks.length,0),totalMat=all.reduce((n,x)=>n+x.materials.length,0),units=[...new Set(all.map(x=>x.equipmentCode).filter(Boolean))];$wo('woTotal').textContent=fmt(all.length);$wo('woTaskTotal').textContent=fmt(totalTask);$wo('woMaterialTotal').textContent=fmt(totalMat);$wo('woUnitTotal').textContent=fmt(units.length);
- const sel=$wo('woUnitFilter'),old=sel.value;sel.innerHTML='<option value="">Semua unit</option>'+units.sort().map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');sel.value=old;
+ refreshWoUnitOptions();
  const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');$wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';renderAnalytics();renderUnitHistory();}
 function dateKey(value,fallbackYear){
  const raw=String(value??'').trim();if(!raw)return '';
@@ -1854,11 +1854,51 @@ function dateKey(value,fallbackYear){
  const parsed=new Date(raw);if(!Number.isNaN(parsed.getTime()))return `${parsed.getFullYear()}-${String(parsed.getMonth()+1).padStart(2,'0')}-${String(parsed.getDate()).padStart(2,'0')}`;
  return '';
 }
-function filteredRecords(){const db=readStore(),from=$wo('woFrom').value,to=$wo('woTo').value;return Object.values(db.records).map(x=>x.current).filter(r=>{const fallbackYear=(dateKey(r.fields?.ordercreate)||'').slice(0,4)||yearFromPeriod(r.fields?.actualorderfinish,r.sourcePeriod);const d=dateKey(r.fields?.actualorderfinish,fallbackYear);return !!d&&(!from||d>=from)&&(!to||d<=to)})}
-function unitCategory(code){const item=typeof by!=='undefined'&&by?by[String(code||'').toLowerCase()]:null;return item?.t||item?.type||item?.category||''}
+function periodForRecord(r,db){
+ if(r.sourcePeriod&&r.sourcePeriod.start&&r.sourcePeriod.end)return r.sourcePeriod;
+ if(r.sourceFilename){const p=periodFromFilename(r.sourceFilename);if(p)return p;}
+ // Data impor versi lama mungkin belum menyimpan sourcePeriod di tiap WO.
+ const audit=(db.audit||[]).find(a=>(a.changes||[]).some(c=>c.woId===r.woId));
+ return audit?periodFromFilename(audit.file):null;
+}
+function filteredRecords(){
+ const db=readStore(),from=$wo('woFrom').value,to=$wo('woTo').value;
+ return Object.values(db.records).map(x=>x.current).filter(r=>{
+  const period=periodForRecord(r,db);
+  const orderYear=(dateKey(r.fields?.ordercreate)||'').slice(0,4);
+  const finishYear=yearFromPeriod(r.fields?.actualorderfinish,period);
+  const d=dateKey(r.fields?.actualorderfinish,orderYear||finishYear);
+  return !!d&&(!from||d>=from)&&(!to||d<=to);
+ });
+}
+function unitCategory(code){
+ const raw=String(code||'').trim(),key=raw.toLowerCase();
+ // Pada laporan resmi, Equipment Code sering berupa nama kategori + nomor unit,
+ // bukan kode master internal seperti FB10 atau L02.
+ if(/^forklift\s*baterai\b/i.test(raw)||/^battery\s*forklift\b/i.test(raw))return 'B';
+ if(/^forklift\s*diesel\b/i.test(raw)||/^diesel\s*forklift\b/i.test(raw))return 'D';
+ if(/^traktor\b/i.test(raw)||/^tractor\b/i.test(raw))return 'T';
+ if(/^wheel\s*loader\b/i.test(raw)||/^loader\b/i.test(raw))return 'W';
+ const item=typeof by!=='undefined'&&by?by[key]:null;
+ if(item)return item.t||item.type||item.category||'';
+ // Cocokkan juga nama equipment/model pada master, tanpa menebak kategori lain.
+ const match=typeof DATA!=='undefined'&&Array.isArray(DATA)?DATA.find(x=>String(x.equipment||'').trim().toLowerCase()===key||String(x.model||'').trim().toLowerCase()===key):null;
+ return match?.t||'';
+}
+function refreshWoUnitOptions(){
+ const cat=$wo('woCategoryFilter').value,sel=$wo('woUnitFilter'),chosen=sel.value;
+ const records=Object.values(readStore().records).map(x=>x.current);
+ const units=[...new Set(records.filter(r=>!cat||unitCategory(r.equipmentCode)===cat).map(r=>r.equipmentCode).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
+ sel.innerHTML='<option value="">Semua unit</option>'+units.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
+ sel.value=units.includes(chosen)?chosen:'';
+}
 function renderAnalytics(){const a=filteredRecords(),byUnit={},byTask={};for(const w of a){const u=w.equipmentCode||'Unit tidak diketahui';byUnit[u]=(byUnit[u]||0)+1;w.tasks.forEach(t=>{const k=String(t.taskDesc||'Task tanpa uraian');byTask[k]=(byTask[k]||0)+1})}const units=Object.entries(byUnit).sort((x,y)=>y[1]-x[1]);const tasks=Object.entries(byTask).sort((x,y)=>y[1]-x[1]).slice(0,6);$wo('woAnalytics').innerHTML=`<div class="wo-kpi-grid"><div class="wo-kpi"><small>WO selesai sesuai tanggal</small><strong>${fmt(a.length)}</strong></div><div class="wo-kpi"><small>Total Task</small><strong>${fmt(a.reduce((n,x)=>n+x.tasks.length,0))}</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong>${fmt(units.length)}</strong></div></div><h4>WO per unit</h4>${units.map(([u,n])=>`<p>${esc(u)} <strong>— ${fmt(n)} WO</strong></p>`).join('')||'<p class="wo-empty">Tidak ada WO pada rentang tanggal tersebut.</p>'}<h4>Task paling sering</h4>${tasks.map(([t,n])=>`<p>${esc(t)} <strong>— ${fmt(n)} kali</strong></p>`).join('')||'<p class="wo-empty">Belum ada data Task pada rentang ini.</p>'}<h4>Daftar WO sesuai tanggal pencarian</h4>${renderWoCards(a)}</div>`;wireWoDetailButtons($wo('woAnalytics'));}
 function renderUnitHistory(){const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value;const a=filteredRecords().filter(x=>(!u||x.equipmentCode===u)&&(!cat||unitCategory(x.equipmentCode)===cat));$wo('woUnitHistory').innerHTML=renderWoCards(a);wireWoDetailButtons($wo('woUnitHistory'));}
-$wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});$wo('woApplyFilter').addEventListener('click',()=>{renderAnalytics();renderUnitHistory()});$wo('woUnitFilter').addEventListener('change',renderUnitHistory);$wo('woCategoryFilter').addEventListener('change',()=>{const cat=$wo('woCategoryFilter').value,units=Object.values(readStore().records).map(x=>x.current).filter(x=>!cat||unitCategory(x.equipmentCode)===cat).map(x=>x.equipmentCode).filter(Boolean);const sel=$wo('woUnitFilter'),chosen=sel.value;sel.innerHTML='<option value="">Semua unit</option>'+[...new Set(units)].sort().map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');sel.value=units.includes(chosen)?chosen:'';renderUnitHistory();});
+$wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});$wo('woApplyFilter').addEventListener('click',()=>{if($wo('woFrom').value&&$wo('woTo').value&&$wo('woFrom').value>$wo('woTo').value){alert('Tanggal Dari tidak boleh melewati tanggal Sampai.');return}renderAnalytics();renderUnitHistory()});
+$wo('woFrom').addEventListener('change',()=>{if(!$wo('woTo').value||$wo('woFrom').value<=$wo('woTo').value){renderAnalytics();renderUnitHistory()}});
+$wo('woTo').addEventListener('change',()=>{if(!$wo('woFrom').value||$wo('woFrom').value<=$wo('woTo').value){renderAnalytics();renderUnitHistory()}});
+$wo('woUnitFilter').addEventListener('change',renderUnitHistory);
+$wo('woCategoryFilter').addEventListener('change',()=>{refreshWoUnitOptions();renderUnitHistory()});
  document.querySelectorAll('#mainNavigation [data-view-target="woImport"]').forEach(b=>b.addEventListener('click',renderSaved));renderSaved();
 })();
 </script>
