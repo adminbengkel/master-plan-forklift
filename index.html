@@ -1899,7 +1899,8 @@ function renderAnalytics(){
  const tasks=Object.entries(byTask).sort((x,y)=>y[1]-x[1]).slice(0,6);
  const q=String($wo('woAnalyticsUnitFilter')?.value||'').trim().toLowerCase();
  const visibleUnits=units.filter(([u])=>u.toLowerCase().includes(q));
- $wo('woAnalytics').innerHTML=`<div class="wo-kpi-grid"><div class="wo-kpi"><small>Total WO tersimpan</small><strong>${fmt(a.length)}</strong></div><div class="wo-kpi"><small>Total Task</small><strong>${fmt(a.reduce((n,x)=>n+x.tasks.length,0))}</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong>${fmt(units.length)}</strong></div></div><div class="wo-tools" style="margin-top:14px"><strong>WO per Unit</strong><input id="woAnalyticsUnitFilter" type="search" placeholder="Cari kode / nama unit..." aria-label="Filter WO per unit" value="${esc($wo('woAnalyticsUnitFilter')?.value||'')}"></div>${visibleUnits.map(([u,n])=>`<p>${esc(u)} <strong>— ${fmt(n)} WO</strong></p>`).join('')||'<p class="wo-empty">Tidak ada unit yang cocok dengan pencarian.</p>'}<h4>Task paling sering</h4>${tasks.map(([t,n])=>`<p>${esc(t)} <strong>— ${fmt(n)} kali</strong></p>`).join('')||'<p class="wo-empty">Belum ada data Task.</p>'}`;
+ const unitResults=!q?'<p class="wo-empty">Ketik kode atau nama unit untuk menampilkan WO per unit.</p>':(visibleUnits.map(([u,n])=>`<p>${esc(u)} <strong>— ${fmt(n)} WO</strong></p>`).join('')||'<p class="wo-empty">Tidak ada unit yang cocok dengan pencarian.</p>');
+ $wo('woAnalytics').innerHTML=`<div class="wo-kpi-grid"><div class="wo-kpi"><small>Total WO tersimpan</small><strong>${fmt(a.length)}</strong></div><div class="wo-kpi"><small>Total Task</small><strong>${fmt(a.reduce((n,x)=>n+x.tasks.length,0))}</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong>${fmt(units.length)}</strong></div></div><div class="wo-tools" style="margin-top:14px"><strong>WO per Unit</strong><input id="woAnalyticsUnitFilter" type="search" placeholder="Cari kode / nama unit..." aria-label="Filter WO per unit" value="${esc($wo('woAnalyticsUnitFilter')?.value||'')}"></div>${unitResults}<h4>Task paling sering</h4>${tasks.map(([t,n])=>`<p>${esc(t)} <strong>— ${fmt(n)} kali</strong></p>`).join('')||'<p class="wo-empty">Belum ada data Task.</p>'}`;
  const search=$wo('woAnalyticsUnitFilter');if(search)search.addEventListener('input',()=>{const pos=search.selectionStart;renderAnalytics();const next=$wo('woAnalyticsUnitFilter');next.focus();next.setSelectionRange(pos,pos)});
 }
 function renderUnitHistory(){const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value;const a=filteredRecords().filter(x=>(!u||x.equipmentCode===u)&&(!cat||unitCategory(x.equipmentCode)===cat));$wo('woUnitHistory').innerHTML=renderWoCards(a);wireWoDetailButtons($wo('woUnitHistory'));}
@@ -1910,14 +1911,16 @@ $wo('woUnitFilter').addEventListener('change',renderUnitHistory);
 $wo('woCategoryFilter').addEventListener('change',()=>{refreshWoUnitOptions();renderUnitHistory()});
 $wo('woRefreshBtn').addEventListener('click',()=>{
  try{
-  // Baca ulang sumber penyimpanan lokal, pertahankan filter aktif, lalu bangun ulang semua tampilan WO.
+  // Refresh mengosongkan seluruh filter/pencarian pada bagian Analisis dan Profil Unit,
+  // kemudian membaca ulang penyimpanan lokal dan membangun ulang semua hasil.
+  $wo('woFrom').value='';$wo('woTo').value='';
+  $wo('woCategoryFilter').value='';$wo('woUnitFilter').value='';
+  const analyticsSearch=$wo('woAnalyticsUnitFilter');if(analyticsSearch)analyticsSearch.value='';
   const latest=readStore();
   if(!latest||!latest.records||typeof latest.records!=='object')throw new Error('Format penyimpanan WO tidak valid.');
   refreshWoUnitOptions();
   renderSaved();
-  renderAnalytics();
-  renderUnitHistory();
-  $wo('woImportStatus').textContent='Refresh berhasil: '+Object.keys(latest.records).length+' WO dibaca ulang dari penyimpanan browser.';
+  $wo('woImportStatus').textContent='Refresh berhasil: seluruh filter pencarian dikosongkan dan '+Object.keys(latest.records).length+' WO dimuat ulang dari penyimpanan browser.';
  }catch(err){
   $wo('woImportStatus').textContent='Refresh gagal: '+(err&&err.message?err.message:String(err));
  }
