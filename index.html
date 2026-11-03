@@ -746,7 +746,6 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
         <div class="nav-group is-collapsed" data-nav-group="operations">
           <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">Operasional Servis</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="dailyService" id="dailyServiceNav" title="Rekap Servis Harian"><i class="fa-solid fa-list-check"></i><span class="nav-text">Rekap Servis Harian</span></button>
             <button type="button" data-view-target="breakdown" title="Catat Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Catat Breakdown</span></button>
           </div>
         </div>
@@ -952,7 +951,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
   </section>
 
-  <!-- Rekap Servis Harian: mencatat pekerjaan PM dan breakdown aktual -->
+  <!-- Arsip Rekap Servis Harian lama: tidak ditampilkan sebagai menu input; data tetap dibaca untuk riwayat dan perhitungan lama -->
   <section class="card workflow-page" id="dailyServicePage" data-view="dailyService" hidden aria-labelledby="dailyServiceTitle">
     <div class="overview-head"><div><h2 id="dailyServiceTitle"><i class="fa-solid fa-list-check"></i> Rekap Servis Harian</h2><div class="overview-meta">Catat servis PM dan breakdown yang dikerjakan pada hari tertentu.</div></div></div>
     <p class="workflow-note">Menu khusus admin untuk merekap servis PM dan breakdown. Status selesai adalah bukti pekerjaan dicatat, bukan perubahan otomatis pada jadwal PM.</p>
@@ -1120,7 +1119,7 @@ function banner(){
 }
 function showAuth(message=''){ $('authGate').hidden=false; $('appShell').hidden=true; $('authMsg').textContent=message; }
 function showApp(user,role){
- currentUser=user; currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false; if($('dailyServiceNav'))$('dailyServiceNav').hidden=role!=='admin'; if($('dailyServicePage')&&role!=='admin')$('dailyServicePage').hidden=true; initWorkflowForms(); renderWorkflowLists();
+ currentUser=user; currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false; if($('dailyServiceNav'))$('dailyServiceNav').hidden=true; if($('dailyServicePage'))$('dailyServicePage').hidden=true; initWorkflowForms(); renderWorkflowLists();
  $('userBadge').textContent=(user.email||user.uid)+' · '+({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja',supervisor:'Supervisor',head_bengkel:'Kepala Bengkel',kepala_bengkel:'Kepala Bengkel'}[role]||role);
  banner(); render();
 }
@@ -1632,7 +1631,7 @@ function reportBuildRows(unit,breakdowns,requests,dailyServices=[],importedWos=[
   const date=String(x.serviceDate||'');if(!reportDateInRange(date,from,to))return;
   const isPm=x.serviceType==='PM';if(cat==='service'&&!isPm||cat==='repair'&&isPm)return;
   const wo=x.workOrderNumber||x.woNumber||x.wo||x.workOrder||x.nomorWO||'';
-  rows.push({date,category:isPm?'Servis / PM':'Servis / Perbaikan (rekap harian)',title:(wo?'WO '+wo+' · ':'')+(isPm?(x.pmLabel||'PM'):'Perbaikan'),details:(x.notes||'')+(x.technician?'; Pelaksana: '+x.technician:'')+(x.unitDescription?'; Unit: '+x.unitDescription:''),status:'Selesai',meter:x.meter==null?'':String(x.meter),source:'Rekap Servis Harian',wo});
+  rows.push({date,category:isPm?'Servis / PM':'Servis / Perbaikan (rekap harian)',title:(wo?'WO '+wo+' · ':'')+(isPm?(x.pmLabel||'PM'):'Perbaikan'),details:(x.notes||'')+(x.technician?'; Pelaksana: '+x.technician:'')+(x.unitDescription?'; Unit: '+x.unitDescription:''),status:'Selesai',meter:x.meter==null?'':String(x.meter),source:'Arsip Rekap Servis Harian',wo});
  });
  if(cat==='all'||cat==='repair')breakdowns.forEach(x=>{
   const key=reportWoKey(x.woNumber||x.workOrderNumber||x.wo||'');
@@ -1680,7 +1679,7 @@ function renderUnitReport(data,unit){
  html+='<p class="unit-report-note">Downtime CM '+cmDays.toLocaleString('id-ID')+' hari dijumlahkan dari data downtime yang tersimpan untuk jadwal unit ini. Ini tidak mewakili total durasi breakdown karena form breakdown saat ini belum mencatat durasi downtime aktual.</p>';
  if(data.limited)html+='<p class="unit-report-note">Peringatan: Firestore tidak tersedia; laporan hanya menggunakan data yang sudah termuat di halaman dan mungkin tidak mencakup seluruh riwayat.</p>';if(data.partial)html+='<p class="unit-report-note">Peringatan: tidak semua koleksi berhasil dibaca ('+reportEsc(data.failed.join(', '))+'). Periksa izin Firestore atau koneksi sebelum menggunakan laporan untuk keputusan.</p>'; 
  $('unitReportPreview').innerHTML=html;
- $('unitReportStatus').textContent='Laporan '+unit.c+' berhasil disusun: '+(data.importedWos||[]).length+' WO aktual dari impor lokal, '+data.breakdowns.length+' catatan breakdown manual, '+(data.dailyServices||[]).length+' rekap harian, dan '+data.requests.length+' pengajuan perubahan PM.'+(data.partial?' Peringatan: sebagian sumber gagal dibaca ('+data.failed.join(', ')+'); hasil belum lengkap.':data.limited?' Data terbatas karena Firestore tidak terhubung.':' Data dimuat dari Firestore.');
+ $('unitReportStatus').textContent='Laporan '+unit.c+' berhasil disusun: '+(data.importedWos||[]).length+' WO aktual dari impor lokal, '+data.breakdowns.length+' catatan breakdown manual, '+(data.dailyServices||[]).length+' arsip rekap servis lama, dan '+data.requests.length+' pengajuan perubahan PM.'+(data.partial?' Peringatan: sebagian sumber gagal dibaca ('+data.failed.join(', ')+'); hasil belum lengkap.':data.limited?' Data terbatas karena Firestore tidak terhubung.':' Data dimuat dari Firestore.');
 }
 async function searchUnitReport(){
  const code=$('unitReportUnit').value,unit=DATA.find(r=>r.c===code);if(!unit){$('unitReportStatus').textContent='Pilih unit terlebih dahulu.';$('unitReportPreview').innerHTML='';unitReportCurrent=null;return}
