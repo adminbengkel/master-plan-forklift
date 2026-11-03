@@ -1022,7 +1022,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
       <div class="wo-panel"><h3>3. Analisis data tersimpan</h3><div id="woAnalytics" class="wo-status">Belum ada data tersimpan.</div></div>
     </div>
-    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat WO per unit</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woApplyFilter">Terapkan</button><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
+    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat WO per unit</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
     <div class="wo-panel" style="margin-top:12px"><h3>5. Riwayat impor dan perubahan</h3><div id="woAuditHistory" class="wo-status">Belum ada riwayat impor.</div></div>
     <p class="wo-note">Catatan: data biaya tidak tersedia pada report ini, sehingga tidak dihitung sebagai Rp0. Data WO aktual dipisahkan dari jadwal PM dan catatan operasional MBK. Penyimpanan prototipe menggunakan localStorage pada browser/perangkat ini; hapus data browser dapat menghilangkan data uji.</p>
   </section>
@@ -1903,19 +1903,31 @@ function renderAnalytics(){
  const search=$wo('woAnalyticsUnitFilter');if(search)search.addEventListener('input',()=>{const pos=search.selectionStart;renderAnalytics();const next=$wo('woAnalyticsUnitFilter');next.focus();next.setSelectionRange(pos,pos)});
 }
 function renderUnitHistory(){const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value;const a=filteredRecords().filter(x=>(!u||x.equipmentCode===u)&&(!cat||unitCategory(x.equipmentCode)===cat));$wo('woUnitHistory').innerHTML=renderWoCards(a);wireWoDetailButtons($wo('woUnitHistory'));}
-$wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});$wo('woApplyFilter').addEventListener('click',()=>{if($wo('woFrom').value&&$wo('woTo').value&&$wo('woFrom').value>$wo('woTo').value){alert('Tanggal Dari tidak boleh melewati tanggal Sampai.');return}renderAnalytics();renderUnitHistory()});
+$wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});// Filter tanggal diterapkan otomatis melalui event change di bawah.
 $wo('woFrom').addEventListener('change',()=>{if(!$wo('woTo').value||$wo('woFrom').value<=$wo('woTo').value){renderAnalytics();renderUnitHistory()}});
 $wo('woTo').addEventListener('change',()=>{if(!$wo('woFrom').value||$wo('woFrom').value<=$wo('woTo').value){renderAnalytics();renderUnitHistory()}});
 $wo('woUnitFilter').addEventListener('change',renderUnitHistory);
 $wo('woCategoryFilter').addEventListener('change',()=>{refreshWoUnitOptions();renderUnitHistory()});
-$wo('woRefreshBtn').addEventListener('click',()=>{renderSaved();$wo('woImportStatus').textContent='Data WO lokal berhasil dimuat ulang dari penyimpanan browser.';});
+$wo('woRefreshBtn').addEventListener('click',()=>{
+ try{
+  // Baca ulang sumber penyimpanan lokal, pertahankan filter aktif, lalu bangun ulang semua tampilan WO.
+  const latest=readStore();
+  if(!latest||!latest.records||typeof latest.records!=='object')throw new Error('Format penyimpanan WO tidak valid.');
+  refreshWoUnitOptions();
+  renderSaved();
+  renderAnalytics();
+  renderUnitHistory();
+  $wo('woImportStatus').textContent='Refresh berhasil: '+Object.keys(latest.records).length+' WO dibaca ulang dari penyimpanan browser.';
+ }catch(err){
+  $wo('woImportStatus').textContent='Refresh gagal: '+(err&&err.message?err.message:String(err));
+ }
+});
  document.querySelectorAll('#mainNavigation [data-view-target="woImport"]').forEach(b=>b.addEventListener('click',renderSaved));renderSaved();
 })();
 </script>
 <style id="wo-requested-layout-only">
 #woImportPage #woAnalyticsUnitFilter{min-width:220px;max-width:100%;background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px}
 #woImportPage #woRefreshBtn{background:#1e3a5f;color:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:9px 12px;cursor:pointer}
-#woImportPage #woApplyFilter{cursor:pointer}
 @media(max-width:760px){#woImportPage #woFrom,#woImportPage #woTo,#woImportPage #woCategoryFilter,#woImportPage #woUnitFilter{flex:1 1 130px;min-width:120px}}
 </style>
 <!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
