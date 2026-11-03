@@ -1021,7 +1021,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
       <div class="wo-panel"><h3>3. Analisis data tersimpan</h3><div id="woAnalytics" class="wo-status">Belum ada data tersimpan.</div></div>
     </div>
-    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat unit (WO Aktual + Catatan Manual)</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button><label class="sr-only" for="woHistoryExportFormat">Format ekspor riwayat unit</label><select id="woHistoryExportFormat" aria-label="Format ekspor riwayat unit"><option value="excel">Excel</option><option value="pdf">PDF</option></select><button type="button" id="woHistoryExportBtn" title="Ekspor data sesuai filter aktif"><i class="fa-solid fa-file-export"></i> Export File</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
+    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat unit (WO Aktual)</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button><label class="sr-only" for="woHistoryExportFormat">Format ekspor riwayat unit</label><select id="woHistoryExportFormat" aria-label="Format ekspor riwayat unit"><option value="excel">Excel</option><option value="pdf">PDF</option></select><button type="button" id="woHistoryExportBtn" title="Ekspor data sesuai filter aktif"><i class="fa-solid fa-file-export"></i> Export File</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
     <div class="wo-panel" style="margin-top:12px"><h3>5. Riwayat impor dan perubahan</h3><div id="woAuditHistory" class="wo-status">Belum ada riwayat impor.</div></div>
     <p class="wo-note">Catatan: data biaya tidak tersedia pada report ini, sehingga tidak dihitung sebagai Rp0. Data WO aktual dipisahkan dari jadwal PM dan catatan operasional MBK. Penyimpanan prototipe menggunakan localStorage pada browser/perangkat ini; hapus data browser dapat menghilangkan data uji.</p>
   </section>
@@ -1828,7 +1828,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const readStore=()=>{try{return JSON.parse(localStorage.getItem(STORE)||'{"records":{},"audit":[]}')}catch(e){return {records:{},audit:[]}}};
 const writeStore=x=>localStorage.setItem(STORE,JSON.stringify(x));
 const fmt=n=>Number(n||0).toLocaleString('id-ID');
-const headerMap={woid:['woid','workorderid','nomorwo','nowo'],equipmentcode:['equipmentcode','kodeunit','equipment'],ordercreate:['ordercreate','tanggalbuatwo'],actualorderfinish:['actualorderfinish','actualfinish','tanggalwofinish'],actualorderstart:['actualorderstart'],planorderfinish:['planorderfinish'],description:['description','deskripsi'],diagnosa:['diagnosa','diagnosis'],actualordertime:['actualordertime'],plantasktime:['estimatedtime'],taskcode:['taskcode'],taskdesc:['taskdesc','taskdescription'],taskstart:['taskstart'],taskfinish:['taskfinish'],estimatedtime:['estimatedtime'],partcode:['partcode'],item:['item','material'],qty:['qty','quantity']};
+const headerMap={woid:['woid','workorderid','nomorwo','nowo'],equipmentcode:['equipmentcode','kodeunit','equipment'],slot:['slot'],location:['location','lokasi'],description:['description','deskripsi'],diagnosa:['diagnosa','diagnosis'],startdiagnosa:['startdiagnosa'],finishdiagnosa:['finishdiagnosa'],ordercreate:['ordercreate','tanggalbuatwo'],orderapproved:['orderapproved'],assignedto:['assignedto'],actualorderstart:['actualorderstart'],actualorderfinish:['actualorderfinish','actualfinish','tanggalwofinish'],actualorderfinishapproved:['actualorderfinishapproved'],actualordertime:['actualordertime'],planorderstart:['planorderstart'],planorderfinish:['planorderfinish'],totaltasktime:['totaltasktime'],planvsactual:['planvsactual'],taskcode:['taskcode'],taskdesc:['taskdesc','taskdescription'],taskstart:['taskstart'],taskfinish:['taskfinish'],taskstartvstaskfinish:['taskstartvstaskfinish'],estimatedtime:['estimatedtime'],estimatedtimevsactualfinish:['estimatedtimevsactualfinish'],partcode:['partcode'],item:['item','material'],qty:['qty','quantity']};
 function pick(row,aliases){for(const k of Object.keys(row)){if(aliases.includes(norm(k)))return row[k]}return ''}
 const monthNumber={jan:1,januari:1,feb:2,februari:2,mar:3,maret:3,apr:4,april:4,may:5,mei:5,jun:6,juni:6,jul:7,juli:7,aug:8,agu:8,agustus:8,sep:9,sept:9,september:9,oct:10,okt:10,oktober:10,nov:11,november:11,dec:12,des:12,desember:12};
 function periodFromFilename(filename){
@@ -2014,46 +2014,53 @@ function renderAnalytics(){
  const search=$wo('woAnalyticsUnitFilter');if(search)search.addEventListener('input',()=>{const pos=search.selectionStart;renderAnalytics();const next=$wo('woAnalyticsUnitFilter');next.focus();next.setSelectionRange(pos,pos)});
 }
 function renderUnitHistory(){
- const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value,from=$wo('woFrom').value,to=$wo('woTo').value;
+ const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value;
  const a=filteredRecords().filter(x=>woRecordMatchesUnitFilter(x,u)&&(!cat||unitCategory(x.equipmentCode)===cat));
- const manual=(typeof breakdownRows!=='undefined'?breakdownRows:[]).filter(x=>{
-  const matchesUnit=!u||reportNormalizeEquipment(x.unitCode)===reportNormalizeEquipment(u);
-  return matchesUnit&&(!cat||unitCategory(x.unitCode)===cat)&&(!from||!x.date||x.date>=from)&&(!to||!x.date||x.date<=to);
- });
- let html=a.length?renderWoCards(a):'';
- if(manual.length){
-  const groups={};manual.forEach(x=>{const code=x.unitCode||'Unit tidak diketahui';(groups[code]??=[]).push(x)});
-  html+=Object.keys(groups).sort((x,y)=>x.localeCompare(y,'id')).map(code=>'<section class="wo-unit-group"><div class="wo-unit-head"><h4>'+esc(code)+' · Catatan Manual</h4><span>'+fmt(groups[code].length)+' catatan</span></div>'+groups[code].sort((x,y)=>String(y.date||'').localeCompare(String(x.date||''))).map(x=>'<article class="wo-record"><div class="wo-record-head"><div class="wo-meta"><small>Sumber</small><strong>Catatan Manual</strong></div><div class="wo-meta"><small>Tanggal kejadian</small><strong>'+esc(x.date||'—')+'</strong></div><div class="wo-meta"><small>Tingkat keparahan</small><strong>'+esc(x.severity||'—')+'</strong></div><div class="wo-meta"><small>WO terkait</small><strong>'+esc(x.woNumber||'—')+'</strong></div></div><div class="wo-detail-body" style="display:grid"><div class="wo-detail-block"><h5>Gejala / kerusakan</h5><p>'+esc(x.symptom||'—')+'</p><h5>Diagnosis / analisa penyebab</h5><p>'+esc(x.rootCause||x.action||'—')+'</p></div><div class="wo-detail-block"><h5>Tindakan perbaikan</h5><p>'+esc(x.repairAction||'—')+'</p><h5>Spare part / material</h5><p>'+esc(x.spareParts||'—')+'</p><h5>Kesimpulan / rekomendasi</h5><p>'+esc(x.conclusion||'—')+'</p></div></div></article>').join('')+'</section>').join('');
- }
- if(!html)html='<div class="wo-empty">Tidak ada WO Aktual atau Catatan Manual yang cocok dengan filter saat ini.</div>';
+ // Catatan breakdown manual dikelola pada menu Catat Breakdown; bagian ini khusus WO Aktual.
+ const html=a.length?renderWoCards(a):'<div class="wo-empty">Tidak ada WO Aktual yang cocok dengan filter saat ini.</div>';
  $wo('woUnitHistory').innerHTML=html;wireWoDetailButtons($wo('woUnitHistory'));
 }
 function exportWoUnitHistory(){
  const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value,from=$wo('woFrom').value,to=$wo('woTo').value;
+ const store=readStore();
  const wos=filteredRecords().filter(x=>woRecordMatchesUnitFilter(x,u)&&(!cat||unitCategory(x.equipmentCode)===cat));
- const manual=(typeof breakdownRows!=='undefined'?breakdownRows:[]).filter(x=>{
-  const matchesUnit=!u||reportNormalizeEquipment(x.unitCode)===reportNormalizeEquipment(u);
-  return matchesUnit&&(!cat||unitCategory(x.unitCode)===cat)&&(!from||!x.date||x.date>=from)&&(!to||!x.date||x.date<=to);
- });
- const rows=[];
- wos.forEach(r=>{
-  const period=periodForRecord(r,readStore()),year=(dateKey(r.fields?.ordercreate)||'').slice(0,4),finishYear=yearFromPeriod(r.fields?.actualorderfinish,period),date=dateKey(r.fields?.actualorderfinish,year||finishYear);
-  rows.push({date,source:'WO Aktual',unit:r.equipmentCode||'',master:findMasterUnitForEquipmentCode(r.equipmentCode)?.c||'',wo:r.woId||'',description:r.fields?.description||'',diagnosis:r.fields?.diagnosa||'',task:(r.tasks||[]).map(t=>t.taskDesc||'').filter(Boolean).join(' | '),material:(r.materials||[]).map(m=>`${m.item||''}${m.qty!=null?' (Qty: '+m.qty+')':''}`).join(' | '),detail:''});
- });
- manual.forEach(r=>rows.push({date:r.date||'',source:'Catatan Breakdown Manual',unit:r.unitCode||'',master:r.unitCode||'',wo:r.woNumber||'',description:r.symptom||'',diagnosis:r.rootCause||r.action||'',task:r.repairAction||'',material:r.spareParts||'',detail:r.conclusion||''}));
- rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
- if(!rows.length){alert('Tidak ada WO Aktual atau Catatan Manual sesuai filter aktif untuk diekspor.');return}
- const headers=['Tanggal','Sumber','Kode Master Unit','Equipment Code / Kode Unit','Nomor WO','Deskripsi / Gejala','Diagnosa / Penyebab','Task / Tindakan Perbaikan','Material / Spare Part','Kesimpulan'];
+ const dateFor=r=>{
+  const period=periodForRecord(r,store),year=(dateKey(r.fields?.ordercreate)||'').slice(0,4),finishYear=yearFromPeriod(r.fields?.actualorderfinish,period);
+  return dateKey(r.fields?.actualorderfinish,year||finishYear);
+ };
+ const clean=v=>String(v==null?'':v);
+ const rows=wos.map(r=>{
+  const hm=splitDescriptionHM(r.fields?.description||'');
+  return {date:dateFor(r),unit:r.equipmentCode||'',master:findMasterUnitForEquipmentCode(r.equipmentCode)?.c||'',wo:r.woId||'',orderCreate:r.fields?.ordercreate||'',orderApproved:r.fields?.orderapproved||'',assignedTo:r.fields?.assignedto||'',slot:r.fields?.slot||'',location:r.fields?.location||'',description:hm.description,hm:hm.hm.replace(/^HM\s*[:=\-]?\s*/i,'').replace(/\s*HM$/i,''),diagnosis:r.fields?.diagnosa||'',diagnosisStart:r.fields?.startdiagnosa||'',diagnosisFinish:r.fields?.finishdiagnosa||'',orderStart:r.fields?.actualorderstart||'',orderFinish:r.fields?.actualorderfinish||'',finishApproved:r.fields?.actualorderfinishapproved||'',actualOrderTime:r.fields?.actualordertime||'',planStart:r.fields?.planorderstart||'',planFinish:r.fields?.planorderfinish||'',totalTaskTime:r.fields?.totaltasktime||'',planVsActual:r.fields?.planvsactual||'',taskCount:(r.tasks||[]).length,materialCount:(r.materials||[]).length};
+ }).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ if(!rows.length){alert('Tidak ada WO Aktual sesuai filter aktif untuk diekspor.');return}
+ const filters=`Periode: ${from||'Semua'} s.d. ${to||'Semua'} | Kategori: ${cat?unitCategoryLabel(cat):'Semua kategori'} | Unit: ${u||'Semua unit'} | Total WO: ${rows.length}`;
+ const title='Profil & Riwayat Unit — WO Aktual MBK';
+ const summaryHeaders=['Tanggal Selesai','Kode Master Unit','Equipment Code','WO ID','Slot','Lokasi','Tanggal Buat WO','Tanggal Approval','Assigned To','Deskripsi Pekerjaan','HM/Odometer','Diagnosa','Mulai Diagnosa','Selesai Diagnosa','Aktual Mulai','Aktual Selesai','Approval Selesai','Durasi Aktual','Rencana Mulai','Rencana Selesai','Total Waktu Task','Plan vs Actual','Jumlah Task','Jumlah Material'];
+ const summaryData=rows.map(r=>[r.date,r.master,r.unit,r.wo,r.slot,r.location,r.orderCreate,r.orderApproved,r.assignedTo,r.description,r.hm,r.diagnosis,r.diagnosisStart,r.diagnosisFinish,r.orderStart,r.orderFinish,r.finishApproved,r.actualOrderTime,r.planStart,r.planFinish,r.totalTaskTime,r.planVsActual,r.taskCount,r.materialCount]);
+ const taskHeaders=['Tanggal Selesai WO','Equipment Code','WO ID','Task Code','Deskripsi Task','Task Mulai','Task Selesai','Estimasi Waktu'];
+ const taskData=[];wos.forEach(r=>(r.tasks||[]).forEach(t=>taskData.push([dateFor(r),r.equipmentCode||'',r.woId||'',t.taskCode||'',t.taskDesc||'',t.taskStart||'',t.taskFinish||'',t.estimatedTime||''])));
+ const materialHeaders=['Tanggal Selesai WO','Equipment Code','WO ID','Kode Part','Nama Material','Qty'];
+ const materialData=[];wos.forEach(r=>(r.materials||[]).forEach(m=>materialData.push([dateFor(r),r.equipmentCode||'',r.woId||'',m.partCode||'',m.item||'',m.qty??''])));
  const escCell=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
- const table='<table><thead><tr>'+headers.map(h=>'<th>'+escCell(h)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>[r.date,r.source,r.master,r.unit,r.wo,r.description,r.diagnosis,r.task,r.material,r.detail].map(v=>'<td>'+escCell(v)+'</td>').join('')).map(r=>'<tr>'+r+'</tr>').join('')+'</tbody></table>';
- const filters=`Periode: ${from||'Semua'} s.d. ${to||'Semua'} · Kategori: ${cat?unitCategoryLabel(cat):'Semua kategori'} · Unit: ${u||'Semua unit'} · Total baris: ${rows.length}`;
- const title='Profil dan Riwayat Unit MBK';
  if($wo('woHistoryExportFormat').value==='excel'){
-  const blob=new Blob(['\ufeff','<!doctype html><html><head><meta charset="utf-8"></head><body><h2>'+title+'</h2><p>'+escCell(filters)+'</p>'+table+'</body></html>'],{type:'application/vnd.ms-excel;charset=utf-8;'});
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Profil-Riwayat-Unit-MBK-'+new Date().toISOString().slice(0,10)+'.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);return;
+  if(!window.XLSX){alert('Fitur Excel belum siap. Periksa koneksi internet lalu muat ulang halaman.');return}
+  const wb=XLSX.utils.book_new();
+  const addSheet=(name,headers,data)=>{const ws=XLSX.utils.aoa_to_sheet([[title],[filters],[],headers,...data]);ws['!cols']=headers.map((h,i)=>({wch:Math.min(36,Math.max(14,String(h).length+3))}));XLSX.utils.book_append_sheet(wb,ws,name)};
+  addSheet('Ringkasan WO',summaryHeaders,summaryData);
+  addSheet('Detail Task',taskHeaders,taskData);
+  addSheet('Detail Material',materialHeaders,materialData);
+  XLSX.writeFile(wb,'Profil-Riwayat-WO-Unit-MBK-'+new Date().toISOString().slice(0,10)+'.xlsx');return;
  }
+ const pdfGroups=[
+  {title:'Identitas & pekerjaan WO',idx:[0,1,2,3,4,5,6,7,8,9,10,11]},
+  {title:'Waktu pelaksanaan & indikator',idx:[3,12,13,14,15,16,17,18,19,20,21,22,23]}
+ ];
+ const pdfSummary=pdfGroups.map(g=>'<h2>'+g.title+'</h2><table><thead><tr>'+g.idx.map(i=>'<th>'+escCell(summaryHeaders[i])+'</th>').join('')+'</tr></thead><tbody>'+summaryData.map(row=>'<tr>'+g.idx.map(i=>'<td>'+escCell(row[i])+'</td>').join('')+'</tr>').join('')+'</tbody></table>').join('');
+ const taskTable='<h2>Rincian Task</h2><table><thead><tr>'+taskHeaders.map(h=>'<th>'+escCell(h)+'</th>').join('')+'</tr></thead><tbody>'+(taskData.length?taskData.map(row=>'<tr>'+row.map(v=>'<td>'+escCell(v)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="8">Tidak ada rincian Task.</td></tr>')+'</tbody></table>';
+ const materialTable='<h2>Rincian Material</h2><table><thead><tr>'+materialHeaders.map(h=>'<th>'+escCell(h)+'</th>').join('')+'</tr></thead><tbody>'+(materialData.length?materialData.map(row=>'<tr>'+row.map(v=>'<td>'+escCell(v)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="6">Tidak ada rincian Material.</td></tr>')+'</tbody></table>';
  const w=window.open('','_blank');if(!w){alert('Popup diblokir. Izinkan popup untuk membuat PDF.');return}
- w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:10px Arial;padding:16px;color:#222}table{border-collapse:collapse;width:100%;font-size:8px}th,td{border:1px solid #888;padding:5px;text-align:left;vertical-align:top}th{background:#eee}h1{font-size:18px}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>'+title+'</h1><p>'+escCell(filters)+'</p>'+table+'<script>window.onload=function(){setTimeout(function(){window.print()},250)};<\/script></body></html>');w.document.close();
+ w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:9px Arial,sans-serif;color:#111;margin:0;padding:8mm}h1{font-size:16px;margin:0 0 6px}h2{font-size:12px;margin:14px 0 6px}.meta{font-size:9px;margin-bottom:10px}table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:8px;margin:5px 0 12px;page-break-inside:auto}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #888;padding:3px;text-align:left;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}th{background:#eee}td{white-space:pre-wrap}@page{size:A4 landscape;margin:8mm}@media print{body{padding:0}}</style></head><body><h1>'+title+'</h1><div class="meta">'+escCell(filters)+'</div>'+pdfSummary+taskTable+materialTable+'<script>window.onload=function(){setTimeout(function(){window.print()},300)};<\/script></body></html>');w.document.close();
 }
 window.mbkRefreshWoUnitHistory=renderUnitHistory;
 $wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});// Filter tanggal diterapkan otomatis melalui event change di bawah.
