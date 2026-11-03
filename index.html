@@ -1002,7 +1002,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div id="unitReportStatus" class="firestore-message" role="status" aria-live="polite">Cari kode unit, pilih unit, lalu klik Tampilkan.</div>
     <div id="unitReportPreview"></div>
-    <div class="unit-report-note">Keterangan: WO Aktual berasal dari hasil impor Excel yang tersimpan pada browser ini. Catatan Breakdown Manual digunakan untuk pekerjaan berat/khusus; isi Nomor WO untuk menautkannya ke WO Aktual agar tampil sebagai satu aktivitas. Data impor lokal hanya tersedia pada browser/perangkat dan profil penyimpanan yang sama. Jadwal PM master plan adalah estimasi, bukan bukti servis selesai. Downtime CM berasal dari jadwal PM, bukan durasi aktual breakdown.</div>
+    <div class="unit-report-note">Keterangan: WO Aktual berasal dari seluruh data pada menu Impor & Analisis WO yang tersimpan pada browser ini; pencocokan unit memakai kode, nama/model unit, atau kategori dan nomor unit yang cocok. Catatan Breakdown Manual digunakan untuk pekerjaan berat/khusus; isi Nomor WO untuk menautkannya ke WO Aktual agar tampil sebagai satu aktivitas. Data impor lokal hanya tersedia pada browser/perangkat dan profil penyimpanan yang sama. Jadwal PM master plan adalah estimasi, bukan bukti servis selesai. Downtime CM berasal dari jadwal PM, bukan durasi aktual breakdown.</div>
   </section>
 
   <section class="card workflow-page" id="woImportPage" data-view="woImport" hidden aria-labelledby="woImportTitle">
@@ -1648,12 +1648,45 @@ function reportRepeatedIssues(breakdowns){
  const map=new Map();breakdowns.forEach(x=>{const symptom=reportText(x.symptom);if(!symptom)return;const key=symptom.toLocaleLowerCase('id-ID').replace(/[.,;:!?]+$/,'');if(!map.has(key))map.set(key,{symptom,count:0,dates:[]});const item=map.get(key);item.count++;if(x.date)item.dates.push(x.date)});
  return Array.from(map.values()).filter(x=>x.count>1).sort((a,b)=>b.count-a.count);
 }
-function loadImportedWoForUnit(unitCode){
- try{const store=JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{\"records\":{}}');return Object.values(store.records||{}).map(x=>x&&x.current?x.current:x).filter(x=>String(x.equipmentCode||'').trim().toLowerCase()===String(unitCode||'').trim().toLowerCase())}
- catch(err){console.warn('Data impor WO lokal tidak dapat dibaca:',err);return []}
+function reportNormalizeEquipment(value){
+ return String(value||'').toLocaleLowerCase('id-ID').replace(/[^a-z0-9]/g,'');
+}
+function reportEquipmentType(value){
+ const raw=String(value||'').toLocaleLowerCase('id-ID');
+ if(/forklift\s*baterai|battery\s*forklift|electric\s*forklift/.test(raw))return 'B';
+ if(/forklift\s*diesel|diesel\s*forklift/.test(raw))return 'D';
+ if(/wheel\s*loader|\bloader\b/.test(raw))return 'W';
+ if(/\btraktor\b|\btractor\b/.test(raw))return 'T';
+ return '';
+}
+function reportImportedWoMatchesUnit(record,unit){
+ const code=String(record?.equipmentCode||'').trim();
+ if(!code)return false;
+ const codeKey=reportNormalizeEquipment(code);
+ const aliases=[unit.c,unit.equipment,unit.model].map(reportNormalizeEquipment).filter(x=>x.length>=2);
+ // Prioritaskan kecocokan kode/nama/model yang eksplisit.
+ if(aliases.some(alias=>alias===codeKey))return true;
+ if(aliases.some(alias=>alias.length>=4&&(codeKey.includes(alias)||alias.includes(codeKey))))return true;
+ // Sebagian ekspor menulis nama kategori + nomor unit, sedangkan Master Unit
+ // memakai kode singkat. Hubungkan hanya bila kategori dan nomor sama-sama cocok.
+ const importedType=reportEquipmentType(code);
+ const unitType=unit.t==='T'?'T':unit.t==='B'?'B':unit.t==='W'?'W':'D';
+ if(importedType&&importedType===unitType){
+  const importedDigits=code.match(/(\d+)\s*$/)?.[1];
+  const unitDigits=String(unit.c||'').match(/(\d+)\s*$/)?.[1];
+  if(importedDigits&&unitDigits&&Number(importedDigits)===Number(unitDigits))return true;
+ }
+ return false;
+}
+function loadImportedWoForUnit(unit){
+ try{
+  const store=JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}');
+  return Object.values(store.records||{}).map(x=>x&&x.current?x.current:x)
+   .filter(x=>reportImportedWoMatchesUnit(x,unit));
+ }catch(err){console.warn('Data impor WO lokal tidak dapat dibaca:',err);return []}
 }
 async function loadUnitReportData(unit){
- const importedWos=loadImportedWoForUnit(unit.c);
+ const importedWos=loadImportedWoForUnit(unit);
  if(!db){return {breakdowns:breakdownRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),requests:rescheduleRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),dailyServices:dailyServiceRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),importedWos,limited:true,partial:false};}
  const results=await Promise.allSettled([
   db.collection('breakdown_reports').where('unitCode','==',unit.c).get(),
@@ -1679,7 +1712,7 @@ function renderUnitReport(data,unit){
  html+='<p class="unit-report-note">Downtime CM '+cmDays.toLocaleString('id-ID')+' hari dijumlahkan dari data downtime yang tersimpan untuk jadwal unit ini. Ini tidak mewakili total durasi breakdown karena form breakdown saat ini belum mencatat durasi downtime aktual.</p>';
  if(data.limited)html+='<p class="unit-report-note">Peringatan: Firestore tidak tersedia; laporan hanya menggunakan data yang sudah termuat di halaman dan mungkin tidak mencakup seluruh riwayat.</p>';if(data.partial)html+='<p class="unit-report-note">Peringatan: tidak semua koleksi berhasil dibaca ('+reportEsc(data.failed.join(', '))+'). Periksa izin Firestore atau koneksi sebelum menggunakan laporan untuk keputusan.</p>'; 
  $('unitReportPreview').innerHTML=html;
- $('unitReportStatus').textContent='Laporan '+unit.c+' berhasil disusun: '+(data.importedWos||[]).length+' WO aktual dari impor lokal, '+data.breakdowns.length+' catatan breakdown manual, '+(data.dailyServices||[]).length+' arsip rekap servis lama, dan '+data.requests.length+' pengajuan perubahan PM.'+(data.partial?' Peringatan: sebagian sumber gagal dibaca ('+data.failed.join(', ')+'); hasil belum lengkap.':data.limited?' Data terbatas karena Firestore tidak terhubung.':' Data dimuat dari Firestore.');
+ $('unitReportStatus').textContent='Laporan '+unit.c+' berhasil disusun: '+(data.importedWos||[]).length+' WO aktual dari Impor & Analisis WO, '+data.breakdowns.length+' catatan breakdown manual, '+(data.dailyServices||[]).length+' arsip rekap servis lama, dan '+data.requests.length+' pengajuan perubahan PM. Data WO dibaca dari penyimpanan impor pada browser ini.'+(!(data.importedWos||[]).length?' Belum ada WO yang cocok dengan unit ini; pastikan impor sudah disimpan pada browser/profil yang sama dan Equipment Code cocok dengan kode, nama, atau kategori/nomor unit di Master Unit.':'')+(data.partial?' Peringatan: sebagian sumber Firestore gagal dibaca ('+data.failed.join(', ')+'); hasil belum lengkap.':data.limited?' Data Firestore terbatas/tidak terhubung.':'');
 }
 async function searchUnitReport(){
  const code=$('unitReportUnit').value,unit=DATA.find(r=>r.c===code);if(!unit){$('unitReportStatus').textContent='Pilih unit terlebih dahulu.';$('unitReportPreview').innerHTML='';unitReportCurrent=null;return}
