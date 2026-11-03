@@ -1661,21 +1661,34 @@ function reportEquipmentType(value){
 }
 function reportImportedWoMatchesUnit(record,unit){
  const code=String(record?.equipmentCode||'').trim();
- if(!code)return false;
+ if(!code||!unit)return false;
  const codeKey=reportNormalizeEquipment(code);
- const aliases=[unit.c,unit.equipment,unit.model].map(reportNormalizeEquipment).filter(x=>x.length>=2);
- // Prioritaskan kecocokan kode/nama/model yang eksplisit.
- if(aliases.some(alias=>alias===codeKey))return true;
- if(aliases.some(alias=>alias.length>=4&&(codeKey.includes(alias)||alias.includes(codeKey))))return true;
- // Sebagian ekspor menulis nama kategori + nomor unit, sedangkan Master Unit
- // memakai kode singkat. Hubungkan hanya bila kategori dan nomor sama-sama cocok.
- const importedType=reportEquipmentType(code);
+ const masterCode=reportNormalizeEquipment(unit.c);
  const unitType=unit.t==='T'?'T':unit.t==='B'?'B':unit.t==='W'?'W':'D';
- if(importedType&&importedType===unitType){
-  const importedDigits=code.match(/(\d+)\s*$/)?.[1];
-  const unitDigits=String(unit.c||'').match(/(\d+)\s*$/)?.[1];
-  if(importedDigits&&unitDigits&&Number(importedDigits)===Number(unitDigits))return true;
+ const importedType=reportEquipmentType(code);
+ // Kode/nama lengkap yang identik tetap menjadi kecocokan paling kuat.
+ if(masterCode&&codeKey===masterCode)return true;
+ const aliases=[unit.equipment,unit.model].map(reportNormalizeEquipment).filter(x=>x.length>=3);
+ if(aliases.includes(codeKey))return true;
+ // Hilangkan awalan kategori dari Equipment Code WO, lalu cocokkan sisa kode
+ // secara utuh. Tidak memakai contains atau pencocokan angka saja.
+ const raw=code.toLocaleLowerCase('id-ID').replace(/[._-]+/g,' ').replace(/\s+/g,' ').trim();
+ const patterns=[
+  {type:'B',re:/^(?:forklift\s*baterai|battery\s*forklift|electric\s*forklift)\s+(.+)$/i},
+  {type:'D',re:/^(?:forklift\s*diesel|diesel\s*forklift)\s+(.+)$/i},
+  {type:'W',re:/^(?:wheel\s*loader|loader)\s+(.+)$/i},
+  {type:'T',re:/^(?:traktor|tractor)\s+(.+)$/i}
+ ];
+ for(const item of patterns){
+  const m=raw.match(item.re);
+  if(m&&item.type===unitType&&reportNormalizeEquipment(m[1])===masterCode)return true;
  }
+ // Format WO yang hanya menulis "Forklift A23" berarti Forklift Diesel
+ // bila suffix kodenya sama persis dengan kode Master Unit bertipe Diesel.
+ const generic=raw.match(/^forklift\s+(.+)$/i);
+ if(generic&&unitType==='D'&&reportNormalizeEquipment(generic[1])===masterCode)return true;
+ // Jangan menghubungkan Forklift Baterai 23 dengan Forklift Diesel A23,
+ // atau unit lain yang kebetulan memiliki nomor akhir yang sama.
  return false;
 }
 function loadImportedWoForUnit(unit){
