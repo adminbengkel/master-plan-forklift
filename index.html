@@ -896,7 +896,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
   <!-- Menu Laporan Breakdown: hanya formulir dan daftar breakdown -->
   <section class="card workflow-page" id="breakdownPage" data-view="breakdown" hidden aria-labelledby="breakdownPageTitle">
-    <div class="overview-head"><div><h2 id="breakdownPageTitle"><i class="fa-solid fa-triangle-exclamation"></i> Catat Breakdown</h2><div class="overview-meta">Catat kerusakan unit dan lihat daftar catatan breakdown.</div></div></div>
+    <div class="overview-head"><div><h2 id="breakdownPageTitle"><i class="fa-solid fa-triangle-exclamation"></i> Catat Breakdown</h2><div class="overview-meta">Catat breakdown berat atau pekerjaan khusus secara manual, misalnya overhaul engine. Breakdown rutin tetap mengikuti WO aktual hasil impor.</div></div></div>
     <p class="workflow-note">Perbaikan breakdown tidak otomatis mereset atau mengubah jadwal PM.</p>
     <div class="workflow-grid">
       <div>
@@ -990,7 +990,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div class="overview-head"><div><h2 id="unitReportsTitle"><i class="fa-solid fa-chart-column"></i> Report Unit</h2><div class="overview-meta">Gabungkan riwayat servis dan breakdown unit dalam satu laporan, dengan filter dan ekspor.</div></div></div>
     <div class="unit-report-tools">
       <div><label for="unitReportUnitSearch">Cari kode/nama unit</label><input id="unitReportUnitSearch" type="search" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><label for="unitReportUnit">Pilih unit</label><select id="unitReportUnit"><option value="">Pilih unit…</option></select></div>
-      <div><label for="unitReportCategory">Kategori laporan</label><select id="unitReportCategory"><option value="all">Semua</option><option value="service">Servis</option><option value="repair">Breakdown</option></select></div>
+      <div><label for="unitReportCategory">Kategori laporan</label><select id="unitReportCategory"><option value="all">Semua sumber</option><option value="wo">WO Aktual</option><option value="service">Rekap Servis</option><option value="repair">Catatan Breakdown Manual</option></select></div>
       <div><label for="unitReportFrom">Dari tanggal (opsional)</label><input type="date" id="unitReportFrom"></div>
       <div><label for="unitReportTo">Sampai tanggal (opsional)</label><input type="date" id="unitReportTo"></div>
     </div>
@@ -1003,7 +1003,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div id="unitReportStatus" class="firestore-message" role="status" aria-live="polite">Cari kode unit, pilih unit, lalu klik Tampilkan.</div>
     <div id="unitReportPreview"></div>
-    <div class="unit-report-note">Keterangan: jadwal PM master plan adalah estimasi, bukan bukti servis selesai. Riwayat aktual menggunakan rekap harian yang tersimpan, sedangkan laporan breakdown dan pengajuan perubahan PM ditampilkan dari koleksi masing-masing. Nomor WO ditampilkan jika tersedia pada catatan; website tidak mengimpor laporan Excel WO secara otomatis. Downtime CM berasal dari jadwal PM, bukan durasi aktual breakdown.</div>
+    <div class="unit-report-note">Keterangan: WO Aktual berasal dari hasil impor Excel yang tersimpan pada browser ini. Catatan Breakdown Manual digunakan untuk pekerjaan berat/khusus; isi Nomor WO untuk menautkannya ke WO Aktual agar tampil sebagai satu aktivitas. Data impor lokal hanya tersedia pada browser/perangkat dan profil penyimpanan yang sama. Jadwal PM master plan adalah estimasi, bukan bukti servis selesai. Downtime CM berasal dari jadwal PM, bukan durasi aktual breakdown.</div>
   </section>
 
   <section class="card workflow-page" id="woImportPage" data-view="woImport" hidden aria-labelledby="woImportTitle">
@@ -1022,7 +1022,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
       <div class="wo-panel"><h3>3. Analisis data tersimpan</h3><div id="woAnalytics" class="wo-status">Belum ada data tersimpan.</div></div>
     </div>
-    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat WO per unit</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
+    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat unit (WO Aktual + Catatan Manual)</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
     <div class="wo-panel" style="margin-top:12px"><h3>5. Riwayat impor dan perubahan</h3><div id="woAuditHistory" class="wo-status">Belum ada riwayat impor.</div></div>
     <p class="wo-note">Catatan: data biaya tidak tersedia pada report ini, sehingga tidak dihitung sebagai Rp0. Data WO aktual dipisahkan dari jadwal PM dan catatan operasional MBK. Penyimpanan prototipe menggunakan localStorage pada browser/perangkat ini; hapus data browser dapat menghilangkan data uji.</p>
   </section>
@@ -1280,7 +1280,7 @@ function resetSearchFilters(){ $('q').value='';$('serviceDate').value='';if($('s
 
 function render(){
  renderOverview();
- if(typeof renderDashboardNotifications==='function')renderDashboardNotifications();
+ if(typeof renderDashboardNotifications==='function')renderDashboardNotifications();if(typeof window.mbkRefreshWoUnitHistory==='function')window.mbkRefreshWoUnitHistory();
  renderUpcomingTable();
  const r=find($('q').value),res=$('res');
  if(!r){res.hidden=true;const searching=!!$('q').value.trim();$('st').textContent=searching?'✗ Kode tidak ditemukan atau berada di luar kategori filter yang dipilih — cek kembali':'Pilih atau ketik kode unit untuk menampilkan rincian master plan.';if(searching){$('upcomingServicesCard').hidden=true;$('emptyState').hidden=false;}return}else{$('emptyState').hidden=true}
@@ -1495,7 +1495,7 @@ function renderWorkflowLists(){
  const bdDate=$('bdFilterDate')?.value||'';
  const shownBreakdowns=breakdownRows.filter(x=>categoryMatches(x.unitCode,bdCat)&&(!bdDate||String(x.date||'')===bdDate));
  const shownRequests=rescheduleRows.filter(x=>categoryMatches(x.unitCode,rsCat));
- const breakdownHtml=!shownBreakdowns.length?'<div class="workflow-empty">Belum ada laporan breakdown.</div>':shownBreakdowns.slice(0,50).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.date||'')+'</strong><span class="workflow-status">'+workflowEsc(x.severity||'Dilaporkan')+'</span></div><div>HM/Odometer: <b>'+workflowEsc(x.meterAtEvent)+'</b> · Pelapor: '+workflowEsc(x.reportedByEmail||'')+'</div><p><b>Gejala:</b> '+workflowEsc(x.symptom)+'</p>'+(x.action?'<p><b>Diagnosis/tindakan awal:</b> '+workflowEsc(x.action)+'</p>':'')+(x.woNumber?'<p><b>Nomor WO:</b> '+workflowEsc(x.woNumber)+'</p>':'')+(x.inspectionFindings?'<p><b>Hasil pemeriksaan:</b> '+workflowEsc(x.inspectionFindings)+'</p>':'')+(x.rootCause?'<p><b>Analisa penyebab:</b> '+workflowEsc(x.rootCause)+'</p>':'')+(x.repairAction?'<p><b>Tindakan perbaikan:</b> '+workflowEsc(x.repairAction)+'</p>':'')+(x.spareParts?'<p><b>Spare part/material:</b> '+workflowEsc(x.spareParts)+'</p>':'')+(x.conclusion?'<p><b>Kesimpulan/rekomendasi:</b> '+workflowEsc(x.conclusion)+'</p>':'')+(['admin','technician'].includes(currentRole)?'<div class="actions"><div class="breakdown-left-actions"><button type="button" class="edit-breakdown" data-edit-breakdown="'+workflowEsc(x.id)+'"><i class="fa-solid fa-pen"></i> Edit</button>'+(currentRole==='admin'?'<button type="button" class="delete-breakdown" data-delete-breakdown="'+workflowEsc(x.id)+'"><i class="fa-solid fa-trash"></i> Hapus Laporan</button>':'')+'</div><div class="breakdown-download-action"><button type="button" class="download-breakdown" data-download-breakdown="'+workflowEsc(x.id)+'" title="Unduh laporan ini sebagai PDF" aria-label="Unduh laporan ini sebagai PDF"><i class="fa-solid fa-download"></i><span class="download-label"> PDF</span></button></div></div>':'')+'</div>').join('');
+ const breakdownHtml=!shownBreakdowns.length?'<div class="workflow-empty">Belum ada laporan breakdown.</div>':shownBreakdowns.slice(0,50).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.date||'')+'</strong><span class="workflow-status">'+workflowEsc(x.severity||'Dilaporkan')+'</span></div><div><b>Sumber:</b> Catatan Manual · HM/Odometer: <b>'+workflowEsc(x.meterAtEvent)+'</b> · Pelapor: '+workflowEsc(x.reportedByEmail||'')+'</div><p><b>Gejala:</b> '+workflowEsc(x.symptom)+'</p>'+(x.action?'<p><b>Diagnosis/tindakan awal:</b> '+workflowEsc(x.action)+'</p>':'')+(x.woNumber?'<p><b>Nomor WO:</b> '+workflowEsc(x.woNumber)+'</p>':'')+(x.inspectionFindings?'<p><b>Hasil pemeriksaan:</b> '+workflowEsc(x.inspectionFindings)+'</p>':'')+(x.rootCause?'<p><b>Analisa penyebab:</b> '+workflowEsc(x.rootCause)+'</p>':'')+(x.repairAction?'<p><b>Tindakan perbaikan:</b> '+workflowEsc(x.repairAction)+'</p>':'')+(x.spareParts?'<p><b>Spare part/material:</b> '+workflowEsc(x.spareParts)+'</p>':'')+(x.conclusion?'<p><b>Kesimpulan/rekomendasi:</b> '+workflowEsc(x.conclusion)+'</p>':'')+(['admin','technician'].includes(currentRole)?'<div class="actions"><div class="breakdown-left-actions"><button type="button" class="edit-breakdown" data-edit-breakdown="'+workflowEsc(x.id)+'"><i class="fa-solid fa-pen"></i> Edit</button>'+(currentRole==='admin'?'<button type="button" class="delete-breakdown" data-delete-breakdown="'+workflowEsc(x.id)+'"><i class="fa-solid fa-trash"></i> Hapus Laporan</button>':'')+'</div><div class="breakdown-download-action"><button type="button" class="download-breakdown" data-download-breakdown="'+workflowEsc(x.id)+'" title="Unduh laporan ini sebagai PDF" aria-label="Unduh laporan ini sebagai PDF"><i class="fa-solid fa-download"></i><span class="download-label"> PDF</span></button></div></div>':'')+'</div>').join('');
  const rescheduleHtml=!shownRequests.length?'<div class="workflow-empty">Belum ada pengajuan jadwal ulang.</div>':shownRequests.slice(0,100).map(x=>{const canDecide=workflowRoleCanApprove()&&x.status==='pending';return '<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Metode: <b>'+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</b> · Pengaju: '+workflowEsc(x.requestedByEmail||'')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p><p><b>Evaluasi teknisi:</b> '+workflowEsc(x.technicianEvaluation)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+(canDecide?'<div class="actions"><button class="approve" type="button" data-decision="approved" data-id="'+workflowEsc(x.id)+'">Setujui</button><button class="reject" type="button" data-decision="rejected" data-id="'+workflowEsc(x.id)+'">Tolak</button></div>':'')+'</div>'}).join('');
  const rescheduleHistoryHtml=!rescheduleRows.length?'<div class="workflow-empty">Belum ada riwayat pengajuan PM.</div>':rescheduleRows.slice(0,100).map(x=>'<div class="workflow-item"><div class="workflow-item-head"><strong>'+workflowEsc(x.unitCode)+' · '+workflowEsc(x.currentDate)+' → '+workflowEsc(x.proposedDate)+'</strong><span class="workflow-status '+workflowEsc(x.status)+'">'+workflowEsc(workflowStatusLabel(x.status))+'</span></div><div>Pengaju: '+workflowEsc(x.requestedByEmail||'')+' · Metode: '+workflowEsc(x.pmMethod==='ACTUAL_EXECUTION'?'Pelaksanaan aktual':'Jadwal tetap')+'</div><p><b>Alasan:</b> '+workflowEsc(x.reason)+'</p>'+(x.decisionComment?'<p><b>Catatan keputusan:</b> '+workflowEsc(x.decisionComment)+'</p>':'')+'</div>').join('');
  [bl,bh].forEach(el=>{if(el)el.innerHTML=breakdownHtml});if(rl)rl.innerHTML=rescheduleHtml;if(rh)rh.innerHTML=rescheduleHistoryHtml;
@@ -1503,7 +1503,7 @@ function renderWorkflowLists(){
  document.querySelectorAll('[data-delete-breakdown]').forEach(b=>b.addEventListener('click',()=>deleteBreakdownReport(b.dataset.deleteBreakdown)));
  document.querySelectorAll('[data-download-breakdown]').forEach(b=>b.addEventListener('click',()=>downloadBreakdownReport(b.dataset.downloadBreakdown)));
  document.querySelectorAll('[data-edit-breakdown]').forEach(b=>b.addEventListener('click',()=>editBreakdownReport(b.dataset.editBreakdown)));
- if(typeof renderDashboardNotifications==='function')renderDashboardNotifications();
+ if(typeof renderDashboardNotifications==='function')renderDashboardNotifications();if(typeof window.mbkRefreshWoUnitHistory==='function')window.mbkRefreshWoUnitHistory();
 }
 function downloadBreakdownReport(id){
  const x=breakdownRows.find(row=>row.id===id);if(!x){alert('Catatan breakdown tidak ditemukan.');return}
@@ -1555,7 +1555,7 @@ async function writeWorkflowAudit(action,entityType,entityId,details){
 $('breakdownForm').addEventListener('submit',async e=>{
  e.preventDefault();if(!db||!currentUser||!['admin','technician'].includes(currentRole)){alert('Anda harus masuk dengan akun teknisi atau admin untuk mencatat breakdown.');return}
  const unitCode=$('bdUnit').value,unit=by[unitCode.toLowerCase()];if(!unit){alert('Pilih unit yang valid.');return}
- const payload={unitCode,unitDescription:unit.d||'',unitType:unit.t||'',pmMethod:pmMethodForUnit(unit),date:$('bdDate').value,meterAtEvent:Number($('bdMeter').value),severity:$('bdSeverity').value,symptom:$('bdSymptom').value.trim(),action:$('bdAction').value.trim(),woNumber:$('bdWoNumber').value.trim(),inspectionDate:$('bdInspectionDate').value,inspectionFindings:$('bdInspectionFindings').value.trim(),rootCause:$('bdRootCause').value.trim(),repairAction:$('bdRepairAction').value.trim(),spareParts:$('bdSpareParts').value.trim(),conclusion:$('bdConclusion').value.trim(),reportedByUid:currentUser.uid,reportedByEmail:currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp(),status:'reported'};
+ const payload={recordSource:'manual',unitCode,unitDescription:unit.d||'',unitType:unit.t||'',pmMethod:pmMethodForUnit(unit),date:$('bdDate').value,meterAtEvent:Number($('bdMeter').value),severity:$('bdSeverity').value,symptom:$('bdSymptom').value.trim(),action:$('bdAction').value.trim(),woNumber:$('bdWoNumber').value.trim(),inspectionDate:$('bdInspectionDate').value,inspectionFindings:$('bdInspectionFindings').value.trim(),rootCause:$('bdRootCause').value.trim(),repairAction:$('bdRepairAction').value.trim(),spareParts:$('bdSpareParts').value.trim(),conclusion:$('bdConclusion').value.trim(),reportedByUid:currentUser.uid,reportedByEmail:currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp(),status:'reported'};
  if(!payload.date||!payload.symptom||!Number.isFinite(payload.meterAtEvent)||payload.meterAtEvent<0){alert('Lengkapi tanggal, meter, dan gejala kerusakan.');return}
  const btn=$('bdSubmit');btn.disabled=true;setFirestoreMessage('breakdownDbStatus','Menyimpan laporan breakdown…','');
  try{let recordId=editingBreakdownId;const isEdit=!!recordId;if(isEdit){const old=breakdownRows.find(x=>x.id===recordId)||{};const update={...payload,createdAt:old.createdAt,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedByUid:currentUser.uid,updatedByEmail:currentUser.email||''};delete update.reportedByUid;delete update.reportedByEmail;await db.collection('breakdown_reports').doc(recordId).update(update);breakdownRows=breakdownRows.map(x=>x.id===recordId?{...x,...update,createdAt:old.createdAt}:x)}else{const ref=await db.collection('breakdown_reports').add(payload);recordId=ref.id;breakdownRows.unshift({id:ref.id,...payload,createdAt:new Date()})}renderWorkflowLists();setFirestoreMessage('breakdownDbStatus',isEdit?'Catatan breakdown berhasil diperbarui.':'Laporan berhasil disimpan ke Firestore.','success');editingBreakdownId=null;$('breakdownForm').reset();$('bdDate').value=workflowDateNow();$('bdInspectionDate').value='';$('bdSubmit').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Simpan Catatan Breakdown';$('bdReset').textContent='Reset Form';
@@ -1598,22 +1598,50 @@ function reportDateLabel(v){if(!v)return '—';const d=new Date(v+'T00:00:00Z');
 function reportText(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
 function reportEsc(v){return escapeHtml(v==null?'':v);}
 function reportDateInRange(date,from,to){return (!from||!date||date>=from)&&(!to||!date||date<=to);}
-function reportBuildRows(unit,breakdowns,requests,dailyServices=[]){
+function reportImportedWoDate(record){
+ const raw=String(record?.fields?.actualorderfinish||'').trim();if(!raw)return '';
+ const iso=raw.match(/^(20\d{2})-(\d{1,2})-(\d{1,2})/);if(iso)return iso[1]+'-'+String(iso[2]).padStart(2,'0')+'-'+String(iso[3]).padStart(2,'0');
+ const m=raw.match(/^(\d{1,2})\s+([A-Za-z]+)/);if(m){
+  const months={jan:1,januari:1,feb:2,februari:2,mar:3,maret:3,apr:4,april:4,may:5,mei:5,jun:6,juni:6,jul:7,juli:7,aug:8,agu:8,agustus:8,sep:9,sept:9,september:9,oct:10,okt:10,oktober:10,nov:11,november:11,dec:12,des:12,desember:12};
+  const month=months[m[2].toLowerCase()];if(!month)return '';
+  const period=record.sourcePeriod,start=period?.start,end=period?.end;let year=start?.year||end?.year;
+  if(start?.year&&end?.year&&start.year!==end.year){year=month>start.month?start.year:month<start.month?end.year:(Number(m[1])>=start.day?start.year:end.year)}
+  return year?String(year)+'-'+String(month).padStart(2,'0')+'-'+String(Number(m[1])).padStart(2,'0'):'';
+ }
+ const parsed=new Date(raw);if(!Number.isNaN(parsed.getTime()))return parsed.getFullYear()+'-'+String(parsed.getMonth()+1).padStart(2,'0')+'-'+String(parsed.getDate()).padStart(2,'0');
+ return '';
+}
+function reportWoKey(value){return String(value||'').toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function reportBuildRows(unit,breakdowns,requests,dailyServices=[],importedWos=[]){
  const cat=$('unitReportCategory').value,from=$('unitReportFrom').value,to=$('unitReportTo').value,rows=[];
- // Report hanya berisi pekerjaan yang sudah selesai dari Rekap Servis Harian
- // dan catatan breakdown berstatus reported dari menu Catat Breakdown.
- dailyServices.forEach(x=>{
+ const linkedByWo=new Map();
+ breakdowns.forEach(x=>{const key=reportWoKey(x.woNumber||x.workOrderNumber||x.wo||'');if(key){if(!linkedByWo.has(key))linkedByWo.set(key,[]);linkedByWo.get(key).push(x)}});
+ const woKeys=new Set();
+ const woRows=importedWos.map(w=>{
+  const key=reportWoKey(w.woId);if(key)woKeys.add(key);
+  const linked=key?(linkedByWo.get(key)||[]):[];
+  const tasks=(w.tasks||[]).map(t=>t.taskDesc||t.taskCode).filter(Boolean).join('; ');
+  const materials=(w.materials||[]).map(m=>(m.item||m.partCode||'Material')+(m.qty!==undefined&&m.qty!==''?' (Qty '+m.qty+')':'')).join('; ');
+  const detail=[w.fields?.description?'Deskripsi: '+w.fields.description:'',w.fields?.diagnosa?'Diagnosa: '+w.fields.diagnosa:'',tasks?'Task: '+tasks:'',materials?'Material: '+materials:''];
+  linked.forEach(x=>{detail.push('Catatan Manual — Gejala: '+(x.symptom||'—'));if(x.rootCause)detail.push('Analisa penyebab: '+x.rootCause);if(x.repairAction)detail.push('Tindakan perbaikan: '+x.repairAction);if(x.conclusion)detail.push('Kesimpulan: '+x.conclusion)});
+  return {date:reportImportedWoDate(w),category:'WO Aktual',title:'WO '+(w.woId||'—')+(w.fields?.description?' · '+w.fields.description:''),details:detail.join(' | '),status:'Selesai',meter:'',wo:w.woId||'',source:linked.length?'WO Aktual + Catatan Manual':'WO Aktual'};
+ }).filter(x=>reportDateInRange(x.date,from,to));
+ if(cat==='all'||cat==='wo')rows.push(...woRows);
+ if(cat==='all'||cat==='service'||cat==='repair')dailyServices.forEach(x=>{
   if(x.status!=='completed')return;
   const date=String(x.serviceDate||'');if(!reportDateInRange(date,from,to))return;
   const isPm=x.serviceType==='PM';if(cat==='service'&&!isPm||cat==='repair'&&isPm)return;
   const wo=x.workOrderNumber||x.woNumber||x.wo||x.workOrder||x.nomorWO||'';
-  rows.push({date,category:isPm?'Servis / PM':'Servis / Perbaikan (rekap harian)',title:(wo?'WO '+wo+' · ':'')+(isPm?(x.pmLabel||'PM'):'Perbaikan'),details:(x.notes||'')+(x.technician?'; Pelaksana: '+x.technician:'')+(x.unitDescription?'; Unit: '+x.unitDescription:''),status:'Selesai',meter:x.meter==null?'':String(x.meter),source:'daily_service_records',wo});
+  rows.push({date,category:isPm?'Servis / PM':'Servis / Perbaikan (rekap harian)',title:(wo?'WO '+wo+' · ':'')+(isPm?(x.pmLabel||'PM'):'Perbaikan'),details:(x.notes||'')+(x.technician?'; Pelaksana: '+x.technician:'')+(x.unitDescription?'; Unit: '+x.unitDescription:''),status:'Selesai',meter:x.meter==null?'':String(x.meter),source:'Rekap Servis Harian',wo});
  });
- if(cat==='repair'||cat==='all')breakdowns.forEach(x=>{
+ if(cat==='all'||cat==='repair')breakdowns.forEach(x=>{
+  const key=reportWoKey(x.woNumber||x.workOrderNumber||x.wo||'');
+  // Jika nomor WO cocok dengan impor, detail manual sudah digabungkan ke baris WO Aktual.
+  if(cat==='all'&&key&&woKeys.has(key))return;
   if(!['reported','completed','selesai','Selesai'].includes(String(x.status||'')))return;
   const date=String(x.date||'');if(!reportDateInRange(date,from,to))return;
-  const wo=x.workOrderNumber||x.woNumber||x.wo||x.workOrder||x.nomorWO||'';
-  rows.push({date,category:'Breakdown',title:(wo?'WO '+wo+' · ':'')+(x.severity||'Breakdown'),details:'Gejala: '+(x.symptom||'—')+(x.action?'; Diagnosis/tindakan: '+x.action:''),status:String(x.status||'reported')==='reported'?'Reported':'Selesai',meter:x.meterAtEvent==null?'':String(x.meterAtEvent),source:'breakdown_reports',wo});
+  const wo=x.woNumber||x.workOrderNumber||x.wo||x.workOrder||x.nomorWO||'';
+  rows.push({date,category:'Breakdown Berat / Khusus',title:(wo?'WO '+wo+' · ':'')+(x.severity||'Breakdown'),details:'Gejala: '+(x.symptom||'—')+(x.action?'; Diagnosis/tindakan awal: '+x.action:'')+(x.rootCause?'; Analisa penyebab: '+x.rootCause:'')+(x.repairAction?'; Tindakan perbaikan: '+x.repairAction:''),status:String(x.status||'reported')==='reported'?'Reported':'Selesai',meter:x.meterAtEvent==null?'':String(x.meterAtEvent),source:'Catatan Manual',wo});
  });
  return rows.sort((a,b)=>String(a.date).localeCompare(String(b.date))||a.category.localeCompare(b.category));
 }
@@ -1621,8 +1649,13 @@ function reportRepeatedIssues(breakdowns){
  const map=new Map();breakdowns.forEach(x=>{const symptom=reportText(x.symptom);if(!symptom)return;const key=symptom.toLocaleLowerCase('id-ID').replace(/[.,;:!?]+$/,'');if(!map.has(key))map.set(key,{symptom,count:0,dates:[]});const item=map.get(key);item.count++;if(x.date)item.dates.push(x.date)});
  return Array.from(map.values()).filter(x=>x.count>1).sort((a,b)=>b.count-a.count);
 }
+function loadImportedWoForUnit(unitCode){
+ try{const store=JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{\"records\":{}}');return Object.values(store.records||{}).map(x=>x&&x.current?x.current:x).filter(x=>String(x.equipmentCode||'').trim().toLowerCase()===String(unitCode||'').trim().toLowerCase())}
+ catch(err){console.warn('Data impor WO lokal tidak dapat dibaca:',err);return []}
+}
 async function loadUnitReportData(unit){
- if(!db){return {breakdowns:breakdownRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),requests:rescheduleRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),dailyServices:dailyServiceRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),limited:true,partial:false};}
+ const importedWos=loadImportedWoForUnit(unit.c);
+ if(!db){return {breakdowns:breakdownRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),requests:rescheduleRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),dailyServices:dailyServiceRows.filter(x=>String(x.unitCode||'').toLowerCase()===unit.c.toLowerCase()),importedWos,limited:true,partial:false};}
  const results=await Promise.allSettled([
   db.collection('breakdown_reports').where('unitCode','==',unit.c).get(),
   db.collection('pm_reschedule_requests').where('unitCode','==',unit.c).get(),
@@ -1630,29 +1663,29 @@ async function loadUnitReportData(unit){
  ]);
  const value=(i)=>results[i].status==='fulfilled'?results[i].value.docs.map(d=>({id:d.id,...d.data()})):[];
  const failed=results.map((r,i)=>r.status==='rejected'?['laporan breakdown','pengajuan perubahan PM','rekap servis harian'][i]:null).filter(Boolean);
- return {breakdowns:value(0),requests:value(1),dailyServices:value(2),limited:false,partial:failed.length>0,failed};
+ return {breakdowns:value(0),requests:value(1),dailyServices:value(2),importedWos,limited:false,partial:failed.length>0,failed};
 }
 function renderUnitReport(data,unit){
- const rows=reportBuildRows(unit,data.breakdowns,data.requests,data.dailyServices||[]),repeat=reportRepeatedIssues(data.breakdowns),dt=load(unit),cmDays=dt.reduce((sum,n)=>sum+(Number(n)||0),0);
- unitReportCurrent={unit,rows,breakdowns:data.breakdowns,requests:data.requests,dailyServices:data.dailyServices||[],repeat,cmDays,category:$('unitReportCategory').value,from:$('unitReportFrom').value,to:$('unitReportTo').value,limited:data.limited};
+ const rows=reportBuildRows(unit,data.breakdowns,data.requests,data.dailyServices||[],data.importedWos||[]),repeat=reportRepeatedIssues(data.breakdowns),dt=load(unit),cmDays=dt.reduce((sum,n)=>sum+(Number(n)||0),0);
+ unitReportCurrent={unit,rows,breakdowns:data.breakdowns,requests:data.requests,dailyServices:data.dailyServices||[],importedWos:data.importedWos||[],repeat,cmDays,category:$('unitReportCategory').value,from:$('unitReportFrom').value,to:$('unitReportTo').value,limited:data.limited};
  const countService=rows.filter(x=>x.category.indexOf('Servis')===0||x.category==='Perubahan jadwal PM').length;
- const countRepair=rows.filter(x=>x.category.indexOf('Perbaikan / Breakdown')===0).length;
- let html='<div class="unit-report-summary"><div class="unit-report-stat"><span>Unit</span><strong>'+reportEsc(unit.c)+'</strong></div><div class="unit-report-stat"><span>Catatan servis/PM</span><strong>'+countService.toLocaleString('id-ID')+'</strong></div><div class="unit-report-stat"><span>Laporan perbaikan</span><strong>'+countRepair.toLocaleString('id-ID')+'</strong></div><div class="unit-report-stat"><span>Downtime CM di jadwal (hari)</span><strong>'+cmDays.toLocaleString('id-ID')+'</strong></div></div>';
+ const countRepair=rows.filter(x=>x.category.indexOf('Breakdown')===0).length;const countWo=rows.filter(x=>x.category==='WO Aktual').length;
+ let html='<div class="unit-report-summary"><div class="unit-report-stat"><span>Unit</span><strong>'+reportEsc(unit.c)+'</strong></div><div class="unit-report-stat"><span>Rekap servis lama</span><strong>'+countService.toLocaleString('id-ID')+'</strong></div><div class="unit-report-stat"><span>Catatan breakdown manual</span><strong>'+countRepair.toLocaleString('id-ID')+'</strong></div><div class="unit-report-stat"><span>WO aktual</span><strong>'+countWo.toLocaleString('id-ID')+'</strong></div><div class="unit-report-stat"><span>Downtime CM di jadwal (hari)</span><strong>'+cmDays.toLocaleString('id-ID')+'</strong></div></div>';
  html+='<div class="history-section"><h2>Kronologi Aktivitas ('+rows.length.toLocaleString('id-ID')+' catatan)</h2>';
  if(!rows.length)html+='<div class="workflow-empty">Tidak ada catatan yang sesuai filter ini.</div>';
  else {html+='<div class="unit-report-table"><table><thead><tr><th>Tanggal</th><th class="report-category-cell">Kategori</th><th>Aktivitas</th><th>Detail</th><th>Status</th><th>HM/Odometer</th><th>Nomor WO</th><th>Sumber</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+reportEsc(reportDateLabel(x.date))+'</td><td class="report-category-cell">'+reportEsc(x.category)+'</td><td>'+reportEsc(x.title)+'</td><td class="l">'+reportEsc(x.details)+'</td><td>'+((String(x.status||'').toLowerCase()==='selesai'||String(x.status||'').toLowerCase()==='completed')?'<span class="report-status-badge completed">Selesai</span>':(String(x.status||'').toLowerCase()==='reported'?'<span class="report-status-badge reported">Reported</span>':reportEsc(x.status)))+'</td><td>'+reportEsc(x.meter||'—')+'</td><td>'+reportEsc(x.wo||'—')+'</td><td>'+reportEsc(x.source)+'</td></tr>').join('')+'</tbody></table></div>'}
- if($('unitReportCategory').value!=='service'){html+='</div><div class="history-section"><h2>Analisis kerusakan berulang</h2>';
+ if(['all','repair'].includes($('unitReportCategory').value)){html+='</div><div class="history-section"><h2>Analisis kerusakan berulang</h2>';
  if(!repeat.length)html+='<div class="workflow-empty">Belum ditemukan gejala dengan deskripsi yang sama lebih dari satu kali pada laporan breakdown unit ini.</div>';
  else html+='<div class="unit-report-table"><table><thead><tr><th>Gejala (teks yang sama)</th><th>Jumlah kejadian</th><th>Tanggal tercatat</th></tr></thead><tbody>'+repeat.map(x=>'<tr><td class="l">'+reportEsc(x.symptom)+'</td><td>'+x.count+'</td><td>'+reportEsc(x.dates.map(reportDateLabel).join(', '))+'</td></tr>').join('')+'</tbody></table></div>';html+='</div>';}
  html+='<p class="unit-report-note">Downtime CM '+cmDays.toLocaleString('id-ID')+' hari dijumlahkan dari data downtime yang tersimpan untuk jadwal unit ini. Ini tidak mewakili total durasi breakdown karena form breakdown saat ini belum mencatat durasi downtime aktual.</p>';
  if(data.limited)html+='<p class="unit-report-note">Peringatan: Firestore tidak tersedia; laporan hanya menggunakan data yang sudah termuat di halaman dan mungkin tidak mencakup seluruh riwayat.</p>';if(data.partial)html+='<p class="unit-report-note">Peringatan: tidak semua koleksi berhasil dibaca ('+reportEsc(data.failed.join(', '))+'). Periksa izin Firestore atau koneksi sebelum menggunakan laporan untuk keputusan.</p>'; 
  $('unitReportPreview').innerHTML=html;
- $('unitReportStatus').textContent='Laporan '+unit.c+' berhasil disusun: '+(data.dailyServices||[]).length+' rekap harian, '+data.breakdowns.length+' laporan breakdown, dan '+data.requests.length+' pengajuan perubahan PM.'+(data.partial?' Peringatan: sebagian sumber gagal dibaca ('+data.failed.join(', ')+'); hasil belum lengkap.':data.limited?' Data terbatas karena Firestore tidak terhubung.':' Data dimuat dari Firestore.');
+ $('unitReportStatus').textContent='Laporan '+unit.c+' berhasil disusun: '+(data.importedWos||[]).length+' WO aktual dari impor lokal, '+data.breakdowns.length+' catatan breakdown manual, '+(data.dailyServices||[]).length+' rekap harian, dan '+data.requests.length+' pengajuan perubahan PM.'+(data.partial?' Peringatan: sebagian sumber gagal dibaca ('+data.failed.join(', ')+'); hasil belum lengkap.':data.limited?' Data terbatas karena Firestore tidak terhubung.':' Data dimuat dari Firestore.');
 }
 async function searchUnitReport(){
  const code=$('unitReportUnit').value,unit=DATA.find(r=>r.c===code);if(!unit){$('unitReportStatus').textContent='Pilih unit terlebih dahulu.';$('unitReportPreview').innerHTML='';unitReportCurrent=null;return}
  const from=$('unitReportFrom').value,to=$('unitReportTo').value;if(from&&to&&from>to){$('unitReportStatus').textContent='Tanggal Dari tidak boleh melewati tanggal Sampai.';return}
- $('unitReportSearch').disabled=true;$('unitReportStatus').textContent='Mengambil riwayat unit dari Firestore…';
+ $('unitReportSearch').disabled=true;$('unitReportStatus').textContent='Mengambil riwayat unit dari WO impor lokal dan Firestore…';
  try{const data=await loadUnitReportData(unit);renderUnitReport(data,unit)}catch(err){console.error('Laporan unit:',err);$('unitReportStatus').textContent='Gagal mengambil riwayat unit dari Firestore: '+firestoreErrorText(err);$('unitReportPreview').innerHTML='';unitReportCurrent=null}
  finally{$('unitReportSearch').disabled=false}
 }
@@ -1903,7 +1936,19 @@ function renderAnalytics(){
  $wo('woAnalytics').innerHTML=`<div class="wo-kpi-grid"><div class="wo-kpi"><small>Total WO tersimpan</small><strong>${fmt(a.length)}</strong></div><div class="wo-kpi"><small>Total Task</small><strong>${fmt(a.reduce((n,x)=>n+x.tasks.length,0))}</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong>${fmt(units.length)}</strong></div></div><div class="wo-tools" style="margin-top:14px"><strong>WO per Unit</strong><input id="woAnalyticsUnitFilter" type="search" placeholder="Cari kode / nama unit..." aria-label="Filter WO per unit" value="${esc($wo('woAnalyticsUnitFilter')?.value||'')}"></div>${unitResults}<h4>Task paling sering</h4>${tasks.map(([t,n])=>`<p>${esc(t)} <strong>— ${fmt(n)} kali</strong></p>`).join('')||'<p class="wo-empty">Belum ada data Task.</p>'}`;
  const search=$wo('woAnalyticsUnitFilter');if(search)search.addEventListener('input',()=>{const pos=search.selectionStart;renderAnalytics();const next=$wo('woAnalyticsUnitFilter');next.focus();next.setSelectionRange(pos,pos)});
 }
-function renderUnitHistory(){const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value;const a=filteredRecords().filter(x=>(!u||x.equipmentCode===u)&&(!cat||unitCategory(x.equipmentCode)===cat));$wo('woUnitHistory').innerHTML=renderWoCards(a);wireWoDetailButtons($wo('woUnitHistory'));}
+function renderUnitHistory(){
+ const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value,from=$wo('woFrom').value,to=$wo('woTo').value;
+ const a=filteredRecords().filter(x=>(!u||x.equipmentCode===u)&&(!cat||unitCategory(x.equipmentCode)===cat));
+ const manual=(typeof breakdownRows!=='undefined'?breakdownRows:[]).filter(x=>(!u||x.unitCode===u)&&(!cat||unitCategory(x.unitCode)===cat)&&(!from||!x.date||x.date>=from)&&(!to||!x.date||x.date<=to));
+ let html=a.length?renderWoCards(a):'';
+ if(manual.length){
+  const groups={};manual.forEach(x=>{const code=x.unitCode||'Unit tidak diketahui';(groups[code]??=[]).push(x)});
+  html+=Object.keys(groups).sort((x,y)=>x.localeCompare(y,'id')).map(code=>'<section class="wo-unit-group"><div class="wo-unit-head"><h4>'+esc(code)+' · Catatan Manual</h4><span>'+fmt(groups[code].length)+' catatan</span></div>'+groups[code].sort((x,y)=>String(y.date||'').localeCompare(String(x.date||''))).map(x=>'<article class="wo-record"><div class="wo-record-head"><div class="wo-meta"><small>Sumber</small><strong>Catatan Manual</strong></div><div class="wo-meta"><small>Tanggal kejadian</small><strong>'+esc(x.date||'—')+'</strong></div><div class="wo-meta"><small>Tingkat keparahan</small><strong>'+esc(x.severity||'—')+'</strong></div><div class="wo-meta"><small>WO terkait</small><strong>'+esc(x.woNumber||'—')+'</strong></div></div><div class="wo-detail-body" style="display:grid"><div class="wo-detail-block"><h5>Gejala / kerusakan</h5><p>'+esc(x.symptom||'—')+'</p><h5>Diagnosis / analisa penyebab</h5><p>'+esc(x.rootCause||x.action||'—')+'</p></div><div class="wo-detail-block"><h5>Tindakan perbaikan</h5><p>'+esc(x.repairAction||'—')+'</p><h5>Spare part / material</h5><p>'+esc(x.spareParts||'—')+'</p><h5>Kesimpulan / rekomendasi</h5><p>'+esc(x.conclusion||'—')+'</p></div></div></article>').join('')+'</section>').join('');
+ }
+ if(!html)html='<div class="wo-empty">Tidak ada WO Aktual atau Catatan Manual yang cocok dengan filter saat ini.</div>';
+ $wo('woUnitHistory').innerHTML=html;wireWoDetailButtons($wo('woUnitHistory'));
+}
+window.mbkRefreshWoUnitHistory=renderUnitHistory;
 $wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});// Filter tanggal diterapkan otomatis melalui event change di bawah.
 $wo('woFrom').addEventListener('change',()=>{if(!$wo('woTo').value||$wo('woFrom').value<=$wo('woTo').value){renderAnalytics();renderUnitHistory()}});
 $wo('woTo').addEventListener('change',()=>{if(!$wo('woFrom').value||$wo('woFrom').value<=$wo('woTo').value){renderAnalytics();renderUnitHistory()}});
