@@ -1021,7 +1021,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
       <div class="wo-panel"><h3>3. Analisis data tersimpan</h3><div id="woAnalytics" class="wo-status">Belum ada data tersimpan.</div></div>
     </div>
-    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat unit (WO Aktual + Catatan Manual)</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
+    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat unit (WO Aktual + Catatan Manual)</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button><label class="sr-only" for="woHistoryExportFormat">Format ekspor riwayat unit</label><select id="woHistoryExportFormat" aria-label="Format ekspor riwayat unit"><option value="excel">Excel</option><option value="pdf">PDF</option></select><button type="button" id="woHistoryExportBtn" title="Ekspor data sesuai filter aktif"><i class="fa-solid fa-file-export"></i> Export File</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
     <div class="wo-panel" style="margin-top:12px"><h3>5. Riwayat impor dan perubahan</h3><div id="woAuditHistory" class="wo-status">Belum ada riwayat impor.</div></div>
     <p class="wo-note">Catatan: data biaya tidak tersedia pada report ini, sehingga tidak dihitung sebagai Rp0. Data WO aktual dipisahkan dari jadwal PM dan catatan operasional MBK. Penyimpanan prototipe menggunakan localStorage pada browser/perangkat ini; hapus data browser dapat menghilangkan data uji.</p>
   </section>
@@ -1886,7 +1886,7 @@ function parseRows(rows, sourceFilename){
  return {records:out,errors,sourceRows:objects.length};
 }
 function summaryHtml(records){const a=Object.values(records),tasks=a.reduce((n,x)=>n+x.tasks.length,0),materials=a.reduce((n,x)=>n+x.materials.length,0),units=new Set(a.map(x=>x.equipmentCode).filter(Boolean));return `Jumlah WO: <b>${fmt(a.length)}</b> · Task: <b>${fmt(tasks)}</b> · Detail Material: <b>${fmt(materials)}</b> · Unit teridentifikasi: <b>${fmt(units.size)}</b>`}
-function classify(incoming){const db=readStore(),result={fresh:[],updated:[],same:[],unmatched:[]};for(const [id,record] of Object.entries(incoming)){const old=db.records[id];if(!old)result.fresh.push(record);else if(JSON.stringify(old.current)!==JSON.stringify(record))result.updated.push({record,old:old.current});else result.same.push(record);if(record.equipmentCode&&!by[String(record.equipmentCode).toLowerCase()])result.unmatched.push(record)}return result}
+function classify(incoming){const db=readStore(),result={fresh:[],updated:[],same:[],unmatched:[]};for(const [id,record] of Object.entries(incoming)){const old=db.records[id];if(!old)result.fresh.push(record);else if(JSON.stringify(old.current)!==JSON.stringify(record))result.updated.push({record,old:old.current});else result.same.push(record);if(record.equipmentCode&&!findMasterUnitForEquipmentCode(record.equipmentCode))result.unmatched.push(record)}return result}
 function splitDescriptionHM(value){
  const raw=String(value||'').trim();
  // Pisahkan hanya keterangan HM yang eksplisit, tanpa mengarang nilai HM.
@@ -1949,42 +1949,77 @@ function filteredRecords(){
   return !!d&&(!from||d>=from)&&(!to||d<=to);
  });
 }
-function unitCategory(code){
- const raw=String(code||'').trim(),key=raw.toLowerCase();
- // Pada laporan resmi, Equipment Code sering berupa nama kategori + nomor unit,
- // bukan kode master internal seperti FB10 atau L02.
- if(/^forklift\s*baterai\b/i.test(raw)||/^battery\s*forklift\b/i.test(raw))return 'B';
- if(/^forklift\s*diesel\b/i.test(raw)||/^diesel\s*forklift\b/i.test(raw))return 'D';
- if(/^traktor\b/i.test(raw)||/^tractor\b/i.test(raw))return 'T';
- if(/^wheel\s*loader\b/i.test(raw)||/^loader\b/i.test(raw))return 'W';
- const item=typeof by!=='undefined'&&by?by[key]:null;
- if(item)return item.t||item.type||item.category||'';
- // Cocokkan juga nama equipment/model pada master, tanpa menebak kategori lain.
- const match=typeof DATA!=='undefined'&&Array.isArray(DATA)?DATA.find(x=>String(x.equipment||'').trim().toLowerCase()===key||String(x.model||'').trim().toLowerCase()===key):null;
- return match?.t||'';
+function findMasterUnitForEquipmentCode(code){
+ const raw=String(code||'').trim();if(!raw)return null;
+ const exact=DATA.find(u=>reportNormalizeEquipment(u.c)===reportNormalizeEquipment(raw));
+ if(exact)return exact;
+ const matches=DATA.filter(u=>reportImportedWoMatchesUnit({equipmentCode:raw},u));
+ return matches.length===1?matches[0]:null;
 }
+function unitCategory(code){
+ const unit=findMasterUnitForEquipmentCode(code);
+ if(unit)return unit.t||'';
+ const raw=String(code||'').trim();
+ if(/^forklift\s*baterai\b|^battery\s*forklift\b|^electric\s*forklift\b/i.test(raw))return 'B';
+ if(/^forklift\s*diesel\b|^diesel\s*forklift\b|^forklift\s+/i.test(raw))return 'D';
+ if(/^traktor\b|^tractor\b/i.test(raw))return 'T';
+ if(/^wheel\s*loader\b|^loader\b/i.test(raw))return 'W';
+ return '';
+}
+function unitCategoryLabel(type){return type==='D'?'Forklift Diesel':type==='B'?'Forklift Baterai':type==='T'?'Traktor':type==='W'?'Wheel Loader':'Kategori tidak diketahui'}
 function refreshWoUnitOptions(){
  const cat=$wo('woCategoryFilter').value,sel=$wo('woUnitFilter'),chosen=sel.value;
- const records=Object.values(readStore().records).map(x=>x.current);
- const units=[...new Set(records.filter(r=>!cat||unitCategory(r.equipmentCode)===cat).map(r=>r.equipmentCode).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
- sel.innerHTML='<option value="">Semua unit</option>'+units.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
- sel.value=units.includes(chosen)?chosen:'';
+ const records=Object.values(readStore().records).map(x=>x.current),manual=(typeof breakdownRows!=='undefined'?breakdownRows:[]);
+ const options=new Map();
+ [...records.map(r=>r.equipmentCode),...manual.map(r=>r.unitCode)].filter(Boolean).forEach(code=>{
+  const master=findMasterUnitForEquipmentCode(code);
+  const value=master?master.c:String(code);
+  const type=master?master.t:unitCategory(code);
+  if(cat&&type!==cat)return;
+  const label=master?`${master.c} — ${master.d||master.equipment||unitCategoryLabel(type)}`:String(code);
+  if(!options.has(value))options.set(value,label);
+ });
+ const sorted=[...options.entries()].sort((a,b)=>a[0].localeCompare(b[0],'id'));
+ sel.innerHTML='<option value="">Semua unit</option>'+sorted.map(([v,label])=>`<option value="${esc(v)}">${esc(label)}</option>`).join('');
+ sel.value=options.has(chosen)?chosen:'';
+}
+function woRecordMatchesUnitFilter(record,selectedCode){
+ if(!selectedCode)return true;
+ const unit=by[String(selectedCode).toLowerCase()]||DATA.find(x=>reportNormalizeEquipment(x.c)===reportNormalizeEquipment(selectedCode));
+ if(unit)return reportImportedWoMatchesUnit(record,unit);
+ return reportNormalizeEquipment(record.equipmentCode)===reportNormalizeEquipment(selectedCode);
+}
+function woSearchMatchesRecord(record,query){
+ const q=String(query||'').trim();if(!q)return true;
+ const raw=String(record.equipmentCode||'');
+ if(raw.toLocaleLowerCase('id-ID').includes(q.toLocaleLowerCase('id-ID')))return true;
+ const master=findMasterUnitForEquipmentCode(raw);
+ const qn=reportNormalizeEquipment(q);
+ if(master){
+  if(reportNormalizeEquipment(master.c).includes(qn)||reportNormalizeEquipment(master.d).includes(qn)||reportNormalizeEquipment(master.equipment).includes(qn)||reportNormalizeEquipment(master.model).includes(qn))return true;
+  const qt=reportEquipmentType(q)||( /^forklift\s+/i.test(q)?'D':'');
+  if(qt&&qt===master.t)return true;
+ }
+ return false;
 }
 function renderAnalytics(){
  const a=filteredRecords(),byUnit={},byTask={};
  for(const w of a){const u=w.equipmentCode||'Unit tidak diketahui';byUnit[u]=(byUnit[u]||0)+1;w.tasks.forEach(t=>{const k=String(t.taskDesc||'Task tanpa uraian');byTask[k]=(byTask[k]||0)+1})}
  const units=Object.entries(byUnit).sort((x,y)=>y[1]-x[1]);
  const tasks=Object.entries(byTask).sort((x,y)=>y[1]-x[1]).slice(0,6);
- const q=String($wo('woAnalyticsUnitFilter')?.value||'').trim().toLowerCase();
- const visibleUnits=units.filter(([u])=>u.toLowerCase().includes(q));
- const unitResults=!q?'<p class="wo-empty">Ketik kode atau nama unit untuk menampilkan WO per unit.</p>':(visibleUnits.map(([u,n])=>`<p>${esc(u)} <strong>— ${fmt(n)} WO</strong></p>`).join('')||'<p class="wo-empty">Tidak ada unit yang cocok dengan pencarian.</p>');
- $wo('woAnalytics').innerHTML=`<div class="wo-kpi-grid"><div class="wo-kpi"><small>Total WO tersimpan</small><strong>${fmt(a.length)}</strong></div><div class="wo-kpi"><small>Total Task</small><strong>${fmt(a.reduce((n,x)=>n+x.tasks.length,0))}</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong>${fmt(units.length)}</strong></div></div><div class="wo-tools" style="margin-top:14px"><strong>WO per Unit</strong><input id="woAnalyticsUnitFilter" type="search" placeholder="Cari kode / nama unit..." aria-label="Filter WO per unit" value="${esc($wo('woAnalyticsUnitFilter')?.value||'')}"></div>${unitResults}<h4>Task paling sering</h4>${tasks.map(([t,n])=>`<p>${esc(t)} <strong>— ${fmt(n)} kali</strong></p>`).join('')||'<p class="wo-empty">Belum ada data Task.</p>'}`;
+ const q=String($wo('woAnalyticsUnitFilter')?.value||'').trim();
+ const visibleUnits=units.filter(([code])=>woSearchMatchesRecord({equipmentCode:code},q));
+ const unitResults=!q?'<p class="wo-empty">Ketik kode atau nama unit untuk menampilkan WO per unit.</p>':(visibleUnits.map(([u,n])=>{const master=findMasterUnitForEquipmentCode(u);const label=master?`${master.c} — ${master.d||unitCategoryLabel(master.t)}`:u;return `<p>${esc(label)} <small>(${esc(u)})</small> <strong>— ${fmt(n)} WO</strong></p>`}).join('')||'<p class="wo-empty">Tidak ada unit yang cocok dengan pencarian.</p>');
+ $wo('woAnalytics').innerHTML=`<div class="wo-kpi-grid"><div class="wo-kpi"><small>Total WO tersimpan</small><strong>${fmt(a.length)}</strong></div><div class="wo-kpi"><small>Total Task</small><strong>${fmt(a.reduce((n,x)=>n+x.tasks.length,0))}</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong>${fmt(units.length)}</strong></div></div><div class="wo-tools" style="margin-top:14px"><strong>WO per Unit</strong><input id="woAnalyticsUnitFilter" type="search" placeholder="Cari kode (A23), kategori, atau nama unit..." aria-label="Filter WO per unit" value="${esc(q)}"></div>${unitResults}<h4>Task paling sering</h4>${tasks.map(([t,n])=>`<p>${esc(t)} <strong>— ${fmt(n)} kali</strong></p>`).join('')||'<p class="wo-empty">Belum ada data Task.</p>'}`;
  const search=$wo('woAnalyticsUnitFilter');if(search)search.addEventListener('input',()=>{const pos=search.selectionStart;renderAnalytics();const next=$wo('woAnalyticsUnitFilter');next.focus();next.setSelectionRange(pos,pos)});
 }
 function renderUnitHistory(){
  const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value,from=$wo('woFrom').value,to=$wo('woTo').value;
- const a=filteredRecords().filter(x=>(!u||x.equipmentCode===u)&&(!cat||unitCategory(x.equipmentCode)===cat));
- const manual=(typeof breakdownRows!=='undefined'?breakdownRows:[]).filter(x=>(!u||x.unitCode===u)&&(!cat||unitCategory(x.unitCode)===cat)&&(!from||!x.date||x.date>=from)&&(!to||!x.date||x.date<=to));
+ const a=filteredRecords().filter(x=>woRecordMatchesUnitFilter(x,u)&&(!cat||unitCategory(x.equipmentCode)===cat));
+ const manual=(typeof breakdownRows!=='undefined'?breakdownRows:[]).filter(x=>{
+  const matchesUnit=!u||reportNormalizeEquipment(x.unitCode)===reportNormalizeEquipment(u);
+  return matchesUnit&&(!cat||unitCategory(x.unitCode)===cat)&&(!from||!x.date||x.date>=from)&&(!to||!x.date||x.date<=to);
+ });
  let html=a.length?renderWoCards(a):'';
  if(manual.length){
   const groups={};manual.forEach(x=>{const code=x.unitCode||'Unit tidak diketahui';(groups[code]??=[]).push(x)});
@@ -1993,12 +2028,40 @@ function renderUnitHistory(){
  if(!html)html='<div class="wo-empty">Tidak ada WO Aktual atau Catatan Manual yang cocok dengan filter saat ini.</div>';
  $wo('woUnitHistory').innerHTML=html;wireWoDetailButtons($wo('woUnitHistory'));
 }
+function exportWoUnitHistory(){
+ const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value,from=$wo('woFrom').value,to=$wo('woTo').value;
+ const wos=filteredRecords().filter(x=>woRecordMatchesUnitFilter(x,u)&&(!cat||unitCategory(x.equipmentCode)===cat));
+ const manual=(typeof breakdownRows!=='undefined'?breakdownRows:[]).filter(x=>{
+  const matchesUnit=!u||reportNormalizeEquipment(x.unitCode)===reportNormalizeEquipment(u);
+  return matchesUnit&&(!cat||unitCategory(x.unitCode)===cat)&&(!from||!x.date||x.date>=from)&&(!to||!x.date||x.date<=to);
+ });
+ const rows=[];
+ wos.forEach(r=>{
+  const period=periodForRecord(r,readStore()),year=(dateKey(r.fields?.ordercreate)||'').slice(0,4),finishYear=yearFromPeriod(r.fields?.actualorderfinish,period),date=dateKey(r.fields?.actualorderfinish,year||finishYear);
+  rows.push({date,source:'WO Aktual',unit:r.equipmentCode||'',master:findMasterUnitForEquipmentCode(r.equipmentCode)?.c||'',wo:r.woId||'',description:r.fields?.description||'',diagnosis:r.fields?.diagnosa||'',task:(r.tasks||[]).map(t=>t.taskDesc||'').filter(Boolean).join(' | '),material:(r.materials||[]).map(m=>`${m.item||''}${m.qty!=null?' (Qty: '+m.qty+')':''}`).join(' | '),detail:''});
+ });
+ manual.forEach(r=>rows.push({date:r.date||'',source:'Catatan Breakdown Manual',unit:r.unitCode||'',master:r.unitCode||'',wo:r.woNumber||'',description:r.symptom||'',diagnosis:r.rootCause||r.action||'',task:r.repairAction||'',material:r.spareParts||'',detail:r.conclusion||''}));
+ rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ if(!rows.length){alert('Tidak ada WO Aktual atau Catatan Manual sesuai filter aktif untuk diekspor.');return}
+ const headers=['Tanggal','Sumber','Kode Master Unit','Equipment Code / Kode Unit','Nomor WO','Deskripsi / Gejala','Diagnosa / Penyebab','Task / Tindakan Perbaikan','Material / Spare Part','Kesimpulan'];
+ const escCell=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+ const table='<table><thead><tr>'+headers.map(h=>'<th>'+escCell(h)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>[r.date,r.source,r.master,r.unit,r.wo,r.description,r.diagnosis,r.task,r.material,r.detail].map(v=>'<td>'+escCell(v)+'</td>').join('')).map(r=>'<tr>'+r+'</tr>').join('')+'</tbody></table>';
+ const filters=`Periode: ${from||'Semua'} s.d. ${to||'Semua'} · Kategori: ${cat?unitCategoryLabel(cat):'Semua kategori'} · Unit: ${u||'Semua unit'} · Total baris: ${rows.length}`;
+ const title='Profil dan Riwayat Unit MBK';
+ if($wo('woHistoryExportFormat').value==='excel'){
+  const blob=new Blob(['\ufeff','<!doctype html><html><head><meta charset="utf-8"></head><body><h2>'+title+'</h2><p>'+escCell(filters)+'</p>'+table+'</body></html>'],{type:'application/vnd.ms-excel;charset=utf-8;'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Profil-Riwayat-Unit-MBK-'+new Date().toISOString().slice(0,10)+'.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);return;
+ }
+ const w=window.open('','_blank');if(!w){alert('Popup diblokir. Izinkan popup untuk membuat PDF.');return}
+ w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:10px Arial;padding:16px;color:#222}table{border-collapse:collapse;width:100%;font-size:8px}th,td{border:1px solid #888;padding:5px;text-align:left;vertical-align:top}th{background:#eee}h1{font-size:18px}@page{size:A4 landscape;margin:10mm}</style></head><body><h1>'+title+'</h1><p>'+escCell(filters)+'</p>'+table+'<script>window.onload=function(){setTimeout(function(){window.print()},250)};<\/script></body></html>');w.document.close();
+}
 window.mbkRefreshWoUnitHistory=renderUnitHistory;
 $wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});// Filter tanggal diterapkan otomatis melalui event change di bawah.
 $wo('woFrom').addEventListener('change',()=>{if(!$wo('woTo').value||$wo('woFrom').value<=$wo('woTo').value){renderAnalytics();renderUnitHistory()}});
 $wo('woTo').addEventListener('change',()=>{if(!$wo('woFrom').value||$wo('woFrom').value<=$wo('woTo').value){renderAnalytics();renderUnitHistory()}});
 $wo('woUnitFilter').addEventListener('change',renderUnitHistory);
 $wo('woCategoryFilter').addEventListener('change',()=>{refreshWoUnitOptions();renderUnitHistory()});
+$wo('woHistoryExportBtn').addEventListener('click',exportWoUnitHistory);
 $wo('woRefreshBtn').addEventListener('click',()=>{
  try{
   // Refresh mengosongkan seluruh filter/pencarian pada bagian Analisis dan Profil Unit,
@@ -2021,6 +2084,8 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 <style id="wo-requested-layout-only">
 #woImportPage #woAnalyticsUnitFilter{min-width:220px;max-width:100%;background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px}
 #woImportPage #woRefreshBtn{background:#1e3a5f;color:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:9px 12px;cursor:pointer}
+#woImportPage #woHistoryExportBtn{background:#14532d;color:#dcfce7;border:1px solid #16a34a;border-radius:8px;padding:9px 12px;cursor:pointer}
+#woImportPage #woHistoryExportFormat{background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px;min-width:92px}
 @media(max-width:760px){#woImportPage #woFrom,#woImportPage #woTo,#woImportPage #woCategoryFilter,#woImportPage #woUnitFilter{flex:1 1 130px;min-width:120px}}
 </style>
 <!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
