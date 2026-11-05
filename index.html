@@ -2007,22 +2007,50 @@ function findMasterUnitForEquipmentCode(code){
 function unitCategory(code){
  const unit=findMasterUnitForEquipmentCode(code);
  if(unit)return unit.t||'';
- const raw=String(code||'').trim();
+ const raw=String(code||'').trim().replace(/[_-]+/g,' ').replace(/\s+/g,' ');
+ if(!raw)return 'X:LAINNYA';
  if(/^forklift\s*baterai\b|^battery\s*forklift\b|^electric\s*forklift\b/i.test(raw))return 'B';
  if(/^forklift\s*diesel\b|^diesel\s*forklift\b|^forklift\s+/i.test(raw))return 'D';
  if(/^traktor\b|^tractor\b/i.test(raw))return 'T';
  if(/^wheel\s*loader\b|^loader\b/i.test(raw))return 'W';
- return '';
+ // Kategori unit non-master diambil dari jenis/nama unit pada Equipment Code.
+ const aliases=[
+  [/^(?:dump|dum)\s*truck\b|^truck\b/i,'TRUCK','Truck'],
+  [/^sepeda\b/i,'SEPEDA','Sepeda'],
+  [/^excavator\b|^excav\b/i,'EXCAVATOR','Excavator'],
+  [/^motor(?:cycle)?\b|^sepeda\s*motor\b/i,'MOTOR','Motor'],
+  [/^crane\b/i,'CRANE','Crane'],
+  [/^grader\b/i,'GRADER','Grader'],
+  [/^bulldozer\b|^dozer\b/i,'DOZER','Dozer'],
+  [/^compactor\b|^roller\b/i,'COMPACTOR','Compactor'],
+  [/^bus\b/i,'BUS','Bus'],
+  [/^mobil\b|^car\b/i,'MOBIL','Mobil'],
+  [/^pickup\b|^pick\s*up\b/i,'PICKUP','Pickup'],
+  [/^l\s*300\b/i,'L300','L300']
+ ];
+ for(const [re,key] of aliases)if(re.test(raw))return 'X:'+key;
+ const first=raw.match(/[A-Za-zÀ-ÿ0-9]+/);
+ if(!first||/^[A-Z]*\d+$/i.test(first[0]))return 'X:LAINNYA';
+ return 'X:'+first[0].toLocaleUpperCase('id-ID');
 }
-function unitCategoryLabel(type){return type==='D'?'Forklift Diesel':type==='B'?'Forklift Baterai':type==='T'?'Traktor':type==='W'?'Wheel Loader':'Kategori tidak diketahui'}
+function unitCategoryLabel(type){
+ const known={D:'Forklift Diesel',B:'Forklift Baterai',T:'Traktor',W:'Wheel Loader'};
+ if(known[type])return known[type];
+ if(String(type||'').startsWith('X:')){const key=type.slice(2);return key==='LAINNYA'?'Lainnya':key==='L300'?'L300':key.charAt(0)+key.slice(1).toLocaleLowerCase('id-ID')}
+ return 'Kategori tidak diketahui';
+}
 function refreshWoUnitOptions(){
- const cat=$wo('woCategoryFilter').value,sel=$wo('woUnitFilter'),chosen=sel.value;
+ const categorySel=$wo('woCategoryFilter'),oldCategory=categorySel.value,sel=$wo('woUnitFilter'),chosen=sel.value;
  const records=Object.values(readStore().records).map(x=>x.current),manual=(typeof breakdownRows!=='undefined'?breakdownRows:[]);
- const options=new Map();
- [...records.map(r=>r.equipmentCode),...manual.map(r=>r.unitCode)].filter(Boolean).forEach(code=>{
-  const master=findMasterUnitForEquipmentCode(code);
-  const value=master?master.c:String(code);
-  const type=master?master.t:unitCategory(code);
+ const codes=[...records.map(r=>r.equipmentCode),...manual.map(r=>r.unitCode)].filter(Boolean);
+ const categories=new Map();
+ codes.forEach(code=>{const type=unitCategory(code);if(type&&!categories.has(type))categories.set(type,unitCategoryLabel(type))});
+ const ordered=[...categories.entries()].sort((a,b)=>a[1].localeCompare(b[1],'id'));
+ categorySel.innerHTML='<option value="">Semua kategori unit</option>'+ordered.map(([v,label])=>`<option value="${esc(v)}">${esc(label)}</option>`).join('');
+ categorySel.value=categories.has(oldCategory)?oldCategory:'';
+ const cat=categorySel.value,options=new Map();
+ codes.forEach(code=>{
+  const master=findMasterUnitForEquipmentCode(code),value=master?master.c:String(code),type=unitCategory(code);
   if(cat&&type!==cat)return;
   const label=master?`${master.c} — ${master.d||master.equipment||unitCategoryLabel(type)}`:String(code);
   if(!options.has(value))options.set(value,label);
