@@ -1987,13 +1987,44 @@ function periodForRecord(r,db){
  const audit=(db.audit||[]).find(a=>(a.changes||[]).some(c=>c.woId===r.woId));
  return audit?periodFromFilename(audit.file):null;
 }
+function explicitDateYear(value){
+ const raw=String(value??'').trim();
+ let m=raw.match(/^(20\d{2})[-/.]\d{1,2}[-/.]\d{1,2}/);if(m)return m[1];
+ m=raw.match(/^\d{1,2}[-/.]\d{1,2}[-/.](20\d{2})/);if(m)return m[1];
+ m=raw.match(/^\d{1,2}\s+[A-Za-z]+\s+(20\d{2})/);if(m)return m[1];
+ return '';
+}
+function reportYearForRecord(r,db){
+ const f=r.fields||{};
+ // Utamakan tahun eksplisit dari tanggal pada baris WO yang sama, bukan tahun filter layar.
+ for(const key of ['actualorderfinish','actualorderstart','ordercreate','orderapproved','planorderfinish','planorderstart','finishdiagnosa','startdiagnosa']){
+  const y=explicitDateYear(f[key]);if(y)return y;
+ }
+ const period=periodForRecord(r,db);
+ if(period){const y=yearFromPeriod(f.actualorderfinish,period);if(y)return y;}
+ // Beberapa report menampilkan tahun hanya pada sebagian baris/tanggal. Ambil tahun
+ // dominan dari tanggal eksplisit WO lain dalam file report yang sama.
+ const years=[];
+ const allItems=Object.values(db.records||{});
+ const relatedItems=r.sourceFilename?allItems.filter(item=>(item.current||{}).sourceFilename===r.sourceFilename):
+  (r.sourcePeriod?allItems.filter(item=>JSON.stringify((item.current||{}).sourcePeriod||null)===JSON.stringify(r.sourcePeriod)):allItems);
+ for(const item of relatedItems){
+  const x=item.current||{},xf=x.fields||{};
+  for(const key of ['actualorderfinish','actualorderstart','ordercreate','orderapproved','planorderfinish','planorderstart']){
+   const y=explicitDateYear(xf[key]);if(y)years.push(y);
+  }
+  const xp=periodForRecord(x,db);if(xp){years.push(String(xp.start.year),String(xp.end.year));}
+ }
+ if(years.length){const counts={};years.forEach(y=>counts[y]=(counts[y]||0)+1);return Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||Number(b)-Number(a))[0];}
+ return '';
+}
 function filteredRecords(){
  const db=readStore(),from=$wo('woFrom').value,to=$wo('woTo').value;
  return Object.values(db.records).map(x=>x.current).filter(r=>{
+  const year=reportYearForRecord(r,db);
   const period=periodForRecord(r,db);
-  const orderYear=(dateKey(r.fields?.ordercreate)||'').slice(0,4);
   const finishYear=yearFromPeriod(r.fields?.actualorderfinish,period);
-  const d=dateKey(r.fields?.actualorderfinish,orderYear||finishYear);
+  const d=dateKey(r.fields?.actualorderfinish,year||finishYear);
   return !!d&&(!from||d>=from)&&(!to||d<=to);
  });
 }
@@ -2100,10 +2131,11 @@ function exportWoUnitHistory(){
  const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value,from=$wo('woFrom').value,to=$wo('woTo').value;
  const store=readStore();
  const wos=filteredRecords().filter(x=>woRecordMatchesUnitFilter(x,u)&&(!cat||unitCategory(x.equipmentCode)===cat));
- const dateFor=r=>{const period=periodForRecord(r,store),year=(dateKey(r.fields?.ordercreate)||'').slice(0,4),finishYear=yearFromPeriod(r.fields?.actualorderfinish,period);return dateKey(r.fields?.actualorderfinish,year||finishYear)};
+ const dateFor=r=>{const period=periodForRecord(r,store),year=reportYearForRecord(r,store),finishYear=yearFromPeriod(r.fields?.actualorderfinish,period);return dateKey(r.fields?.actualorderfinish,year||finishYear)};
+ const technicianFor=r=>{const fields=r.fields||{};for(const [key,value] of Object.entries(fields)){if(norm(key)==='assignedto'&&!blank(value))return String(value).trim()}for(const key of ['assignedto','assignedTo','assigned_to','technician','technicianName','assigned']){if(!blank(fields[key]))return String(fields[key]).trim()}return '';};
  const prettyDate=v=>{if(!v)return '';const m=String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return String(v);const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return `${Number(m[3])} ${months[Number(m[2])-1]} ${m[1]}`};
  const escCell=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
- const rows=wos.map(r=>{const hm=splitDescriptionHM(r.fields?.description||'');const tasks=(r.tasks||[]).map((t,i)=>`${i+1}. ${t.taskDesc||t.taskCode||'Task tanpa uraian'}`).filter(Boolean);const estimates=[...new Set((r.tasks||[]).map(t=>String(t.estimatedTime||'').trim()).filter(Boolean))];return {date:dateFor(r),unit:r.equipmentCode||'',wo:r.woId||'',description:hm.description||r.fields?.description||'',taskDesc:tasks.join('\n'),technician:r.fields?.assignedto||'',hm:hm.hm.replace(/^HM\s*[:=\-]?\s*/i,'').replace(/\s*HM$/i,''),duration:r.fields?.actualordertime||'',estimate:estimates.join('; '),raw:r};}).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ const rows=wos.map(r=>{const hm=splitDescriptionHM(r.fields?.description||'');const tasks=(r.tasks||[]).map((t,i)=>`${i+1}. ${t.taskDesc||t.taskCode||'Task tanpa uraian'}`).filter(Boolean);const estimates=[...new Set((r.tasks||[]).map(t=>String(t.estimatedTime||'').trim()).filter(Boolean))];return {date:dateFor(r),unit:r.equipmentCode||'',wo:r.woId||'',description:hm.description||r.fields?.description||'',taskDesc:tasks.join('\n'),technician:technicianFor(r),hm:hm.hm.replace(/^HM\s*[:=\-]?\s*/i,'').replace(/\s*HM$/i,''),duration:r.fields?.actualordertime||'',estimate:estimates.join('; '),raw:r};}).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
  if(!rows.length){alert('Tidak ada WO Aktual sesuai filter aktif untuk diekspor.');return}
  const filters=`Periode WO selesai: ${from||'Semua'} - ${to||'Semua'} | Kategori: ${cat?unitCategoryLabel(cat):'Semua kategori'} | Unit: ${u||'Semua unit'}`;
  const title='PROFIL & RIWAYAT UNIT — WO Aktual MBK';
