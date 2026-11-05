@@ -1096,6 +1096,7 @@ function ask(msg,ok,o){o=o||{};const md=$('md'),mi=$('mi');$('mt').textContent=m
  if(o.need)mi.focus()}
 
 let db=null,canWrite=null,shared={},auth=null,currentUser=null,currentRole=null;
+window.db=null;window.currentUser=null;window.currentRole=null;window.firestoreErrorText=firestoreErrorText;
 let breakdownRows=[],rescheduleRows=[],dailyServiceRows=[],workflowUnsubs=[];
 let editingBreakdownId=null;
 let editingDailyServiceId=null;
@@ -1119,7 +1120,7 @@ function banner(){
 }
 function showAuth(message=''){ $('authGate').hidden=false; $('appShell').hidden=true; $('authMsg').textContent=message; }
 function showApp(user,role){
- currentUser=user; currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false; if($('dailyServiceNav'))$('dailyServiceNav').hidden=true; if($('dailyServicePage'))$('dailyServicePage').hidden=true; initWorkflowForms(); renderWorkflowLists();
+ currentUser=user; currentRole=role; window.db=db; window.currentUser=user; window.currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false; if($('dailyServiceNav'))$('dailyServiceNav').hidden=true; if($('dailyServicePage'))$('dailyServicePage').hidden=true; initWorkflowForms(); renderWorkflowLists();
  $('userBadge').textContent=(user.email||user.uid)+' · '+({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja',supervisor:'Supervisor',head_bengkel:'Kepala Bengkel',kepala_bengkel:'Kepala Bengkel'}[role]||role);
  banner(); render();
 }
@@ -1132,13 +1133,19 @@ $('logoutBtn').addEventListener('click',()=>auth.signOut());
 if(!firebaseConfigReady){showAuth('Setup diperlukan: konfigurasi Firebase belum diisi.');banner();}
 else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
  auth.onAuthStateChanged(async user=>{
-  if(!user){workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];breakdownRows=[];rescheduleRows=[];currentUser=null;currentRole=null;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
+  if(!user){workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];breakdownRows=[];rescheduleRows=[];currentUser=null;currentRole=null;window.currentUser=null;window.currentRole=null;window.db=db;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
   try{const profile=await db.collection('users').doc(user.uid).get();const role=profile.exists?profile.data().role:null;
    if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
    showApp(user,role);
    db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error('Firestore downtime:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection downtime: '+firestoreErrorText(err),'error')});
    db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
    workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];
+   if(window.mbkSetWoCloudRecords){
+    workflowUnsubs.push(db.collection('wo_import_records').onSnapshot(sn=>{
+     const cloudRecords=sn.docs.map(d=>({id:d.id,...d.data()}));
+     window.mbkSetWoCloudRecords(cloudRecords);
+    },err=>{console.error('WO import listener:',err);setFirestoreMessage('woImportStatus','Gagal membaca data WO dari Firebase: '+firestoreErrorText(err),'error')}));
+   }
    if(role==='admin')workflowUnsubs.push(db.collection('daily_service_records').orderBy('serviceDate','desc').limit(500).onSnapshot(sn=>{dailyServiceRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderDailyServiceList();setFirestoreMessage('dailyServiceStatus','Rekap servis berhasil disinkronkan.','success')},err=>{console.error('Rekap servis listener:',err);const msg='Gagal membaca rekap servis: '+firestoreErrorText(err);if($('dailyServiceList'))$('dailyServiceList').innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>';setFirestoreMessage('dailyServiceStatus',msg,'error')}));
    workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Data breakdown berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Breakdown listener:',err);const msg='Gagal membaca laporan breakdown: '+firestoreErrorText(err);['breakdownList','breakdownHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('breakdownDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
    workflowUnsubs.push(db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Data pengajuan berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Reschedule listener:',err);const msg='Gagal membaca pengajuan PM: '+firestoreErrorText(err);['rescheduleList','rescheduleHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('rescheduleDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
@@ -1916,8 +1923,49 @@ function preview(){const f=$wo('woExcelFile').files[0];if(!f){alert('Pilih file 
  
  }catch(err){pending=null;$wo('woCommitBtn').disabled=true;$wo('woImportStatus').textContent='Gagal membaca file: '+err.message}}
  reader.readAsArrayBuffer(f)}
-function commit(){if(!pending)return;const db=readStore(),c=classify(pending.records),now=new Date().toISOString(),changes=[];for(const r of c.fresh){db.records[r.woId]={current:r,createdAt:now,updatedAt:now,versions:[{at:now,source:'import',data:r}]};changes.push({woId:r.woId,type:'baru'})}for(const x of c.updated){const rec=db.records[x.record.woId];rec.current=x.record;rec.updatedAt=now;rec.versions=rec.versions||[];rec.versions.push({at:now,source:'import',data:x.record});changes.push({woId:x.record.woId,type:'diperbarui'})}
- db.audit.unshift({at:now,file:$wo('woExcelFile').files[0]?.name||'File Excel',period:'Berdasarkan Actual Order Finish',total:Object.keys(pending.records).length,new:c.fresh.length,updated:c.updated.length,same:c.same.length,unmatched:c.unmatched.length,errors:pending.errors.length,changes});writeStore(db);pending=null;$wo('woCommitBtn').disabled=true;$wo('woImportStatus').textContent='Impor uji tersimpan di browser. '+summaryHtml(Object.fromEntries(Object.entries(db.records).map(([k,v])=>[k,v.current])));renderSaved();alert('Impor uji selesai. Data tersimpan lokal di browser ini, belum ke Firebase.')}
+async function commit(){
+ if(!pending)return;
+ if(!window.db||!window.currentUser){alert('Sesi Firebase belum aktif. Silakan login ulang sebelum menyimpan impor.');return}
+ if(!['admin','technician'].includes(window.currentRole)){alert('Hanya admin atau teknisi yang dapat menyimpan impor WO ke Firebase.');return}
+ const local=readStore();
+ const btn=$wo('woCommitBtn');btn.disabled=true;$wo('woImportStatus').textContent='Memeriksa data WO yang sudah ada di Firebase…';
+ try{
+  const cloudSnapshot=await window.db.collection('wo_import_records').get();
+  cloudSnapshot.docs.forEach(doc=>{const row=doc.data();if(!row||!row.woId||!row.current)return;const key=String(row.woId),existing=local.records[key];if(!existing||String(existing.updatedAt||'')<String(row.updatedAt||'')){local.records[key]={current:row.current,createdAt:row.createdAt||'',updatedAt:row.updatedAt||'',versions:Array.isArray(row.versions)?row.versions:[]}}});
+ }catch(readErr){btn.disabled=false;$wo('woImportStatus').textContent='Tidak dapat membaca data WO di Firebase: '+(window.firestoreErrorText?window.firestoreErrorText(readErr):readErr.message);alert('Impor dibatalkan karena data lama di Firebase tidak dapat dibaca. Tidak ada data yang ditulis. Periksa izin baca collection wo_import_records.');return}
+ const c=classify(pending.records),now=new Date().toISOString(),changes=[];
+ for(const r of c.fresh){local.records[r.woId]={current:r,createdAt:now,updatedAt:now,versions:[{at:now,source:'import',data:r}]};changes.push({woId:r.woId,type:'baru'})}
+ for(const x of c.updated){const rec=local.records[x.record.woId];rec.current=x.record;rec.updatedAt=now;rec.versions=rec.versions||[];rec.versions.push({at:now,source:'import',data:x.record});changes.push({woId:x.record.woId,type:'diperbarui'})}
+ const audit={at:now,file:$wo('woExcelFile').files[0]?.name||'File Excel',period:'Berdasarkan Actual Order Finish',total:Object.keys(pending.records).length,new:c.fresh.length,updated:c.updated.length,same:c.same.length,unmatched:c.unmatched.length,errors:pending.errors.length,changes};
+ $wo('woImportStatus').textContent='Menyimpan '+Object.keys(local.records).length+' WO ke Firebase…';
+ try{
+  const entries=Object.entries(local.records),chunkSize=400;
+  for(let i=0;i<entries.length;i+=chunkSize){
+   const batch=window.db.batch();
+   entries.slice(i,i+chunkSize).forEach(([woId,record])=>{
+    const docId=btoa(unescape(encodeURIComponent(String(woId)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    batch.set(window.db.collection('wo_import_records').doc(docId),{woId:String(woId),current:record.current,createdAt:record.createdAt||now,updatedAt:record.updatedAt||now,versions:record.versions||[],source:'official_wo_import',updatedByUid:window.currentUser.uid,updatedByEmail:window.currentUser.email||''},{merge:true});
+   });
+   await batch.commit();
+  }
+  await window.db.collection('audit_logs').add({action:'wo_report_imported',entityType:'wo_import_records',entityId:'batch-'+now.replace(/[^0-9]/g,''),details:{...audit,recordCount:entries.length},actorUid:window.currentUser.uid,actorEmail:window.currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  local.audit.unshift(audit);writeStore(local);pending=null;btn.disabled=true;
+  $wo('woImportStatus').textContent='Impor berhasil disimpan ke Firebase. '+summaryHtml(Object.fromEntries(Object.entries(local.records).map(([k,v])=>[k,v.current])));
+  renderSaved();alert('Impor berhasil. Data WO dan riwayat impor sudah tersimpan di Firebase.');
+ }catch(err){
+  console.error('Simpan impor WO ke Firebase:',err);btn.disabled=false;
+  $wo('woImportStatus').textContent='Gagal menyimpan ke Firebase: '+(window.firestoreErrorText?window.firestoreErrorText(err):(err.message||String(err)))+'. Data belum dinyatakan tersimpan; periksa Firestore Rules untuk wo_import_records dan audit_logs.';
+  alert('Impor belum tersimpan ke Firebase.\n'+(err.code||'')+' '+(err.message||String(err))+'\nPeriksa Firestore Rules. Pratinjau tetap tersedia, silakan perbaiki akses lalu coba Simpan lagi.');
+ }
+}
+function setCloudRecords(cloudRows){
+ const local=readStore();let changed=false;
+ (cloudRows||[]).forEach(row=>{if(!row||!row.woId||!row.current)return;const key=String(row.woId),existing=local.records[key];
+  if(!existing||String(existing.updatedAt||'')<String(row.updatedAt||'')){local.records[key]={current:row.current,createdAt:row.createdAt||'',updatedAt:row.updatedAt||'',versions:Array.isArray(row.versions)?row.versions:[]};changed=true}
+ });
+ if(changed)writeStore(local);renderSaved();
+}
+window.mbkSetWoCloudRecords=setCloudRecords;
 function renderSaved(){const db=readStore(),all=Object.values(db.records).map(x=>x.current),totalTask=all.reduce((n,x)=>n+x.tasks.length,0),totalMat=all.reduce((n,x)=>n+x.materials.length,0),units=[...new Set(all.map(x=>x.equipmentCode).filter(Boolean))];$wo('woTotal').textContent=fmt(all.length);$wo('woTaskTotal').textContent=fmt(totalTask);$wo('woMaterialTotal').textContent=fmt(totalMat);$wo('woUnitTotal').textContent=fmt(units.length);
  refreshWoUnitOptions();
  const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');$wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';renderAnalytics();renderUnitHistory();}
