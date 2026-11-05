@@ -2100,43 +2100,34 @@ function exportWoUnitHistory(){
  const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value,from=$wo('woFrom').value,to=$wo('woTo').value;
  const store=readStore();
  const wos=filteredRecords().filter(x=>woRecordMatchesUnitFilter(x,u)&&(!cat||unitCategory(x.equipmentCode)===cat));
- const dateFor=r=>{
-  const period=periodForRecord(r,store),year=(dateKey(r.fields?.ordercreate)||'').slice(0,4),finishYear=yearFromPeriod(r.fields?.actualorderfinish,period);
-  return dateKey(r.fields?.actualorderfinish,year||finishYear);
- };
- const clean=v=>String(v==null?'':v);
- const rows=wos.map(r=>{
-  const hm=splitDescriptionHM(r.fields?.description||'');
-  return {date:dateFor(r),unit:r.equipmentCode||'',master:findMasterUnitForEquipmentCode(r.equipmentCode)?.c||'',wo:r.woId||'',orderCreate:r.fields?.ordercreate||'',orderApproved:r.fields?.orderapproved||'',assignedTo:r.fields?.assignedto||'',slot:r.fields?.slot||'',location:r.fields?.location||'',description:hm.description,hm:hm.hm.replace(/^HM\s*[:=\-]?\s*/i,'').replace(/\s*HM$/i,''),diagnosis:r.fields?.diagnosa||'',diagnosisStart:r.fields?.startdiagnosa||'',diagnosisFinish:r.fields?.finishdiagnosa||'',orderStart:r.fields?.actualorderstart||'',orderFinish:r.fields?.actualorderfinish||'',finishApproved:r.fields?.actualorderfinishapproved||'',actualOrderTime:r.fields?.actualordertime||'',planStart:r.fields?.planorderstart||'',planFinish:r.fields?.planorderfinish||'',totalTaskTime:r.fields?.totaltasktime||'',planVsActual:r.fields?.planvsactual||'',taskCount:(r.tasks||[]).length,materialCount:(r.materials||[]).length};
- }).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
- if(!rows.length){alert('Tidak ada WO Aktual sesuai filter aktif untuk diekspor.');return}
- const filters=`Periode: ${from||'Semua'} s.d. ${to||'Semua'} | Kategori: ${cat?unitCategoryLabel(cat):'Semua kategori'} | Unit: ${u||'Semua unit'} | Total WO: ${rows.length}`;
- const title='Profil & Riwayat Unit — WO Aktual MBK';
- const summaryHeaders=['Tanggal Selesai','Kode Master Unit','Equipment Code','WO ID','Slot','Lokasi','Tanggal Buat WO','Tanggal Approval','Assigned To','Deskripsi Pekerjaan','HM/Odometer','Diagnosa','Mulai Diagnosa','Selesai Diagnosa','Aktual Mulai','Aktual Selesai','Approval Selesai','Durasi Aktual','Rencana Mulai','Rencana Selesai','Total Waktu Task','Plan vs Actual','Jumlah Task','Jumlah Material'];
- const summaryData=rows.map(r=>[r.date,r.master,r.unit,r.wo,r.slot,r.location,r.orderCreate,r.orderApproved,r.assignedTo,r.description,r.hm,r.diagnosis,r.diagnosisStart,r.diagnosisFinish,r.orderStart,r.orderFinish,r.finishApproved,r.actualOrderTime,r.planStart,r.planFinish,r.totalTaskTime,r.planVsActual,r.taskCount,r.materialCount]);
- const taskHeaders=['Tanggal Selesai WO','Equipment Code','WO ID','Task Code','Deskripsi Task','Task Mulai','Task Selesai','Estimasi Waktu'];
- const taskData=[];wos.forEach(r=>(r.tasks||[]).forEach(t=>taskData.push([dateFor(r),r.equipmentCode||'',r.woId||'',t.taskCode||'',t.taskDesc||'',t.taskStart||'',t.taskFinish||'',t.estimatedTime||''])));
- const materialHeaders=['Tanggal Selesai WO','Equipment Code','WO ID','Kode Part','Nama Material','Qty'];
- const materialData=[];wos.forEach(r=>(r.materials||[]).forEach(m=>materialData.push([dateFor(r),r.equipmentCode||'',r.woId||'',m.partCode||'',m.item||'',m.qty??''])));
+ const dateFor=r=>{const period=periodForRecord(r,store),year=(dateKey(r.fields?.ordercreate)||'').slice(0,4),finishYear=yearFromPeriod(r.fields?.actualorderfinish,period);return dateKey(r.fields?.actualorderfinish,year||finishYear)};
+ const prettyDate=v=>{if(!v)return '';const m=String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return String(v);const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return `${Number(m[3])} ${months[Number(m[2])-1]} ${m[1]}`};
  const escCell=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+ const rows=wos.map(r=>{const hm=splitDescriptionHM(r.fields?.description||'');const tasks=(r.tasks||[]).map((t,i)=>`${i+1}. ${t.taskDesc||t.taskCode||'Task tanpa uraian'}`).filter(Boolean);const estimates=[...new Set((r.tasks||[]).map(t=>String(t.estimatedTime||'').trim()).filter(Boolean))];return {date:dateFor(r),unit:r.equipmentCode||'',wo:r.woId||'',description:hm.description||r.fields?.description||'',taskDesc:tasks.join('\n'),technician:r.fields?.assignedto||'',hm:hm.hm.replace(/^HM\s*[:=\-]?\s*/i,'').replace(/\s*HM$/i,''),duration:r.fields?.actualordertime||'',estimate:estimates.join('; '),raw:r};}).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ if(!rows.length){alert('Tidak ada WO Aktual sesuai filter aktif untuk diekspor.');return}
+ const filters=`Periode WO selesai: ${from||'Semua'} - ${to||'Semua'} | Kategori: ${cat?unitCategoryLabel(cat):'Semua kategori'} | Unit: ${u||'Semua unit'}`;
+ const title='PROFIL & RIWAYAT UNIT — WO Aktual MBK';
+ const unitCount=new Set(rows.map(r=>r.unit).filter(Boolean)).size;
+ const recapHeaders=['No.','Selesai','Unit','WO ID','Deskripsi pekerjaan (user)','Deskripsi task (teknisi)','Teknisi','HM / KM','Durasi aktual','Estimasi'];
+ const recapData=rows.map((r,i)=>[i+1,prettyDate(r.date),r.unit,r.wo,r.description,r.taskDesc,r.technician,r.hm,r.duration,r.estimate]);
+ const taskHeaders=['Tanggal selesai','Unit','WO ID','Task Code','Deskripsi Task','Task Mulai','Task Selesai','Estimasi'];
+ const taskData=[];wos.forEach(r=>(r.tasks||[]).forEach(t=>taskData.push([prettyDate(dateFor(r)),r.equipmentCode||'',r.woId||'',t.taskCode||'',t.taskDesc||'',t.taskStart||'',t.taskFinish||'',t.estimatedTime||''])));
+ const materialHeaders=['No.','WO ID','Unit','Selesai','No Material','Nama material','Qty'];
+ const materialData=[];let materialNo=0;rows.forEach(r=>(r.raw.materials||[]).forEach(m=>materialData.push([++materialNo,r.wo,r.unit,prettyDate(r.date),m.partCode||'',m.item||'',m.qty??''])));
  if($wo('woHistoryExportFormat').value==='excel'){
   if(!window.XLSX){alert('Fitur Excel belum siap. Periksa koneksi internet lalu muat ulang halaman.');return}
   const wb=XLSX.utils.book_new();
-  const addSheet=(name,headers,data)=>{const ws=XLSX.utils.aoa_to_sheet([[title],[filters],[],headers,...data]);ws['!cols']=headers.map((h,i)=>({wch:Math.min(36,Math.max(14,String(h).length+3))}));XLSX.utils.book_append_sheet(wb,ws,name)};
-  addSheet('Ringkasan WO',summaryHeaders,summaryData);
-  addSheet('Detail Task',taskHeaders,taskData);
-  addSheet('Detail Material',materialHeaders,materialData);
-  XLSX.writeFile(wb,'Profil-Riwayat-WO-Unit-MBK-'+new Date().toISOString().slice(0,10)+'.xlsx');return;
+  const addSheet=(name,headers,data,widths)=>{const ws=XLSX.utils.aoa_to_sheet([[title],[filters],[`Total WO selesai: ${rows.length} | Unit ditangani: ${unitCount}`],[],headers,...data]);ws['!cols']=widths.map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,name)};
+  addSheet('Rekap WO',recapHeaders,recapData,[6,16,12,18,36,42,20,16,18,18]);
+  addSheet('Detail Task',taskHeaders,taskData,[16,12,18,16,42,20,20,18]);
+  addSheet('Material',materialHeaders,materialData,[6,18,12,16,18,42,10]);
+  XLSX.writeFile(wb,'Laporan-WO-Aktual-MBK-'+new Date().toISOString().slice(0,10)+'.xlsx');return;
  }
- const pdfGroups=[
-  {title:'Identitas & pekerjaan WO',idx:[0,1,2,3,4,5,6,7,8,9,10,11]},
-  {title:'Waktu pelaksanaan & indikator',idx:[3,12,13,14,15,16,17,18,19,20,21,22,23]}
- ];
- const pdfSummary=pdfGroups.map(g=>'<h2>'+g.title+'</h2><table><thead><tr>'+g.idx.map(i=>'<th>'+escCell(summaryHeaders[i])+'</th>').join('')+'</tr></thead><tbody>'+summaryData.map(row=>'<tr>'+g.idx.map(i=>'<td>'+escCell(row[i])+'</td>').join('')+'</tr>').join('')+'</tbody></table>').join('');
- const taskTable='<h2>Rincian Task</h2><table><thead><tr>'+taskHeaders.map(h=>'<th>'+escCell(h)+'</th>').join('')+'</tr></thead><tbody>'+(taskData.length?taskData.map(row=>'<tr>'+row.map(v=>'<td>'+escCell(v)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="8">Tidak ada rincian Task.</td></tr>')+'</tbody></table>';
- const materialTable='<h2>Rincian Material</h2><table><thead><tr>'+materialHeaders.map(h=>'<th>'+escCell(h)+'</th>').join('')+'</tr></thead><tbody>'+(materialData.length?materialData.map(row=>'<tr>'+row.map(v=>'<td>'+escCell(v)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="6">Tidak ada rincian Material.</td></tr>')+'</tbody></table>';
+ const recapRows=recapData.map(row=>'<tr>'+row.map((v,i)=>'<td class="c'+i+'">'+escCell(v).replace(/\n/g,'<br>')+'</td>').join('')+'</tr>').join('');
+ const materialRows=materialData.map(row=>'<tr>'+row.map(v=>'<td>'+escCell(v)+'</td>').join('')+'</tr>').join('');
+ const materialTable='<h2>Rincian spare part per WO</h2><table class="materials"><thead><tr>'+materialHeaders.map(h=>'<th>'+escCell(h)+'</th>').join('')+'</tr></thead><tbody>'+(materialRows||'<tr><td colspan="7">Tidak ada material/spare part pada WO terpilih.</td></tr>')+'</tbody></table>';
  const w=window.open('','_blank');if(!w){alert('Popup diblokir. Izinkan popup untuk membuat PDF.');return}
- w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:9px Arial,sans-serif;color:#111;margin:0;padding:8mm}h1{font-size:16px;margin:0 0 6px}h2{font-size:12px;margin:14px 0 6px}.meta{font-size:9px;margin-bottom:10px}table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:8px;margin:5px 0 12px;page-break-inside:auto}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #888;padding:3px;text-align:left;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}th{background:#eee}td{white-space:pre-wrap}@page{size:A4 landscape;margin:8mm}@media print{body{padding:0}}</style></head><body><h1>'+title+'</h1><div class="meta">'+escCell(filters)+'</div>'+pdfSummary+taskTable+materialTable+'<script>window.onload=function(){setTimeout(function(){window.print()},300)};<\/script></body></html>');w.document.close();
+ w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+title+'</title><style>*{box-sizing:border-box}body{font:8px Arial,sans-serif;color:#111;margin:0;padding:7mm}h1{font-size:15px;margin:0 0 4px}h2{font-size:11px;margin:12px 0 5px}.meta{font-size:8px;margin-bottom:7px}.summary{font-size:9px;font-weight:bold;margin:7px 0 9px}table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:7.5px;margin:4px 0 10px}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #888;padding:3px;text-align:left;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}th{background:#e9edf2}td{white-space:normal}.recap th:nth-child(1){width:3%}.recap th:nth-child(2){width:8%}.recap th:nth-child(3){width:6%}.recap th:nth-child(4){width:9%}.recap th:nth-child(5){width:15%}.recap th:nth-child(6){width:20%}.recap th:nth-child(7){width:9%}.recap th:nth-child(8){width:8%}.recap th:nth-child(9){width:9%}.recap th:nth-child(10){width:8%}.materials th:nth-child(1){width:5%}.materials th:nth-child(2){width:15%}.materials th:nth-child(3){width:8%}.materials th:nth-child(4){width:12%}.materials th:nth-child(5){width:15%}.materials th:nth-child(6){width:38%}.materials th:nth-child(7){width:7%}@page{size:A4 landscape;margin:7mm}@media print{body{padding:0}}</style></head><body><h1>'+title+'</h1><div class="meta">Bengkel Kendaraan (MBK) | '+escCell(filters)+' | Sumber: Profil & Riwayat Unit - WO Aktual MBK</div><div class="summary">Total WO selesai: '+rows.length+' &nbsp;&nbsp;&nbsp; Unit ditangani: '+unitCount+'</div><h2>Rekap WO per unit</h2><table class="recap"><thead><tr>'+recapHeaders.map(h=>'<th>'+escCell(h)+'</th>').join('')+'</tr></thead><tbody>'+recapRows+'</tbody></table>'+materialTable+'<script>window.onload=function(){setTimeout(function(){window.print()},300)};<\/script></body></html>');w.document.close();
 }
 window.mbkRefreshWoUnitHistory=renderUnitHistory;
 $wo('woPreviewBtn').addEventListener('click',preview);$wo('woCommitBtn').addEventListener('click',commit);$wo('woClearPreview').addEventListener('click',()=>{pending=null;$wo('woCommitBtn').disabled=true;$wo('woPreviewTable').innerHTML='';$wo('woPreviewSummary').textContent='Belum ada pratinjau.';$wo('woImportStatus').textContent='Pratinjau dibersihkan.'});// Filter tanggal diterapkan otomatis melalui event change di bawah.
