@@ -1033,11 +1033,17 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div><label for="rateMonth">Periode pembaruan</label><input type="month" id="rateMonth" value="2026-11"></div>
       <div style="display:flex;align-items:end"><button type="button" class="pdf-btn" id="rateUpdateBtn"><i class="fa-solid fa-rotate"></i> Hitung &amp; Simpan Bulanan</button></div>
     </div>
+    <div class="wo-tools" id="rateFilterTools" style="margin:12px 0;align-items:end">
+      <div style="min-width:190px"><label for="rateCategoryFilter">Jenis unit</label><select id="rateCategoryFilter" aria-label="Filter jenis unit"><option value="">Semua jenis unit</option></select></div>
+      <div style="min-width:190px"><label for="rateUnitFilter">Kode unit</label><select id="rateUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select></div>
+      <div style="min-width:220px;flex:1"><label for="rateSearch">Cari unit</label><input type="search" id="rateSearch" placeholder="Cari kode atau nama unit…" aria-label="Cari kode atau nama unit"></div>
+      <button type="button" id="rateFilterReset" title="Reset filter">Reset Filter</button>
+    </div>
     <div id="rateStatus" class="firestore-message" role="status" aria-live="polite">Pilih periode lalu hitung laju kerja dari catatan HM WO Aktual.</div>
     <div class="wo-kpi-grid" id="rateKpis"><div class="wo-kpi"><small>Unit berhasil dihitung</small><strong id="rateUnitCount">0</strong></div><div class="wo-kpi"><small>Belum cukup data</small><strong id="rateInsufficientCount">0</strong></div><div class="wo-kpi"><small>WO dengan HM valid</small><strong id="rateReadingCount">0</strong></div><div class="wo-kpi"><small>Periode</small><strong id="ratePeriodLabel">—</strong></div></div>
     <div class="wo-panel"><h3>Hasil pembaruan periode</h3><div id="rateResults" class="wo-table-wrap"><div class="workflow-empty">Belum ada hasil perhitungan.</div></div></div>
-    <div class="wo-panel" style="margin-top:12px"><h3>Riwayat tren laju kerja</h3><div class="wo-tools"><label for="rateUnitFilter">Pilih unit</label><select id="rateUnitFilter"><option value="">Semua unit</option></select></div><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Belum ada snapshot bulanan.</div></div></div>
-    <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Laju = (HM terakhir − HM pertama) ÷ selisih hari kalender. Jika hanya ada satu catatan, nol hari, atau HM menurun, status menjadi Data HM Belum Cukup / Perlu Pemeriksaan dan snapshot sebelumnya tidak ditimpa dengan nilai kosong.</p>
+    <div class="wo-panel" style="margin-top:12px"><h3>Riwayat tren laju kerja</h3><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Belum ada snapshot bulanan.</div></div></div>
+    <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Laju = (HM terakhir − HM pertama) ÷ selisih hari kalender. Unit tanpa pencatatan HM tetap ditampilkan dengan status Belum Ada Update HM. Jika hanya ada satu catatan, nol hari, atau HM menurun, status menjadi Data HM Belum Cukup / Perlu Pemeriksaan.</p>
   </section>
 
   <section class="card" id="unitDirectoryCard" data-view="units" hidden>
@@ -1796,41 +1802,60 @@ function rateUnitForRecord(record){
 }
 function collectMonthlyRateRows(month){
  const store=readStore(),grouped=new Map();
+ // Siapkan seluruh unit master lebih dahulu agar unit tanpa HM tidak hilang dari pemantauan.
+ DATA.forEach(unit=>grouped.set(unit.c,{unit,readings:[]}));
  Object.values(store.records||{}).forEach(item=>{
   const r=item?.current||item;if(!r)return;
   const date=reportImportedWoDate(r);if(!date||date.slice(0,7)!==month)return;
   const hm=parseRateHm(r);if(hm===null)return;
   const unit=rateUnitForRecord(r);if(!unit)return;
-  if(!grouped.has(unit.c))grouped.set(unit.c,{unit,readings:[]});
   grouped.get(unit.c).readings.push({date,hm,wo:r.woId||''});
  });
  return [...grouped.values()].map(x=>{
   x.readings.sort((a,b)=>a.date.localeCompare(b.date)||a.hm-b.hm);
   const first=x.readings[0],last=x.readings[x.readings.length-1],days=first&&last?(Date.parse(last.date+'T00:00:00Z')-Date.parse(first.date+'T00:00:00Z'))/86400000:0;
-  let rate=null,status='Data HM Belum Cukup';
-  if(x.readings.length>=2&&days>0&&last.hm>=first.hm){rate=(last.hm-first.hm)/days;status='Valid'}
+  let rate=null,status='Belum Ada Update HM';
+  if(x.readings.length===1)status='Data HM Belum Cukup';
+  else if(x.readings.length>=2&&days>0&&last.hm>=first.hm){rate=(last.hm-first.hm)/days;status='Valid'}
   else if(x.readings.length>=2&&last.hm<first.hm)status='Perlu Pemeriksaan (HM menurun)';
+  else if(x.readings.length>=2)status='Data HM Belum Cukup';
   return {unitCode:x.unit.c,unitName:x.unit.d||'',category:x.unit.t,readingCount:x.readings.length,firstHM:first?.hm??null,lastHM:last?.hm??null,firstDate:first?.date||'',lastDate:last?.date||'',days,rate,status,woIds:x.readings.map(y=>y.wo)};
  }).sort((a,b)=>a.unitCode.localeCompare(b.unitCode,'id',{numeric:true}));
 }
+function rateTypeLabel(type){return ({D:'Forklift Diesel',B:'Forklift Baterai',T:'Traktor',W:'Wheel Loader'})[type]||'Jenis unit lainnya'}
+function rateFilteredRows(rows){
+ const type=$('rateCategoryFilter')?.value||'',code=$('rateUnitFilter')?.value||'',q=String($('rateSearch')?.value||'').trim().toLocaleLowerCase('id-ID');
+ return (rows||[]).filter(x=>(!type||x.category===type)&&(!code||x.unitCode===code)&&(!q||String(x.unitCode+' '+x.unitName).toLocaleLowerCase('id-ID').includes(q)));
+}
+function refreshRateFilterOptions(){
+ const typeSel=$('rateCategoryFilter'),unitSel=$('rateUnitFilter');if(!typeSel||!unitSel)return;
+ const oldType=typeSel.value,oldUnit=unitSel.value;
+ const types=[...new Set(DATA.map(x=>x.t).filter(Boolean))].sort((a,b)=>rateTypeLabel(a).localeCompare(rateTypeLabel(b),'id'));
+ typeSel.innerHTML='<option value="">Semua jenis unit</option>'+types.map(t=>'<option value="'+escapeHtml(t)+'">'+escapeHtml(rateTypeLabel(t))+'</option>').join('');
+ typeSel.value=types.includes(oldType)?oldType:'';
+ const units=DATA.filter(x=>!typeSel.value||x.t===typeSel.value).sort((a,b)=>a.c.localeCompare(b.c,'id',{numeric:true}));
+ unitSel.innerHTML='<option value="">Semua unit</option>'+units.map(x=>'<option value="'+escapeHtml(x.c)+'">'+escapeHtml(x.c+' — '+(x.d||''))+'</option>').join('');
+ unitSel.value=units.some(x=>x.c===oldUnit)?oldUnit:'';
+}
+
 function rateMonthLabel(month){const [y,m]=month.split('-').map(Number);return new Date(Date.UTC(y,m-1,1)).toLocaleDateString('id-ID',{month:'long',year:'numeric',timeZone:'UTC'});}
 function renderRateAnalysis(){
  const month=$('rateMonth')?.value||'2026-11',snaps=readRateSnapshots(),snap=snaps[month];
+ refreshRateFilterOptions();
+ const allRows=snap?.rows||[],rows=rateFilteredRows(allRows);
  $('ratePeriodLabel').textContent=month;
- const rows=snap?.rows||[];
  $('rateUnitCount').textContent=rows.filter(x=>x.status==='Valid').length;
  $('rateInsufficientCount').textContent=rows.filter(x=>x.status!=='Valid').length;
  $('rateReadingCount').textContent=rows.reduce((n,x)=>n+(x.readingCount||0),0);
- $('rateResults').innerHTML=rows.length?'<table><thead><tr><th>Unit</th><th>HM awal</th><th>HM akhir</th><th>Rentang hari</th><th>Catatan HM</th><th>Laju kerja</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>'<tr><td><b>'+escapeHtml(x.unitCode)+'</b></td><td>'+(x.firstHM??'—')+'</td><td>'+(x.lastHM??'—')+'</td><td>'+(x.days||0)+'</td><td>'+x.readingCount+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status)+'</td></tr>').join('')+'</tbody></table>':'<div class="workflow-empty">Belum ada snapshot untuk '+escapeHtml(rateMonthLabel(month))+'. Klik Hitung & Simpan Bulanan.</div>';
- const unitSel=$('rateUnitFilter'),previous=unitSel.value;const units=[...new Set(Object.values(snaps).flatMap(s=>(s.rows||[]).map(x=>x.unitCode)))].sort((a,b)=>a.localeCompare(b,'id',{numeric:true}));unitSel.innerHTML='<option value="">Semua unit</option>'+units.map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join('');if(units.includes(previous))unitSel.value=previous;
+ $('rateResults').innerHTML=rows.length?'<table><thead><tr><th>Unit</th><th>Jenis Unit</th><th>HM awal</th><th>HM akhir</th><th>Rentang hari</th><th>Catatan HM</th><th>Laju kerja</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>'<tr><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+escapeHtml(rateTypeLabel(x.category))+'</td><td>'+(x.firstHM??'—')+'</td><td>'+(x.lastHM??'—')+'</td><td>'+(x.days||0)+'</td><td>'+x.readingCount+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status)+'</td></tr>').join('')+'</tbody></table>':'<div class="workflow-empty">Tidak ada unit yang cocok dengan filter untuk '+escapeHtml(rateMonthLabel(month))+'.</div>';
  renderRateTrend();
 }
 function renderRateTrend(){
- const snaps=readRateSnapshots(),unit=$('rateUnitFilter')?.value||'';
- const months=Object.keys(snaps).sort();
- const rows=months.flatMap(month=>(snaps[month].rows||[]).filter(x=>(!unit||x.unitCode===unit)).map(x=>({month, ...x}))).sort((a,b)=>a.month.localeCompare(b.month)||a.unitCode.localeCompare(b.unitCode));
- $('rateTrend').innerHTML=rows.length?'<table><thead><tr><th>Periode</th><th>Unit</th><th>Laju kerja</th><th>Perubahan dari bulan sebelumnya</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>{const prev=months.filter(m=>m<x.month).reverse().map(m=>(snaps[m].rows||[]).find(y=>y.unitCode===x.unitCode&&y.status==='Valid')).find(Boolean);const delta=x.status==='Valid'&&prev?x.rate-prev.rate:null;return '<tr><td>'+escapeHtml(rateMonthLabel(x.month))+'</td><td><b>'+escapeHtml(x.unitCode)+'</b></td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(delta==null?'—':(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status)+'</td></tr>'}).join('')+'</tbody></table>':'<div class="workflow-empty">Belum ada riwayat pembaruan bulanan.</div>';
+ const snaps=readRateSnapshots(),months=Object.keys(snaps).sort();
+ const rows=rateFilteredRows(months.flatMap(month=>(snaps[month].rows||[]).map(x=>({month,...x}))).sort((a,b)=>a.month.localeCompare(b.month)||a.unitCode.localeCompare(b.unitCode)));
+ $('rateTrend').innerHTML=rows.length?'<table><thead><tr><th>Periode</th><th>Unit</th><th>Jenis Unit</th><th>Laju kerja</th><th>Perubahan dari bulan sebelumnya</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>{const prev=months.filter(m=>m<x.month).reverse().map(m=>(snaps[m].rows||[]).find(y=>y.unitCode===x.unitCode&&y.status==='Valid')).find(Boolean);const delta=x.status==='Valid'&&prev?x.rate-prev.rate:null;return '<tr><td>'+escapeHtml(rateMonthLabel(x.month))+'</td><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+escapeHtml(rateTypeLabel(x.category))+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(delta==null?'—':(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status)+'</td></tr>'}).join('')+'</tbody></table>':'<div class="workflow-empty">Belum ada riwayat pembaruan bulanan yang cocok dengan filter.</div>';
 }
+
 async function updateMonthlyRateSnapshot(){
  const month=$('rateMonth').value;if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)){alert('Pilih periode bulan yang valid.');return}
  const btn=$('rateUpdateBtn');btn.disabled=true;$('rateStatus').textContent='Menghitung catatan HM dari WO Aktual…';
@@ -1849,7 +1874,10 @@ async function updateMonthlyRateSnapshot(){
 }
 $('rateUpdateBtn').addEventListener('click',updateMonthlyRateSnapshot);
 $('rateMonth').addEventListener('change',renderRateAnalysis);
-$('rateUnitFilter').addEventListener('change',renderRateTrend);
+$('rateCategoryFilter').addEventListener('change',()=>{refreshRateFilterOptions();renderRateAnalysis()});
+$('rateUnitFilter').addEventListener('change',renderRateAnalysis);
+$('rateSearch').addEventListener('input',renderRateAnalysis);
+$('rateFilterReset').addEventListener('click',()=>{$('rateCategoryFilter').value='';$('rateSearch').value='';refreshRateFilterOptions();$('rateUnitFilter').value='';renderRateAnalysis()});
 
 const VIEW_META={
  dashboard:['Dashboard','Ringkasan kondisi PM dan notifikasi penting.'],
@@ -2287,6 +2315,12 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 #woImportPage #woHistoryExportBtn{background:#14532d;color:#dcfce7;border:1px solid #16a34a;border-radius:8px;padding:9px 12px;cursor:pointer}
 #woImportPage #woHistoryExportFormat{background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px;min-width:92px}
 @media(max-width:760px){#woImportPage #woFrom,#woImportPage #woTo,#woImportPage #woCategoryFilter,#woImportPage #woUnitFilter{flex:1 1 130px;min-width:120px}}
+</style>
+<style id="rate-analysis-filter-style">
+#rateAnalysisPage #rateFilterTools select,#rateAnalysisPage #rateFilterTools input{width:100%;min-width:0;background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px}
+#rateAnalysisPage #rateFilterTools label{display:block;margin:0 0 5px;color:var(--mu);font-size:12px;font-weight:600}
+#rateAnalysisPage #rateFilterTools button{background:#1e293b;color:#e2e8f0;border:1px solid #475569;border-radius:8px;padding:9px 12px;cursor:pointer}
+@media(max-width:720px){#rateAnalysisPage #rateFilterTools>div{flex:1 1 100%;min-width:100%!important}}
 </style>
 <!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
 <script src="export-pdf-forklift.js?v=1"></script>
