@@ -1957,7 +1957,14 @@ function setActiveView(view){
  $('appShell').dataset.activeView=view;
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];$('activeViewSubtitle').textContent=VIEW_META[view][1];
- document.querySelectorAll('#appMain [data-view]').forEach(el=>{el.hidden=el.dataset.view!==view});
+ document.querySelectorAll('#appMain [data-view]').forEach(el=>{
+  const isActive=el.dataset.view===view;
+  el.hidden=!isActive;
+  // Gunakan display inline !important agar aturan display komponen lama
+  // tidak dapat memunculkan kembali elemen Dashboard/Jadwal pada menu lain.
+  if(isActive)el.style.removeProperty('display');
+  else el.style.setProperty('display','none','important');
+ });
  if(view==='schedule'){render();}
  if(view==='rateAnalysis'){renderRateAnalysis();}
  if(view==='units')renderUnitDirectory();
