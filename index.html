@@ -1042,7 +1042,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div id="rateStatus" class="firestore-message" role="status" aria-live="polite">Pilih periode lalu hitung laju kerja dari catatan HM WO Aktual.</div>
     <div class="wo-kpi-grid" id="rateKpis"><div class="wo-kpi"><small>Unit berhasil dihitung</small><strong id="rateUnitCount">0</strong></div><div class="wo-kpi"><small>Belum cukup data</small><strong id="rateInsufficientCount">0</strong></div><div class="wo-kpi"><small>WO dengan HM valid</small><strong id="rateReadingCount">0</strong></div><div class="wo-kpi"><small>Periode</small><strong id="ratePeriodLabel">—</strong></div></div>
     <div class="wo-panel"><h3>Hasil pembaruan periode</h3><div id="rateResults" class="wo-table-wrap"><div class="workflow-empty">Belum ada hasil perhitungan.</div></div></div>
-    <div class="wo-panel" style="margin-top:12px"><h3>Riwayat tren laju kerja</h3><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Belum ada snapshot bulanan.</div></div></div>
+    <div class="wo-panel" style="margin-top:12px"><h3>Grafik tren laju kerja bulanan</h3><div class="overview-meta" style="margin-bottom:10px">Setiap grafik menunjukkan perubahan HM/hari dari bulan ke bulan untuk satu unit. Gunakan filter kode unit untuk melihat unit tertentu.</div><div id="rateTrendCharts" class="rate-trend-charts"><div class="workflow-empty">Grafik akan muncul setelah tersedia data bulanan yang valid.</div></div><h3 style="margin-top:18px">Rincian tren bulanan</h3><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Belum ada snapshot bulanan.</div></div></div>
     <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Laju = (HM terakhir − HM pertama) ÷ selisih hari kalender. Selama bulan berjalan, hasil berstatus <b>Sementara</b> dan dapat diperbarui setiap kali data WO baru diimpor. Setelah bulan berakhir, periode berubah menjadi <b>Final</b>. Unit tanpa pencatatan HM tetap ditampilkan; data yang belum cukup tidak dianggap bernilai nol.</p>
   </section>
 
@@ -1872,10 +1872,44 @@ function renderRateAnalysis(){
 }
 function renderRateTrend(){
  const snaps=readRateSnapshots(),months=Object.keys(snaps).sort();
- const rows=rateFilteredRows(months.flatMap(month=>(snaps[month].rows||[]).map(x=>({month,...x}))).sort((a,b)=>a.month.localeCompare(b.month)||a.unitCode.localeCompare(b.unitCode)));
- $('rateTrend').innerHTML=rows.length?'<table><thead><tr><th>Periode</th><th>Unit</th><th>Jenis Unit</th><th>Laju kerja</th><th>Perubahan dari bulan sebelumnya</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>{const prev=months.filter(m=>m<x.month).reverse().map(m=>(snaps[m].rows||[]).find(y=>y.unitCode===x.unitCode&&y.status==='Valid')).find(Boolean);const delta=x.status==='Valid'&&prev?x.rate-prev.rate:null;return '<tr><td>'+escapeHtml(rateMonthLabel(x.month))+'</td><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+escapeHtml(rateTypeLabel(x.category))+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(delta==null?'—':(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status)+'</td></tr>'}).join('')+'</tbody></table>':'<div class="workflow-empty">Belum ada riwayat pembaruan bulanan yang cocok dengan filter.</div>';
+ const selectedMonth=$('rateMonth')?.value||'';
+ const period=selectedMonth?ratePeriodState(selectedMonth):null;
+ const trendMap=new Map();
+ months.forEach(month=>(snaps[month].rows||[]).forEach(row=>{
+  const key=row.unitCode;if(!trendMap.has(key))trendMap.set(key,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});
+  trendMap.get(key).points.push({month,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,status:row.status});
+ }));
+ // Tambahkan data langsung bulan berjalan agar titik sementara terlihat tanpa menunggu akhir bulan.
+ if(period&&period.key==='provisional'){
+  collectMonthlyRateRows(selectedMonth).forEach(row=>{
+   if(!trendMap.has(row.unitCode))trendMap.set(row.unitCode,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});
+   const item=trendMap.get(row.unitCode);item.points=item.points.filter(p=>p.month!==selectedMonth);
+   item.points.push({month:selectedMonth,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,status:row.status});
+  });
+ }
+ let units=[...trendMap.values()].filter(u=>{
+  const sample={unitCode:u.unitCode,unitName:u.unitName,category:u.category};
+  return rateFilteredRows([sample]).length>0;
+ }).sort((a,b)=>a.unitCode.localeCompare(b.unitCode,'id',{numeric:true}));
+ units.forEach(u=>u.points.sort((a,b)=>a.month.localeCompare(b.month)));
+ const chartHost=$('rateTrendCharts');
+ if(chartHost){
+  const validUnits=units.filter(u=>u.points.some(p=>p.rate!==null));
+  chartHost.innerHTML=validUnits.length?validUnits.map(u=>{
+   const pts=u.points.filter(p=>p.rate!==null),values=pts.map(p=>p.rate),min=Math.min(...values),max=Math.max(...values),span=max-min||1;
+   const width=640,height=190,left=48,right=18,top=18,bottom=42;
+   const x=i=>left+(pts.length===1?0:i*(width-left-right)/(pts.length-1));
+   const y=v=>top+(max-v)*(height-top-bottom)/span;
+   const path=pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(p.rate).toFixed(1)).join(' ');
+   const circles=pts.map((p,i)=>'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.rate).toFixed(1)+'" r="4" fill="#2563eb"><title>'+escapeHtml(rateMonthLabel(p.month))+': '+p.rate.toFixed(2)+' HM/hari</title></circle>').join('');
+   const labels=pts.map((p,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(height-12)+'" text-anchor="middle" font-size="10" fill="currentColor">'+escapeHtml(new Date(p.month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}))+'</text>').join('');
+   const first=pts[0],last=pts[pts.length-1],change=pts.length>1?last.rate-first.rate:null;
+   return '<div class="rate-trend-card" style="border:1px solid var(--border-color,#ddd);border-radius:10px;padding:12px;margin:8px 0;min-width:0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+escapeHtml(u.unitCode)+' — '+escapeHtml(u.unitName)+'</b><span style="font-size:12px;color:var(--muted,#777)">'+(change===null?'Satu periode':(change>0?'+':'')+change.toFixed(2)+' HM/hari dari awal ke akhir')+'</span></div><div style="width:100%;overflow-x:auto"><svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Grafik laju kerja '+escapeHtml(u.unitCode)+' per bulan" style="display:block;width:100%;min-width:320px;height:auto;margin-top:8px"><line x1="'+left+'" y1="'+(height-bottom)+'" x2="'+(width-right)+'" y2="'+(height-bottom)+'" stroke="currentColor" opacity=".25"/><line x1="'+left+'" y1="'+top+'" x2="'+left+'" y2="'+(height-bottom)+'" stroke="currentColor" opacity=".25"/><path d="'+path+'" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+circles+labels+'<text x="8" y="14" font-size="10" fill="currentColor">HM/hari</text></svg></div></div>';
+  }).join(''):'<div class="workflow-empty">Belum ada data laju kerja bulanan yang valid untuk grafik. Simpan snapshot pada setiap akhir periode; bulan berjalan akan tampil sebagai data sementara jika HM sudah cukup.</div>';
+ }
+ const rows=units.flatMap(u=>u.points.map(p=>({month:p.month,...u,rate:p.rate,status:p.status}))).sort((a,b)=>a.month.localeCompare(b.month)||a.unitCode.localeCompare(b.unitCode));
+ $('rateTrend').innerHTML=rows.length?'<table><thead><tr><th>Periode</th><th>Unit</th><th>Jenis Unit</th><th>Laju kerja</th><th>Perubahan dari bulan sebelumnya</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>{const prev=rows.filter(y=>y.unitCode===x.unitCode&&y.month<x.month&&y.rate!==null).sort((a,b)=>b.month.localeCompare(a.month))[0];const delta=x.rate!==null&&prev?x.rate-prev.rate:null;return '<tr><td>'+escapeHtml(rateMonthLabel(x.month))+'</td><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+escapeHtml(rateTypeLabel(x.category))+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(delta==null?'—':(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status||'—')+'</td></tr>'}).join('')+'</tbody></table>':'<div class="workflow-empty">Belum ada riwayat pembaruan bulanan yang cocok dengan filter.</div>';
 }
-
 async function updateMonthlyRateSnapshot(){
  const month=$('rateMonth').value;if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)){alert('Pilih periode bulan yang valid.');return}
  const period=ratePeriodState(month);
