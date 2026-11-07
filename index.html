@@ -1801,7 +1801,10 @@ function rateUnitForRecord(record){
  return matches.length===1?matches[0]:null;
 }
 function collectMonthlyRateRows(month){
- const store=readStore(),grouped=new Map();
+ let store={records:{}};
+ try{store=JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}')}
+ catch(err){console.warn('Data WO lokal tidak dapat dibaca untuk analisa laju kerja:',err)}
+ const grouped=new Map();
  // Siapkan seluruh unit master lebih dahulu agar unit tanpa HM tidak hilang dari pemantauan.
  DATA.forEach(unit=>grouped.set(unit.c,{unit,readings:[]}));
  Object.values(store.records||{}).forEach(item=>{
