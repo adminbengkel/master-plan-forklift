@@ -1028,9 +1028,9 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </section>
 
   <section class="card workflow-page" id="rateAnalysisPage" data-view="rateAnalysis" hidden aria-labelledby="rateAnalysisTitle">
-    <div class="overview-head"><div><h2 id="rateAnalysisTitle"><i class="fa-solid fa-chart-line"></i> Analisa Laju Kerja Unit</h2><div class="overview-meta">Pembaruan rata-rata HM per hari setiap bulan berdasarkan catatan HM di WO Aktual.</div></div></div>
+    <div class="overview-head"><div><h2 id="rateAnalysisTitle"><i class="fa-solid fa-chart-line"></i> Analisa Laju Kerja Unit</h2><div class="overview-meta">Analisa per bulan. Periode berjalan ditampilkan sebagai data sementara dan menjadi final setelah bulan berakhir.</div></div><span class="table-chip" id="ratePeriodState">Memuat status periode…</span></div>
     <div class="unit-report-tools">
-      <div><label for="rateMonth">Periode pembaruan</label><input type="month" id="rateMonth" value="2026-11"></div>
+      <div><label for="rateMonth">Periode pembaruan</label><input type="month" id="rateMonth"></div>
       <div style="display:flex;align-items:end"><button type="button" class="pdf-btn" id="rateUpdateBtn"><i class="fa-solid fa-rotate"></i> Hitung &amp; Simpan Bulanan</button></div>
     </div>
     <div class="wo-tools" id="rateFilterTools" style="margin:12px 0;align-items:end">
@@ -1043,7 +1043,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <div class="wo-kpi-grid" id="rateKpis"><div class="wo-kpi"><small>Unit berhasil dihitung</small><strong id="rateUnitCount">0</strong></div><div class="wo-kpi"><small>Belum cukup data</small><strong id="rateInsufficientCount">0</strong></div><div class="wo-kpi"><small>WO dengan HM valid</small><strong id="rateReadingCount">0</strong></div><div class="wo-kpi"><small>Periode</small><strong id="ratePeriodLabel">—</strong></div></div>
     <div class="wo-panel"><h3>Hasil pembaruan periode</h3><div id="rateResults" class="wo-table-wrap"><div class="workflow-empty">Belum ada hasil perhitungan.</div></div></div>
     <div class="wo-panel" style="margin-top:12px"><h3>Riwayat tren laju kerja</h3><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Belum ada snapshot bulanan.</div></div></div>
-    <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Laju = (HM terakhir − HM pertama) ÷ selisih hari kalender. Unit tanpa pencatatan HM tetap ditampilkan dengan status Belum Ada Update HM. Jika hanya ada satu catatan, nol hari, atau HM menurun, status menjadi Data HM Belum Cukup / Perlu Pemeriksaan.</p>
+    <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Laju = (HM terakhir − HM pertama) ÷ selisih hari kalender. Selama bulan berjalan, hasil berstatus <b>Sementara</b> dan dapat diperbarui setiap kali data WO baru diimpor. Setelah bulan berakhir, periode berubah menjadi <b>Final</b>. Unit tanpa pencatatan HM tetap ditampilkan; data yang belum cukup tidak dianggap bernilai nol.</p>
   </section>
 
   <section class="card" id="unitDirectoryCard" data-view="units" hidden>
@@ -1839,11 +1839,28 @@ function refreshRateFilterOptions(){
 }
 
 function rateMonthLabel(month){const [y,m]=month.split('-').map(Number);return new Date(Date.UTC(y,m-1,1)).toLocaleDateString('id-ID',{month:'long',year:'numeric',timeZone:'UTC'});}
+function ratePeriodState(month,now=new Date()){
+ const current=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+ if(month<current)return {key:'final',label:'Final',detail:'Periode telah berakhir. Rekap dapat dihitung ulang jika ada impor WO susulan.'};
+ if(month===current)return {key:'provisional',label:'Sementara',detail:'Periode masih berjalan. Data dapat berubah mengikuti impor WO dan pembaruan HM berikutnya.'};
+ return {key:'upcoming',label:'Belum Dimulai',detail:'Periode ini belum dimulai.'};
+}
 function renderRateAnalysis(){
- const month=$('rateMonth')?.value||'2026-11',snaps=readRateSnapshots(),snap=snaps[month];
+ const month=$('rateMonth')?.value||'2026-11',snaps=readRateSnapshots(),snap=snaps[month],period=ratePeriodState(month);
  refreshRateFilterOptions();
- const allRows=snap?.rows||[],rows=rateFilteredRows(allRows);
- $('ratePeriodLabel').textContent=month;
+ // Periode berjalan selalu memakai data WO terbaru agar hasil sementara langsung terlihat tanpa menunggu akhir bulan.
+ // Periode lampau memakai snapshot final jika tersedia; jika belum, tampilkan pratinjau yang dapat dihitung/disimpan.
+ const liveRows=period.key==='upcoming'?[]:collectMonthlyRateRows(month);
+ const allRows=period.key==='provisional'?liveRows:(snap?.rows||liveRows),rows=rateFilteredRows(allRows);
+ $('ratePeriodLabel').textContent=rateMonthLabel(month);
+ const stateEl=$('ratePeriodState');
+ if(stateEl){stateEl.textContent=period.label;stateEl.title=period.detail;stateEl.dataset.state=period.key;}
+ const updateBtn=$('rateUpdateBtn');
+ if(updateBtn){updateBtn.innerHTML=period.key==='provisional'?'<i class="fa-solid fa-rotate"></i> Simpan Data Sementara':period.key==='final'?'<i class="fa-solid fa-check"></i> Hitung Rekap Final':'<i class="fa-solid fa-calendar"></i> Periode Belum Dimulai';updateBtn.disabled=period.key==='upcoming';}
+ if(period.key==='provisional')$('rateStatus').textContent='Data sementara ditampilkan langsung dari WO Aktual terbaru. Data akan terus berubah mengikuti impor HM selama '+rateMonthLabel(month)+'. Klik “Simpan Data Sementara” untuk menyimpan snapshot periode ini.';
+ else if(period.key==='final'&&!snap)$('rateStatus').textContent='Belum ada snapshot final '+rateMonthLabel(month)+'. Tabel menampilkan pratinjau dari data WO yang tersedia; klik “Hitung Rekap Final” untuk menyimpan rekap.';
+ else if(period.key==='final'&&snap)$('rateStatus').textContent='Rekap final '+rateMonthLabel(month)+' tersimpan. Jika ada WO susulan atau koreksi, hitung ulang untuk memperbarui rekap.';
+ else $('rateStatus').textContent='Periode belum dimulai.';
  $('rateUnitCount').textContent=rows.filter(x=>x.status==='Valid').length;
  $('rateInsufficientCount').textContent=rows.filter(x=>x.status!=='Valid').length;
  $('rateReadingCount').textContent=rows.reduce((n,x)=>n+(x.readingCount||0),0);
@@ -1858,26 +1875,31 @@ function renderRateTrend(){
 
 async function updateMonthlyRateSnapshot(){
  const month=$('rateMonth').value;if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)){alert('Pilih periode bulan yang valid.');return}
- const btn=$('rateUpdateBtn');btn.disabled=true;$('rateStatus').textContent='Menghitung catatan HM dari WO Aktual…';
+ const period=ratePeriodState(month);
+ if(period.key==='upcoming'){$('rateStatus').textContent='Periode '+rateMonthLabel(month)+' belum dimulai. Perhitungan dapat dilakukan setelah periode berjalan.';return}
+ const btn=$('rateUpdateBtn');btn.disabled=true;$('rateStatus').textContent='Menghitung catatan HM dari WO Aktual untuk '+period.label.toLowerCase()+'…';
  try{
   const rows=collectMonthlyRateRows(month),snapshots=readRateSnapshots(),old=snapshots[month];
-  if(!rows.length){$('rateStatus').textContent='Tidak ditemukan catatan HM valid yang dapat dipasangkan dengan Master Unit pada periode '+rateMonthLabel(month)+'. Snapshot lama tidak diubah.';return}
-  // Pertahankan laju valid sebelumnya jika periode baru belum memiliki cukup data; jangan menggantinya dengan kosong.
+  if(!rows.length){$('rateStatus').textContent='Tidak ditemukan unit master atau catatan yang dapat dianalisa pada periode '+rateMonthLabel(month)+'. Snapshot lama tidak diubah.';return}
+  // Pertahankan referensi laju valid terdahulu tanpa menggantikan status data periode yang sedang dihitung.
   if(old?.rows)rows.forEach(row=>{if(row.status!=='Valid'){const prev=old.rows.find(x=>x.unitCode===row.unitCode&&x.status==='Valid');if(prev){row.previousValidRate=prev.rate;}}});
-  const snapshot={month,updatedAt:new Date().toISOString(),method:'HM selisih dibagi hari kalender antara catatan pertama dan terakhir dalam bulan',rows};
-  if(db){await db.collection('laju').doc(rateSnapshotKey(month)).set({snapshot,kind:'monthly_rate_snapshot',updatedAt:snapshot.updatedAt});}
+  const updatedAt=new Date().toISOString();
+  const snapshot={month,periodStatus:period.key,updatedAt,method:'HM selisih dibagi hari kalender antara catatan pertama dan terakhir dalam bulan',rows};
+  if(db){await db.collection('laju').doc(rateSnapshotKey(month)).set({snapshot,kind:'monthly_rate_snapshot',updatedAt});}
   else{snapshots[month]=snapshot;localStorage.setItem('mbk_rate_monthly_v1',JSON.stringify(snapshots));}
-  $('rateStatus').textContent='Snapshot '+rateMonthLabel(month)+' berhasil disimpan. '+rows.filter(x=>x.status==='Valid').length+' unit valid; '+rows.filter(x=>x.status!=='Valid').length+' unit belum cukup data/perlu pemeriksaan.';
+  $('rateStatus').textContent=(period.key==='provisional'?'Data sementara ':'Rekap final ')+rateMonthLabel(month)+' berhasil diperbarui. '+rows.filter(x=>x.status==='Valid').length+' unit valid; '+rows.filter(x=>x.status!=='Valid').length+' unit belum cukup data/perlu pemeriksaan.';
   renderRateAnalysis();
  }catch(err){console.error('Pembaruan laju kerja:',err);$('rateStatus').textContent='Gagal menyimpan snapshot: '+(err.message||String(err));}
- finally{btn.disabled=false;}
+ finally{btn.disabled=ratePeriodState(month).key==='upcoming';}
 }
+$('rateMonth').value=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
 $('rateUpdateBtn').addEventListener('click',updateMonthlyRateSnapshot);
 $('rateMonth').addEventListener('change',renderRateAnalysis);
 $('rateCategoryFilter').addEventListener('change',()=>{refreshRateFilterOptions();renderRateAnalysis()});
 $('rateUnitFilter').addEventListener('change',renderRateAnalysis);
 $('rateSearch').addEventListener('input',renderRateAnalysis);
 $('rateFilterReset').addEventListener('click',()=>{$('rateCategoryFilter').value='';$('rateSearch').value='';refreshRateFilterOptions();$('rateUnitFilter').value='';renderRateAnalysis()});
+window.mbkRefreshRateAnalysis=renderRateAnalysis;
 
 const VIEW_META={
  dashboard:['Dashboard','Ringkasan kondisi PM dan notifikasi penting.'],
@@ -2090,7 +2112,7 @@ function setCloudRecords(cloudRows){
 window.mbkSetWoCloudRecords=setCloudRecords;
 function renderSaved(){const db=readStore(),all=Object.values(db.records).map(x=>x.current),totalTask=all.reduce((n,x)=>n+x.tasks.length,0),totalMat=all.reduce((n,x)=>n+x.materials.length,0),units=[...new Set(all.map(x=>x.equipmentCode).filter(Boolean))];$wo('woTotal').textContent=fmt(all.length);$wo('woTaskTotal').textContent=fmt(totalTask);$wo('woMaterialTotal').textContent=fmt(totalMat);$wo('woUnitTotal').textContent=fmt(units.length);
  refreshWoUnitOptions();
- const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');$wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';renderAnalytics();renderUnitHistory();}
+ const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');$wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';renderAnalytics();renderUnitHistory();if(window.mbkRefreshRateAnalysis&&document.getElementById('rateAnalysisPage')&&!document.getElementById('rateAnalysisPage').hidden)window.mbkRefreshRateAnalysis();}
 function dateKey(value,fallbackYear){
  const raw=String(value??'').trim();if(!raw)return '';
  // Terima ISO, dd/mm/yyyy, dd-mm-yyyy, dan tanggal berformat Indonesia/Inggris.
@@ -2310,6 +2332,9 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 })();
 </script>
 <style id="wo-requested-layout-only">
+#ratePeriodState[data-state="provisional"]{background:#78350f;color:#fef3c7;border-color:#b45309}
+#ratePeriodState[data-state="final"]{background:#14532d;color:#dcfce7;border-color:#16a34a}
+#ratePeriodState[data-state="upcoming"]{background:#334155;color:#e2e8f0;border-color:#64748b}
 #woImportPage #woAnalyticsUnitFilter{min-width:220px;max-width:100%;background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px}
 #woImportPage #woRefreshBtn{background:#1e3a5f;color:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:9px 12px;cursor:pointer}
 #woImportPage #woHistoryExportBtn{background:#14532d;color:#dcfce7;border:1px solid #16a34a;border-radius:8px;padding:9px 12px;cursor:pointer}
