@@ -738,6 +738,12 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div class="sidebar-topline"><div class="sidebar-label">Navigasi</div><button type="button" id="sidebarCollapseBtn" class="sidebar-collapse-btn" aria-label="Tampilkan menu navigasi" title="Tampilkan menu navigasi"><i class="fa-solid fa-angles-right"></i></button></div>
       <nav class="sidebar-nav" id="mainNavigation">
         <button type="button" class="active" data-view-target="dashboard" title="Dashboard"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Dashboard</span></button>
+        <div class="nav-group is-collapsed" data-nav-group="assets">
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-truck"></i><span class="nav-text">Manajemen Unit</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <div class="nav-group-items">
+            <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Daftar Unit</span></button>
+          </div>
+        </div>
         <div class="nav-group is-collapsed" data-nav-group="planning">
           <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">Perencanaan PM</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
@@ -748,24 +754,17 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
         <div class="nav-group is-collapsed" data-nav-group="operations">
           <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">Operasional Servis</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="breakdown" title="Catat Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Catat Breakdown</span></button>
-          </div>
-        </div>
-        <div class="nav-group is-collapsed" data-nav-group="assets">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-truck"></i><span class="nav-text">Data Unit</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
-          <div class="nav-group-items">
-            <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Daftar Unit</span></button>
+            <button type="button" data-view-target="breakdown" title="Pencatatan Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Pencatatan Breakdown</span></button>
+            <button type="button" data-view-target="woImport" title="Impor &amp; Analisis WO"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor &amp; Analisis WO</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="approvals">
           <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan &amp; Riwayat</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="reschedule" title="Pengajuan Perubahan PM"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Pengajuan Perubahan PM</span></button>
-            <button type="button" data-view-target="history" title="Riwayat &amp; Laporan"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-text">Riwayat &amp; Laporan</span></button>
+            <button type="button" data-view-target="history" title="Histori Servis &amp; Laporan"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-text">Histori Servis &amp; Laporan</span></button>
           </div>
         </div>
-        <button type="button" data-view-target="unitReports" title="Report"><i class="fa-solid fa-chart-column"></i><span class="nav-text">Report</span></button>
-        <button type="button" data-view-target="woImport" title="Impor & Analisis WO"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor &amp; Analisis WO</span></button>
       </nav>
     </aside>
     <main class="app-main" id="appMain">
@@ -1951,12 +1950,12 @@ const VIEW_META={
  dashboard:['Dashboard','Ringkasan kondisi PM dan notifikasi penting.'],
  schedule:['Jadwal PM','Cari jadwal, filter kategori, dan buka detail unit.'],
  rateAnalysis:['Analisa Laju Kerja Unit','Perbarui dan bandingkan rata-rata HM operasional setiap bulan.'],
- breakdown:['Catat Breakdown','Formulir dan daftar catatan breakdown saja.'],
+ breakdown:['Pencatatan Breakdown','Formulir dan daftar catatan breakdown saja.'],
  unitReports:['Report Unit','Filter dan ekspor gabungan laporan servis dan breakdown per unit.'],
  woImport:['Impor & Analisis WO','Impor report WO selesai, periksa perubahan, dan analisis riwayat pekerjaan unit.'],
  reschedule:['Pengajuan Perubahan PM','Formulir dan daftar pengajuan perubahan PM saja.'],
- units:['Data Unit','Cari dan filter daftar unit yang tersedia di master.'],
- history:['Riwayat & Laporan','Riwayat laporan breakdown dan pengajuan PM saja.'],
+ units:['Daftar Unit','Cari dan filter daftar unit yang tersedia di master.'],
+ history:['Histori Servis & Laporan','Riwayat laporan breakdown dan pengajuan PM saja.'],
  dailyService:['Rekap Servis Harian','Catat dan pantau status pekerjaan PM dan breakdown harian.']
 };
 let activeView='dashboard';
