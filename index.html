@@ -1839,13 +1839,25 @@ function rateWoIsRepair(record){
  ];
  return repairPatterns.some(pattern=>pattern.test(text));
 }
+function rateReportYearForRecord(record){
+ const fields=record?.fields||{};
+ for(const key of ['actualorderfinish','actualorderstart','ordercreate','orderapproved','planorderfinish','planorderstart','finishdiagnosa','startdiagnosa']){
+  const raw=String(fields[key]||'');
+  let m=raw.match(/(?:^|\D)(20\d{2})(?:\D|$)/);if(m)return m[1];
+ }
+ const period=record?.sourcePeriod;
+ const periodYear=period?.end?.year||period?.start?.year;if(periodYear)return String(periodYear);
+ const filename=String(record?.sourceFilename||'');
+ const matches=[...filename.matchAll(/\b\d{1,2}\s+[A-Za-z]+\s+(20\d{2})\b/g)];
+ if(matches.length)return matches[0][1];
+ return '';
+}
 function rateWoRepairInfo(record,unit){
  if(!rateWoIsRepair(record))return null;
  const startRaw=String(record?.fields?.actualorderstart||''),finishRaw=String(record?.fields?.actualorderfinish||'');
  if(!/\d{1,2}\s+[A-Za-z]+\s+\d{1,2}:\d{2}|\d{4}[-/]\d{1,2}[-/]\d{1,2}/i.test(startRaw)||!/\d{1,2}\s+[A-Za-z]+\s+\d{1,2}:\d{2}|\d{4}[-/]\d{1,2}[-/]\d{1,2}/i.test(finishRaw))return null;
  // Tanggal pada ekspor resmi sering tidak mencantumkan tahun; ambil tahun dari periode file impor.
- const db=(()=>{try{return JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}')}catch(e){return {records:{}}}})();
- const year=reportYearForRecord(record,db);
+ const year=rateReportYearForRecord(record);
  const withYear=value=>{
   const raw=String(value||'').trim();
   if(year&&/^\d{1,2}\s+[A-Za-z]+\s+\d{1,2}:\d{2}/i.test(raw))return raw.replace(/^(\d{1,2}\s+[A-Za-z]+)/i,'$1 '+year);
