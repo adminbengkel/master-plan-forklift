@@ -1819,17 +1819,41 @@ function parseRateDateTime(value){
  if(m&&months[m[2].toLowerCase()]!==undefined){let h=Number(m[4]||0);if(m[7]){if(m[7].toUpperCase()==='PM'&&h<12)h+=12;if(m[7].toUpperCase()==='AM'&&h===12)h=0}return new Date(Number(m[3]),months[m[2].toLowerCase()],Number(m[1]),h,Number(m[5]||0),Number(m[6]||0))}
  const d=new Date(raw);return Number.isNaN(d.getTime())?null:d;
 }
+function rateWoWorkText(record){
+ const fields=record?.fields||{};
+ // Excel WO Aktual tidak menyediakan kolom kategori. Baca deskripsi utama dan seluruh uraian Task.
+ return [fields.wocategory,fields.category,fields.worktype,fields.type,fields.description,fields.diagnosa,
+  ...(Array.isArray(record?.tasks)?record.tasks.map(t=>t?.taskDesc||t?.taskCode):[])]
+  .filter(Boolean).join(' ').toLocaleLowerCase('id-ID').replace(/[\r\n\t]+/g,' ');
+}
 function rateWoIsRepair(record){
- const explicit=[record?.fields?.wocategory,record?.fields?.category,record?.fields?.worktype,record?.fields?.type,record?.fields?.description].filter(Boolean).join(' ');
- return /\bperbaikan\b/i.test(explicit);
+ const text=rateWoWorkText(record);
+ if(!text.trim())return false;
+ // Indikasi kerusakan/perbaikan. Jika WO berisi PM sekaligus salah satu indikasi ini,
+ // seluruh durasi aktual WO tetap dihitung sebagai downtime.
+ const repairPatterns=[
+  /\b(perbaikan|repair|overhaul|bongkar\s*pasang|turun\s*mesin|las|tambal)\b/i,
+  /\b(bocor|rembes|rusak|putus|patah|retak|pecah|aus|macet|oblak|jebol|ceplos|longgar|terbakar|korslet|konslet|short|trouble|mati|mogok)\b/i,
+  /\b(tidak\s+(?:bisa|dapat|berfungsi|normal)|tidak\s+fungsi|gagal\s+fungsi)\b/i,
+  /\b(ganti|penggantian)\s+(?:kampas|seal|bearing|pompa|kabel|kopling|clutch|rem|master|starter|alternator|dinamo|selang|hose|radiator|silinder|cylinder|gearbox|transmisi|rantai|roller|ban)\b/i
+ ];
+ return repairPatterns.some(pattern=>pattern.test(text));
 }
 function rateWoRepairInfo(record,unit){
  if(!rateWoIsRepair(record))return null;
  const startRaw=String(record?.fields?.actualorderstart||''),finishRaw=String(record?.fields?.actualorderfinish||'');
- if(!/\d{1,2}:\d{2}/.test(startRaw)||!/\d{1,2}:\d{2}/.test(finishRaw))return null;
- const start=parseRateDateTime(startRaw),finish=parseRateDateTime(finishRaw);
+ if(!/\d{1,2}\s+[A-Za-z]+\s+\d{1,2}:\d{2}|\d{4}[-/]\d{1,2}[-/]\d{1,2}/i.test(startRaw)||!/\d{1,2}\s+[A-Za-z]+\s+\d{1,2}:\d{2}|\d{4}[-/]\d{1,2}[-/]\d{1,2}/i.test(finishRaw))return null;
+ // Tanggal pada ekspor resmi sering tidak mencantumkan tahun; ambil tahun dari periode file impor.
+ const db=(()=>{try{return JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}')}catch(e){return {records:{}}}})();
+ const year=reportYearForRecord(record,db);
+ const withYear=value=>{
+  const raw=String(value||'').trim();
+  if(year&&/^\d{1,2}\s+[A-Za-z]+\s+\d{1,2}:\d{2}/i.test(raw))return raw.replace(/^(\d{1,2}\s+[A-Za-z]+)/i,'$1 '+year);
+  return raw;
+ };
+ const start=parseRateDateTime(withYear(startRaw)),finish=parseRateDateTime(withYear(finishRaw));
  if(!start||!finish||finish<=start)return null;
- return {unitCode:unit.c,woId:String(record.woId||''),description:String(record?.fields?.description||record?.fields?.diagnosa||'Perbaikan'),start:start.toISOString(),finish:finish.toISOString(),startMs:start.getTime(),finishMs:finish.getTime()};
+ return {unitCode:unit.c,woId:String(record.woId||''),description:String(record?.fields?.description||record?.fields?.diagnosa||rateWoWorkText(record)||'Perbaikan'),start:start.toISOString(),finish:finish.toISOString(),startMs:start.getTime(),finishMs:finish.getTime()};
 }
 function rateDowntimeForMonth(repairs,month){
  const [year,mon]=month.split('-').map(Number),start=new Date(year,mon-1,1).getTime(),end=new Date(year,mon,1).getTime();
@@ -1869,22 +1893,9 @@ function collectMonthlyRateRows(month){
  }).sort((a,b)=>a.unitCode.localeCompare(b.unitCode,'id',{numeric:true}));
 }
 function rateTypeLabel(type){return ({D:'Forklift Diesel',B:'Forklift Baterai',T:'Traktor',W:'Wheel Loader'})[type]||'Jenis unit lainnya'}
-function rateUnitSearchMatches(unitRow,query){
- const q=String(query||'').trim().toLocaleLowerCase('id-ID');if(!q)return true;
- const base=String(unitRow.unitCode+' '+(unitRow.unitName||'')).toLocaleLowerCase('id-ID');
- if(base.includes(q))return true;
- const master=DATA.find(x=>x.c===unitRow.unitCode);if(!master)return false;
- try{
-  const store=JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}');
-  return Object.values(store.records||{}).some(item=>{
-   const r=item?.current||item;if(!r||!reportImportedWoMatchesUnit(r,master))return false;
-   return String(r.equipmentCode||'').toLocaleLowerCase('id-ID').includes(q);
-  });
- }catch(err){return false}
-}
 function rateFilteredRows(rows){
  const type=$('rateCategoryFilter')?.value||'',code=$('rateUnitFilter')?.value||'',q=String($('rateSearch')?.value||'').trim().toLocaleLowerCase('id-ID');
- return (rows||[]).filter(x=>(!type||x.category===type)&&(!code||x.unitCode===code)&&(!q||rateUnitSearchMatches(x,q)));
+ return (rows||[]).filter(x=>(!type||x.category===type)&&(!code||x.unitCode===code)&&(!q||String(x.unitCode+' '+x.unitName).toLocaleLowerCase('id-ID').includes(q)));
 }
 function refreshRateFilterOptions(){
  const typeSel=$('rateCategoryFilter'),unitSel=$('rateUnitFilter');if(!typeSel||!unitSel)return;
@@ -1931,9 +1942,9 @@ function renderRateTrend(){
  const snaps=readRateSnapshots(),months=Object.keys(snaps).sort(),selectedMonth=$('rateMonth')?.value||'',period=selectedMonth?ratePeriodState(selectedMonth):null,trendMap=new Map();
  const addRow=(month,row)=>{const key=row.unitCode;if(!trendMap.has(key))trendMap.set(key,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});const item=trendMap.get(key);item.points=item.points.filter(p=>p.month!==month);item.points.push({month,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,availabilityRate:row.status==='Valid'&&Number.isFinite(Number(row.availabilityRate))?Number(row.availabilityRate):null,status:row.status,downtimeHours:Number(row.downtimeHours)||0,downtimeDays:Number(row.downtimeDays)||0,downtimePercent:Number(row.downtimePercent)||0,repairWoCount:Number(row.repairWoCount)||0,availableDays:row.availableDays,availabilityStatus:row.availabilityStatus||'Tidak dapat dihitung',repairHistory:Array.isArray(row.repairHistory)?row.repairHistory:[]})};
  months.forEach(month=>(snaps[month].rows||[]).forEach(row=>addRow(month,row)));
- if(period&&(period.key==='provisional'||(period.key==='final'&&!snaps[selectedMonth])))collectMonthlyRateRows(selectedMonth).forEach(row=>addRow(selectedMonth,row));
+ if(period&&period.key==='provisional')collectMonthlyRateRows(selectedMonth).forEach(row=>addRow(selectedMonth,row));
  const chosenCode=$('rateUnitFilter')?.value||'',searchTerm=String($('rateSearch')?.value||'').trim().toLocaleLowerCase('id-ID');
- const searchMatches=[...trendMap.values()].filter(u=>searchTerm&&rateUnitSearchMatches(u,searchTerm));
+ const searchMatches=[...trendMap.values()].filter(u=>searchTerm&&String(u.unitCode+' '+u.unitName).toLocaleLowerCase('id-ID').includes(searchTerm));
  const resolvedCode=chosenCode||(searchMatches.length===1?searchMatches[0].unitCode:'');
  let units=resolvedCode?[...trendMap.values()].filter(u=>u.unitCode===resolvedCode&&rateFilteredRows([{unitCode:u.unitCode,unitName:u.unitName,category:u.category}]).length>0):[];
  units.forEach(u=>u.points.sort((a,b)=>a.month.localeCompare(b.month)));
