@@ -1869,9 +1869,22 @@ function collectMonthlyRateRows(month){
  }).sort((a,b)=>a.unitCode.localeCompare(b.unitCode,'id',{numeric:true}));
 }
 function rateTypeLabel(type){return ({D:'Forklift Diesel',B:'Forklift Baterai',T:'Traktor',W:'Wheel Loader'})[type]||'Jenis unit lainnya'}
+function rateUnitSearchMatches(unitRow,query){
+ const q=String(query||'').trim().toLocaleLowerCase('id-ID');if(!q)return true;
+ const base=String(unitRow.unitCode+' '+(unitRow.unitName||'')).toLocaleLowerCase('id-ID');
+ if(base.includes(q))return true;
+ const master=DATA.find(x=>x.c===unitRow.unitCode);if(!master)return false;
+ try{
+  const store=JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}');
+  return Object.values(store.records||{}).some(item=>{
+   const r=item?.current||item;if(!r||!reportImportedWoMatchesUnit(r,master))return false;
+   return String(r.equipmentCode||'').toLocaleLowerCase('id-ID').includes(q);
+  });
+ }catch(err){return false}
+}
 function rateFilteredRows(rows){
  const type=$('rateCategoryFilter')?.value||'',code=$('rateUnitFilter')?.value||'',q=String($('rateSearch')?.value||'').trim().toLocaleLowerCase('id-ID');
- return (rows||[]).filter(x=>(!type||x.category===type)&&(!code||x.unitCode===code)&&(!q||String(x.unitCode+' '+x.unitName).toLocaleLowerCase('id-ID').includes(q)));
+ return (rows||[]).filter(x=>(!type||x.category===type)&&(!code||x.unitCode===code)&&(!q||rateUnitSearchMatches(x,q)));
 }
 function refreshRateFilterOptions(){
  const typeSel=$('rateCategoryFilter'),unitSel=$('rateUnitFilter');if(!typeSel||!unitSel)return;
@@ -1918,9 +1931,9 @@ function renderRateTrend(){
  const snaps=readRateSnapshots(),months=Object.keys(snaps).sort(),selectedMonth=$('rateMonth')?.value||'',period=selectedMonth?ratePeriodState(selectedMonth):null,trendMap=new Map();
  const addRow=(month,row)=>{const key=row.unitCode;if(!trendMap.has(key))trendMap.set(key,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});const item=trendMap.get(key);item.points=item.points.filter(p=>p.month!==month);item.points.push({month,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,availabilityRate:row.status==='Valid'&&Number.isFinite(Number(row.availabilityRate))?Number(row.availabilityRate):null,status:row.status,downtimeHours:Number(row.downtimeHours)||0,downtimeDays:Number(row.downtimeDays)||0,downtimePercent:Number(row.downtimePercent)||0,repairWoCount:Number(row.repairWoCount)||0,availableDays:row.availableDays,availabilityStatus:row.availabilityStatus||'Tidak dapat dihitung',repairHistory:Array.isArray(row.repairHistory)?row.repairHistory:[]})};
  months.forEach(month=>(snaps[month].rows||[]).forEach(row=>addRow(month,row)));
- if(period&&period.key==='provisional')collectMonthlyRateRows(selectedMonth).forEach(row=>addRow(selectedMonth,row));
+ if(period&&(period.key==='provisional'||(period.key==='final'&&!snaps[selectedMonth])))collectMonthlyRateRows(selectedMonth).forEach(row=>addRow(selectedMonth,row));
  const chosenCode=$('rateUnitFilter')?.value||'',searchTerm=String($('rateSearch')?.value||'').trim().toLocaleLowerCase('id-ID');
- const searchMatches=[...trendMap.values()].filter(u=>searchTerm&&String(u.unitCode+' '+u.unitName).toLocaleLowerCase('id-ID').includes(searchTerm));
+ const searchMatches=[...trendMap.values()].filter(u=>searchTerm&&rateUnitSearchMatches(u,searchTerm));
  const resolvedCode=chosenCode||(searchMatches.length===1?searchMatches[0].unitCode:'');
  let units=resolvedCode?[...trendMap.values()].filter(u=>u.unitCode===resolvedCode&&rateFilteredRows([{unitCode:u.unitCode,unitName:u.unitName,category:u.category}]).length>0):[];
  units.forEach(u=>u.points.sort((a,b)=>a.month.localeCompare(b.month)));
