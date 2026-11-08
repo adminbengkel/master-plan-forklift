@@ -1880,7 +1880,6 @@ function renderRateTrend(){
   const key=row.unitCode;if(!trendMap.has(key))trendMap.set(key,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});
   trendMap.get(key).points.push({month,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,status:row.status});
  }));
- // Tambahkan data langsung bulan berjalan agar titik sementara terlihat tanpa menunggu akhir bulan.
  if(period&&period.key==='provisional'){
   collectMonthlyRateRows(selectedMonth).forEach(row=>{
    if(!trendMap.has(row.unitCode))trendMap.set(row.unitCode,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});
@@ -1888,25 +1887,34 @@ function renderRateTrend(){
    item.points.push({month:selectedMonth,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,status:row.status});
   });
  }
- let units=[...trendMap.values()].filter(u=>{
-  const sample={unitCode:u.unitCode,unitName:u.unitName,category:u.category};
-  return rateFilteredRows([sample]).length>0;
- }).sort((a,b)=>a.unitCode.localeCompare(b.unitCode,'id',{numeric:true}));
+ let units=[...trendMap.values()].filter(u=>rateFilteredRows([{unitCode:u.unitCode,unitName:u.unitName,category:u.category}]).length>0).sort((a,b)=>a.unitCode.localeCompare(b.unitCode,'id',{numeric:true}));
  units.forEach(u=>u.points.sort((a,b)=>a.month.localeCompare(b.month)));
  const chartHost=$('rateTrendCharts');
  if(chartHost){
   const validUnits=units.filter(u=>u.points.some(p=>p.rate!==null));
-  chartHost.innerHTML=validUnits.length?validUnits.map(u=>{
-   const pts=u.points.filter(p=>p.rate!==null),values=pts.map(p=>p.rate),min=Math.min(...values),max=Math.max(...values),span=max-min||1;
-   const width=640,height=190,left=48,right=18,top=18,bottom=42;
+  chartHost.innerHTML=validUnits.length?validUnits.map((u,idx)=>{
+   const pts=u.points.filter(p=>p.rate!==null),values=pts.map(p=>p.rate),avg=values.reduce((a,b)=>a+b,0)/values.length,max=Math.max(...values),min=Math.min(...values);
+   const width=1000,height=300,left=58,right=24,top=30,bottom=48;
+   const yMax=Math.max(1,Math.ceil(max*1.2)),tickStep=yMax/5;
    const x=i=>left+(pts.length===1?0:i*(width-left-right)/(pts.length-1));
-   const y=v=>top+(max-v)*(height-top-bottom)/span;
-   const path=pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(p.rate).toFixed(1)).join(' ');
-   const circles=pts.map((p,i)=>'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.rate).toFixed(1)+'" r="4" fill="#2563eb"><title>'+escapeHtml(rateMonthLabel(p.month))+': '+p.rate.toFixed(2)+' HM/hari</title></circle>').join('');
-   const labels=pts.map((p,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(height-12)+'" text-anchor="middle" font-size="10" fill="currentColor">'+escapeHtml(new Date(p.month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}))+'</text>').join('');
+   const y=v=>top+(yMax-v)*(height-top-bottom)/yMax;
+   const linePath=pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(p.rate).toFixed(1)).join(' ');
+   const areaPath=linePath+' L'+x(pts.length-1).toFixed(1)+','+(height-bottom)+' L'+x(0).toFixed(1)+','+(height-bottom)+' Z';
+   const gid='rateGradient'+idx;
+   const grid=Array.from({length:6},(_,i)=>{const val=tickStep*i,yy=y(val);return '<g><line x1="'+left+'" y1="'+yy.toFixed(1)+'" x2="'+(width-right)+'" y2="'+yy.toFixed(1)+'" class="rate-chart-grid"/><text x="'+(left-12)+'" y="'+(yy+5).toFixed(1)+'" text-anchor="end" class="rate-chart-axis">'+val.toFixed(val%1?1:0)+'</text></g>'}).join('');
+   const xGuides=pts.map((p,i)=>'<line x1="'+x(i).toFixed(1)+'" y1="'+top+'" x2="'+x(i).toFixed(1)+'" y2="'+(height-bottom)+'" class="rate-chart-grid rate-chart-grid-vertical"/>').join('');
+   const circles=pts.map((p,i)=>'<g><circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.rate).toFixed(1)+'" r="9" class="rate-chart-point-halo"/><circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.rate).toFixed(1)+'" r="4.5" class="rate-chart-point"><title>'+escapeHtml(rateMonthLabel(p.month))+': '+p.rate.toFixed(2)+' HM/hari</title></circle><text x="'+x(i).toFixed(1)+'" y="'+(y(p.rate)-17).toFixed(1)+'" text-anchor="middle" class="rate-chart-value">'+p.rate.toFixed(1)+'</text></g>').join('');
+   const labels=pts.map((p,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(height-15)+'" text-anchor="middle" class="rate-chart-month">'+escapeHtml(new Date(p.month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}))+'</text>').join('');
+   const sparkW=150,sparkH=34,sparkPad=4,sparkSpan=max-min||1;
+   const sx=i=>sparkPad+(pts.length===1?0:i*(sparkW-2*sparkPad)/(pts.length-1)),sy=v=>sparkPad+(max-v)*(sparkH-2*sparkPad)/sparkSpan;
+   const spark=pts.map((p,i)=>(i?'L':'M')+sx(i).toFixed(1)+','+sy(p.rate).toFixed(1)).join(' ');
    const first=pts[0],last=pts[pts.length-1],change=pts.length>1?last.rate-first.rate:null;
-   return '<div class="rate-trend-card" style="border:1px solid var(--border-color,#ddd);border-radius:10px;padding:12px;margin:8px 0;min-width:0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+escapeHtml(u.unitCode)+' — '+escapeHtml(u.unitName)+'</b><span style="font-size:12px;color:var(--muted,#777)">'+(change===null?'Satu periode':(change>0?'+':'')+change.toFixed(2)+' HM/hari dari awal ke akhir')+'</span></div><div style="width:100%;overflow-x:auto"><svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Grafik laju kerja '+escapeHtml(u.unitCode)+' per bulan" style="display:block;width:100%;min-width:320px;height:auto;margin-top:8px"><line x1="'+left+'" y1="'+(height-bottom)+'" x2="'+(width-right)+'" y2="'+(height-bottom)+'" stroke="currentColor" opacity=".25"/><line x1="'+left+'" y1="'+top+'" x2="'+left+'" y2="'+(height-bottom)+'" stroke="currentColor" opacity=".25"/><path d="'+path+'" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+circles+labels+'<text x="8" y="14" font-size="10" fill="currentColor">HM/hari</text></svg></div></div>';
-  }).join(''):'<div class="workflow-empty">Belum ada data laju kerja bulanan yang valid untuk grafik. Simpan snapshot pada setiap akhir periode; bulan berjalan akan tampil sebagai data sementara jika HM sudah cukup.</div>';
+   const periodText=pts.length?new Date(pts[0].month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'})+' – '+new Date(pts[pts.length-1].month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}):'—';
+   const deltaText=change===null?'Satu periode':(change>0?'+':'')+change.toFixed(2)+' HM/hari';
+   return '<article class="rate-trend-card"><header class="rate-chart-card-head"><div class="rate-chart-unit-icon"><i class="fa-solid fa-truck-fast"></i></div><div class="rate-chart-unit-title"><b>'+escapeHtml(u.unitCode)+' — '+escapeHtml(u.unitName||'Nama unit tidak tersedia')+'</b><small>'+escapeHtml(rateTypeLabel(u.category))+'</small></div><div class="rate-chart-period"><span>Periode: '+escapeHtml(periodText)+'</span><small>'+pts.length+' bulan dengan data valid</small></div></header><div class="rate-chart-statusline"><span>HM/hari</span><span class="rate-chart-active"><i></i> Data valid</span></div><div class="rate-chart-canvas"><svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Grafik laju kerja '+escapeHtml(u.unitCode)+' per bulan"><defs><linearGradient id="'+gid+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#3b9cff" stop-opacity=".42"/><stop offset="100%" stop-color="#3b9cff" stop-opacity=".02"/></linearGradient></defs>'+grid+xGuides+'<path d="'+areaPath+'" fill="url(#'+gid+')"/><path d="'+linePath+'" class="rate-chart-line"/>'+circles+labels+'</svg></div><footer class="rate-chart-stats"><div class="rate-chart-stat"><small>Statistik Unit ('+pts.length+' Bulan)</small><b class="rate-chart-active"><i></i> Terdata</b></div><div class="rate-chart-stat"><small>Rata-rata</small><b>'+avg.toFixed(2)+' HM/hari</b></div><div class="rate-chart-stat"><small>Tertinggi</small><b>'+max.toFixed(2)+' HM/hari</b></div><div class="rate-chart-stat"><small>Terendah</small><b>'+min.toFixed(2)+' HM/hari</b></div><div class="rate-chart-stat rate-chart-spark"><small>Sparkline trend</small><svg viewBox="0 0 '+sparkW+' '+sparkH+'" role="img" aria-label="Ringkasan tren"><path d="'+spark+'"/></svg></div><div class="rate-chart-actions"><span class="rate-chart-change">'+escapeHtml(deltaText)+' dari awal</span><button type="button" data-rate-action="print" title="Cetak laporan"><i class="fa-solid fa-print"></i> Cetak Laporan</button><button type="button" data-rate-action="share" data-unit="'+escapeHtml(u.unitCode)+'" title="Bagikan ringkasan"><i class="fa-solid fa-share-nodes"></i> Bagikan</button></div></footer></article>';
+  }).join(''):'<div class="workflow-empty">Belum ada data laju kerja bulanan yang valid untuk grafik. Simpan snapshot pada setiap periode; bulan berjalan akan tampil sebagai data sementara jika HM sudah cukup.</div>';
+  chartHost.querySelectorAll('[data-rate-action="print"]').forEach(btn=>btn.addEventListener('click',()=>window.print()));
+  chartHost.querySelectorAll('[data-rate-action="share"]').forEach(btn=>btn.addEventListener('click',async()=>{const unit=btn.dataset.unit,entry=validUnits.find(x=>x.unitCode===unit);if(!entry)return;const p=entry.points.filter(x=>x.rate!==null),v=p.map(x=>x.rate),textShare='Tren laju kerja '+unit+'\n'+p.map(x=>rateMonthLabel(x.month)+': '+x.rate.toFixed(2)+' HM/hari').join('\n');try{if(navigator.share)await navigator.share({title:'Tren Laju Kerja '+unit,text:textShare});else if(navigator.clipboard){await navigator.clipboard.writeText(textShare);alert('Ringkasan tren '+unit+' berhasil disalin.')}else alert(textShare)}catch(err){if(err.name!=='AbortError')alert('Tidak dapat membagikan ringkasan.')}}));
  }
  const rows=units.flatMap(u=>u.points.map(p=>({month:p.month,...u,rate:p.rate,status:p.status}))).sort((a,b)=>a.month.localeCompare(b.month)||a.unitCode.localeCompare(b.unitCode));
  $('rateTrend').innerHTML=rows.length?'<table><thead><tr><th>Periode</th><th>Unit</th><th>Jenis Unit</th><th>Laju kerja</th><th>Perubahan dari bulan sebelumnya</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>{const prev=rows.filter(y=>y.unitCode===x.unitCode&&y.month<x.month&&y.rate!==null).sort((a,b)=>b.month.localeCompare(a.month))[0];const delta=x.rate!==null&&prev?x.rate-prev.rate:null;return '<tr><td>'+escapeHtml(rateMonthLabel(x.month))+'</td><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+escapeHtml(rateTypeLabel(x.category))+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(delta==null?'—':(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status||'—')+'</td></tr>'}).join('')+'</tbody></table>':'<div class="workflow-empty">Belum ada riwayat pembaruan bulanan yang cocok dengan filter.</div>';
@@ -2396,6 +2404,43 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 <script src="export-pdf-forklift.js?v=1"></script>
 <!-- Sesi login: auto-logout 3 jam, Ingat Saya, tampilan halaman login -->
 <script src="auth-session.js?v=1"></script>
+
+
+<style id="rate-trend-chart-redesign">
+#rateAnalysisPage .rate-trend-charts{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:12px}
+#rateAnalysisPage .rate-trend-card{min-width:0;overflow:hidden;border:1px solid #29364d;border-radius:15px;background:linear-gradient(145deg,#172438 0%,#101a2b 58%,#0b1422 100%);box-shadow:0 10px 28px rgba(0,0,0,.22);color:#e7edf7}
+#rateAnalysisPage .rate-chart-card-head{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid rgba(148,163,184,.16);background:linear-gradient(90deg,rgba(51,65,85,.48),rgba(30,41,59,.18))}
+#rateAnalysisPage .rate-chart-unit-icon{width:48px;height:48px;flex:0 0 48px;border-radius:12px;display:grid;place-items:center;background:rgba(148,163,184,.13);color:#cbd5e1;font-size:22px}
+#rateAnalysisPage .rate-chart-unit-title{min-width:0;display:flex;flex-direction:column;gap:4px;flex:1}
+#rateAnalysisPage .rate-chart-unit-title b{font-size:clamp(16px,2vw,22px);font-weight:700;overflow-wrap:anywhere}
+#rateAnalysisPage .rate-chart-unit-title small,#rateAnalysisPage .rate-chart-period small{color:#94a3b8;font-size:11px}
+#rateAnalysisPage .rate-chart-period{display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:#cbd5e1;font-size:14px;text-align:right}
+#rateAnalysisPage .rate-chart-statusline{display:flex;justify-content:space-between;align-items:center;padding:12px 22px 0;color:#cbd5e1;font-size:13px}
+#rateAnalysisPage .rate-chart-active{display:inline-flex;align-items:center;gap:7px;color:#4ade80;font-size:12px;font-weight:600;white-space:nowrap}
+#rateAnalysisPage .rate-chart-active i{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.55)}
+#rateAnalysisPage .rate-chart-canvas{padding:0 14px 4px;overflow-x:auto}
+#rateAnalysisPage .rate-chart-canvas svg{display:block;width:100%;min-width:520px;height:auto;overflow:visible}
+#rateAnalysisPage .rate-chart-grid{stroke:#64748b;stroke-opacity:.32;stroke-dasharray:4 5;stroke-width:1}
+#rateAnalysisPage .rate-chart-grid-vertical{stroke-opacity:.2}
+#rateAnalysisPage .rate-chart-axis,#rateAnalysisPage .rate-chart-month{fill:#aebbd0;font-size:12px}
+#rateAnalysisPage .rate-chart-value{fill:#f8fafc;font-size:13px;font-weight:700;paint-order:stroke;stroke:#101a2b;stroke-width:4px;stroke-linejoin:round}
+#rateAnalysisPage .rate-chart-line{fill:none;stroke:#4da3ff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(59,130,246,.45))}
+#rateAnalysisPage .rate-chart-point-halo{fill:#60a5fa;opacity:.2}
+#rateAnalysisPage .rate-chart-point{fill:#dbeafe;stroke:#3b82f6;stroke-width:3}
+#rateAnalysisPage .rate-chart-stats{display:flex;align-items:stretch;flex-wrap:wrap;margin:8px 14px 14px;border:1px solid rgba(100,116,139,.35);border-radius:11px;overflow:hidden;background:rgba(15,23,42,.58)}
+#rateAnalysisPage .rate-chart-stat{display:flex;flex:1 1 125px;min-width:110px;flex-direction:column;justify-content:center;gap:8px;padding:10px 13px;border-right:1px solid rgba(100,116,139,.3)}
+#rateAnalysisPage .rate-chart-stat small{font-size:11px;color:#aab7ca}
+#rateAnalysisPage .rate-chart-stat b{font-size:14px;color:#f8fafc}
+#rateAnalysisPage .rate-chart-spark{flex:1 1 150px;min-width:145px}
+#rateAnalysisPage .rate-chart-spark svg{width:100%;max-width:150px;height:34px;overflow:visible}
+#rateAnalysisPage .rate-chart-spark path{fill:none;stroke:#60a5fa;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+#rateAnalysisPage .rate-chart-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:1 1 100%;padding:10px 12px;border-top:1px solid rgba(100,116,139,.25)}
+#rateAnalysisPage .rate-chart-change{margin-right:auto;color:#94a3b8;font-size:12px}
+#rateAnalysisPage .rate-chart-actions button{border:1px solid #475569;border-radius:8px;padding:8px 12px;background:#26364d;color:#e2e8f0;cursor:pointer;font-size:12px}
+#rateAnalysisPage .rate-chart-actions button:last-child{background:#1769c2;border-color:#3987df;color:white}
+@media(max-width:640px){#rateAnalysisPage .rate-chart-card-head{align-items:flex-start;gap:10px;padding:12px}#rateAnalysisPage .rate-chart-unit-icon{width:40px;height:40px;flex-basis:40px;font-size:18px}#rateAnalysisPage .rate-chart-period{font-size:11px}#rateAnalysisPage .rate-chart-stats{margin:6px 8px 9px}#rateAnalysisPage .rate-chart-stat{flex-basis:45%;padding:9px}#rateAnalysisPage .rate-chart-actions{flex-wrap:wrap}#rateAnalysisPage .rate-chart-change{flex-basis:100%}}
+@media print{body *{visibility:hidden!important}#rateAnalysisPage #rateTrendCharts,#rateAnalysisPage #rateTrendCharts *{visibility:visible!important}#rateAnalysisPage #rateTrendCharts{position:absolute;left:0;top:0;width:100%}#rateAnalysisPage .rate-chart-actions{display:none!important}#rateAnalysisPage .rate-trend-card{break-inside:avoid;background:#fff!important;color:#111!important;box-shadow:none!important}#rateAnalysisPage .rate-chart-unit-title b,#rateAnalysisPage .rate-chart-stat b{color:#111!important}}
+</style>
 
 </body>
 </html>
