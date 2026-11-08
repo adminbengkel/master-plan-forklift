@@ -1954,9 +1954,21 @@ function renderRateTrend(){
  const snaps=readRateSnapshots(),selectedMonth=$('rateMonth')?.value||new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'),period=ratePeriodState(selectedMonth),trendMap=new Map();
  const windowMonths=Array.from({length:12},(_,i)=>{const d=new Date(Number(selectedMonth.slice(0,4)),Number(selectedMonth.slice(5,7))-1-(11-i),1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')});
  const addRow=(month,row)=>{const key=row.unitCode;if(!trendMap.has(key))trendMap.set(key,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});const item=trendMap.get(key);item.unitName=row.unitName||item.unitName;item.category=row.category||item.category;item.points=item.points.filter(p=>p.month!==month);item.points.push({month,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,availabilityRate:row.status==='Valid'&&Number.isFinite(Number(row.availabilityRate))?Number(row.availabilityRate):null,status:row.status,downtimeHours:Number(row.downtimeHours)||0,downtimeDays:Number(row.downtimeDays)||0,downtimePercent:Number(row.downtimePercent)||0,repairWoCount:Number(row.repairWoCount)||0,availableDays:row.availableDays,measurementAvailableDays:row.measurementAvailableDays,availabilityStatus:row.availabilityStatus||'Tidak dapat dihitung',repairHistory:Array.isArray(row.repairHistory)?row.repairHistory:[]})};
- windowMonths.forEach(month=>{const snap=snaps[month];if(snap)(snap.rows||[]).forEach(row=>addRow(month,row));});
- // Bulan yang sedang dipilih tetap dapat dilihat dari data WO aktual meskipun snapshot belum disimpan.
- if(period.key!=='upcoming'&&(period.key==='provisional'||!snaps[selectedMonth]))collectMonthlyRateRows(selectedMonth).forEach(row=>addRow(selectedMonth,row));
+ // Bangun seluruh 12 bulan dari WO Aktual, bukan hanya dari snapshot yang kebetulan sudah tersimpan.
+ // Snapshot dipakai sebagai cadangan untuk unit/bulan yang tidak memiliki catatan aktual pada impor lokal.
+ windowMonths.forEach(month=>{
+  const snap=snaps[month],snapshotRows=Array.isArray(snap?.rows)?snap.rows:[];
+  const actualRows=ratePeriodState(month).key==='upcoming'?[]:collectMonthlyRateRows(month);
+  const actualByCode=new Map(actualRows.map(row=>[row.unitCode,row]));
+  const snapshotByCode=new Map(snapshotRows.map(row=>[row.unitCode,row]));
+  const codes=new Set([...actualByCode.keys(),...snapshotByCode.keys()]);
+  codes.forEach(code=>{
+   const actual=actualByCode.get(code),saved=snapshotByCode.get(code);
+   const hasActualEvidence=!!actual&&((Number(actual.readingCount)||0)>0||(Number(actual.downtimeHours)||0)>0||(Number(actual.repairWoCount)||0)>0);
+   const row=hasActualEvidence?actual:(saved||actual);
+   if(row)addRow(month,row);
+  });
+ });
  const chosenCode=$('rateUnitFilter')?.value||'',searchTerm=String($('rateSearch')?.value||'').trim().toLocaleLowerCase('id-ID');
  const searchMatches=[...trendMap.values()].filter(u=>searchTerm&&String(u.unitCode+' '+u.unitName).toLocaleLowerCase('id-ID').includes(searchTerm));
  const resolvedCode=chosenCode||(searchMatches.length===1?searchMatches[0].unitCode:'');
