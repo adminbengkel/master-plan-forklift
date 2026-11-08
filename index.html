@@ -1873,10 +1873,23 @@ function rateDowntimeForMonth(repairs,month){
  repairs.forEach(r=>{const a=Math.max(start,r.startMs),b=Math.min(end,r.finishMs);if(b<=a)return;const h=(b-a)/3600000;hours+=h;overlaps.push({...r,monthHours:h,overlapStart:new Date(a).toISOString(),overlapEnd:new Date(b).toISOString()})});
  return {downtimeHours:hours,downtimeDays:hours/24,repairWoCount:overlaps.length,repairHistory:overlaps};
 }
+// Cache lokal untuk mencegah parsing JSON dan pemindaian WO berulang saat grafik 12 bulan dirender.
+// Cache otomatis dibuang ketika isi localStorage berubah (misalnya setelah impor WO).
+let rateWoSourceRaw=null,rateWoSourceStore={records:{}},rateMonthlyRowsCache=new Map();
+function getRateWoSourceStore(){
+ let raw='';
+ try{raw=localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}'}
+ catch(err){console.warn('Data WO lokal tidak dapat dibaca untuk analisa laju kerja:',err);return {records:{}}}
+ if(raw!==rateWoSourceRaw){
+  rateWoSourceRaw=raw;rateMonthlyRowsCache.clear();
+  try{rateWoSourceStore=JSON.parse(raw)||{records:{}}}
+  catch(err){console.warn('Data WO lokal tidak dapat dibaca untuk analisa laju kerja:',err);rateWoSourceStore={records:{}}}
+ }
+ return rateWoSourceStore;
+}
 function collectMonthlyRateRows(month){
- let store={records:{}};
- try{store=JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}')}
- catch(err){console.warn('Data WO lokal tidak dapat dibaca untuk analisa laju kerja:',err)}
+ const cached=rateMonthlyRowsCache.get(month);if(cached)return cached;
+ const store=getRateWoSourceStore();
  const grouped=new Map();DATA.forEach(unit=>grouped.set(unit.c,{unit,readings:[],repairs:[]}));
  Object.values(store.records||{}).forEach(item=>{
   const r=item?.current||item;if(!r)return;const unit=rateUnitForRecord(r);if(!unit)return;
@@ -1885,7 +1898,7 @@ function collectMonthlyRateRows(month){
   const hm=parseRateHm(r);if(hm===null)return;
   grouped.get(unit.c).readings.push({date,hm,wo:r.woId||''});
  });
- return [...grouped.values()].map(x=>{
+ const rows=[...grouped.values()].map(x=>{
   x.readings.sort((a,b)=>a.date.localeCompare(b.date)||a.hm-b.hm);
   const first=x.readings[0],last=x.readings[x.readings.length-1],days=first&&last?(Date.parse(last.date+'T00:00:00')-Date.parse(first.date+'T00:00:00'))/86400000:0;
   const downtime=rateDowntimeForMonth(x.repairs,month);
@@ -1903,6 +1916,8 @@ function collectMonthlyRateRows(month){
   const availabilityStatus=rate===null?'Tidak dapat dihitung':downtimePercent>=100?'N/A — 100% downtime':availableDays<=0&&days>0?'N/A — 100% downtime':downtimePercent>=80?'Perlu perhatian — downtime ≥80%':'Valid';
   return {unitCode:x.unit.c,unitName:x.unit.d||'',category:x.unit.t,readingCount:x.readings.length,firstHM:first?.hm??null,lastHM:last?.hm??null,firstDate:first?.date||'',lastDate:last?.date||'',days,rate,status,availabilityRate,availabilityStatus,downtimeHours:downtime.downtimeHours,downtimeDays:downtime.downtimeDays,downtimePercent,repairWoCount:downtime.repairWoCount,availableDays:periodDays-downtime.downtimeDays,measurementDowntimeHours,measurementAvailableDays:availableDays,repairHistory:downtime.repairHistory.map(r=>({woId:r.woId,description:r.description,start:r.start,finish:r.finish,hours:r.monthHours,overlapStart:r.overlapStart,overlapEnd:r.overlapEnd})),woIds:x.readings.map(y=>y.wo)};
  }).sort((a,b)=>a.unitCode.localeCompare(b.unitCode,'id',{numeric:true}));
+ rateMonthlyRowsCache.set(month,rows);
+ return rows;
 }
 function rateTypeLabel(type){return ({D:'Forklift Diesel',B:'Forklift Baterai',T:'Traktor',W:'Wheel Loader'})[type]||'Jenis unit lainnya'}
 function rateFilteredRows(rows){
@@ -2049,7 +2064,11 @@ if(rateResultsToggle&&rateResultsBody){
 $('rateMonth').addEventListener('change',renderRateAnalysis);
 $('rateCategoryFilter').addEventListener('change',()=>{refreshRateFilterOptions();renderRateAnalysis()});
 $('rateUnitFilter').addEventListener('change',renderRateAnalysis);
-$('rateSearch').addEventListener('input',renderRateAnalysis);
+let rateSearchRenderTimer=null;
+$('rateSearch').addEventListener('input',()=>{
+ clearTimeout(rateSearchRenderTimer);
+ rateSearchRenderTimer=setTimeout(()=>renderRateAnalysis(),280);
+});
 $('rateFilterReset').addEventListener('click',()=>{$('rateCategoryFilter').value='';$('rateSearch').value='';refreshRateFilterOptions();$('rateUnitFilter').value='';renderRateAnalysis()});
 window.mbkRefreshRateAnalysis=renderRateAnalysis;
 
