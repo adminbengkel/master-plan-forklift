@@ -1046,11 +1046,11 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div style="min-width:220px;flex:1"><label for="rateSearch">Cari unit</label><input type="search" id="rateSearch" placeholder="Cari kode atau nama unit…" aria-label="Cari kode atau nama unit"></div>
       <button type="button" id="rateFilterReset" title="Reset filter">Reset Filter</button>
     </div>
-    <div id="rateStatus" class="firestore-message" role="status" aria-live="polite">Pilih periode lalu hitung laju kerja dari catatan HM WO Aktual.</div>
+    <div id="rateStatus" class="firestore-message" role="status" aria-live="polite">Pilih periode lalu hitung laju kerja dari catatan HM WO Aktual.</div><div id="rateRevisionHistory" class="rate-revision-history"></div>
     <div class="wo-kpi-grid" id="rateKpis"><div class="wo-kpi"><small>Unit berhasil dihitung</small><strong id="rateUnitCount">0</strong></div><div class="wo-kpi"><small>Belum cukup data</small><strong id="rateInsufficientCount">0</strong></div><div class="wo-kpi"><small>WO dengan HM valid</small><strong id="rateReadingCount">0</strong></div><div class="wo-kpi"><small>Periode</small><strong id="ratePeriodLabel">—</strong></div></div>
     <div class="wo-panel rate-results-panel"><div class="rate-section-heading"><h3>Hasil pembaruan periode</h3><button type="button" id="rateResultsToggle" class="rate-collapse-btn" aria-expanded="false" aria-controls="rateResultsBody"><i class="fa-solid fa-chevron-down"></i> Maksimalkan</button></div><div id="rateResultsBody" hidden><div id="rateResults" class="wo-table-wrap"><div class="workflow-empty">Belum ada hasil perhitungan.</div></div></div></div>
     <div class="wo-panel" style="margin-top:12px"><h3>Grafik tren laju kerja bulanan</h3><div class="overview-meta" style="margin-bottom:10px">Pilih satu unit melalui pencarian kode unit untuk menampilkan grafiknya.</div><div id="rateTrendCharts" class="rate-trend-charts"><div class="workflow-empty">Pilih kode unit untuk menampilkan grafik tren laju kerja bulanan.</div></div><h3 style="margin-top:18px">Rincian tren bulanan</h3><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Pilih kode unit untuk menampilkan rincian tren bulanan.</div></div></div>
-    <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Laju = (HM terakhir − HM pertama) ÷ selisih hari kalender. Selama bulan berjalan, hasil berstatus <b>Sementara</b> dan dapat diperbarui setiap kali data WO baru diimpor. Setelah bulan berakhir, periode berubah menjadi <b>Final</b>. Unit tanpa pencatatan HM tetap ditampilkan; data yang belum cukup tidak dianggap bernilai nol.</p>
+    <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Garis biru = ΔHM ÷ hari kalender; garis kuning = ΔHM ÷ waktu pengukuran setelah dikurangi downtime WO kategori Perbaikan. Downtime dihitung dari Actual Order Start sampai Actual Order Finish dan dibagi ke setiap bulan berdasarkan jam aktual. Jika downtime mencapai 80% atau lebih, tampilkan peringatan; jika satu bulan 100% downtime, laju waktu tersedia ditampilkan N/A. Selama bulan berjalan, hasil berstatus <b>Sementara</b> dan dapat diperbarui setiap kali data WO baru diimpor. Setelah bulan berakhir, periode berubah menjadi <b>Final</b>. Unit tanpa pencatatan HM tetap ditampilkan; data yang belum cukup tidak dianggap bernilai nol.</p>
   </section>
 
   <section class="card" id="unitDirectoryCard" data-view="units" hidden>
@@ -1807,29 +1807,65 @@ function rateUnitForRecord(record){
  const matches=DATA.filter(unit=>reportImportedWoMatchesUnit(record,unit));
  return matches.length===1?matches[0]:null;
 }
+function parseRateDateTime(value){
+ const raw=String(value??'').trim();if(!raw)return null;
+ if(/^20\d{2}-\d{2}-\d{2}T.*(?:Z|[+\-]\d{2}:?\d{2})$/i.test(raw)){const zoned=new Date(raw);return Number.isNaN(zoned.getTime())?null:zoned}
+ let m=raw.match(/^(20\d{2})-(\d{1,2})-(\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+ if(m)return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
+ m=raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](20\d{2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+ if(m)return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
+ const months={jan:0,januari:0,feb:1,februari:1,mar:2,maret:2,apr:3,april:3,may:4,mei:4,jun:5,juni:5,jul:6,juli:6,aug:7,agu:7,agustus:7,sep:8,sept:8,september:8,oct:9,okt:9,oktober:9,nov:10,november:10,dec:11,des:11,desember:11};
+ m=raw.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(20\d{2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?/i);
+ if(m&&months[m[2].toLowerCase()]!==undefined){let h=Number(m[4]||0);if(m[7]){if(m[7].toUpperCase()==='PM'&&h<12)h+=12;if(m[7].toUpperCase()==='AM'&&h===12)h=0}return new Date(Number(m[3]),months[m[2].toLowerCase()],Number(m[1]),h,Number(m[5]||0),Number(m[6]||0))}
+ const d=new Date(raw);return Number.isNaN(d.getTime())?null:d;
+}
+function rateWoIsRepair(record){
+ const explicit=[record?.fields?.wocategory,record?.fields?.category,record?.fields?.worktype,record?.fields?.type,record?.fields?.description].filter(Boolean).join(' ');
+ return /\bperbaikan\b/i.test(explicit);
+}
+function rateWoRepairInfo(record,unit){
+ if(!rateWoIsRepair(record))return null;
+ const startRaw=String(record?.fields?.actualorderstart||''),finishRaw=String(record?.fields?.actualorderfinish||'');
+ if(!/\d{1,2}:\d{2}/.test(startRaw)||!/\d{1,2}:\d{2}/.test(finishRaw))return null;
+ const start=parseRateDateTime(startRaw),finish=parseRateDateTime(finishRaw);
+ if(!start||!finish||finish<=start)return null;
+ return {unitCode:unit.c,woId:String(record.woId||''),description:String(record?.fields?.description||record?.fields?.diagnosa||'Perbaikan'),start:start.toISOString(),finish:finish.toISOString(),startMs:start.getTime(),finishMs:finish.getTime()};
+}
+function rateDowntimeForMonth(repairs,month){
+ const [year,mon]=month.split('-').map(Number),start=new Date(year,mon-1,1).getTime(),end=new Date(year,mon,1).getTime();
+ const overlaps=[];let hours=0;
+ repairs.forEach(r=>{const a=Math.max(start,r.startMs),b=Math.min(end,r.finishMs);if(b<=a)return;const h=(b-a)/3600000;hours+=h;overlaps.push({...r,monthHours:h,overlapStart:new Date(a).toISOString(),overlapEnd:new Date(b).toISOString()})});
+ return {downtimeHours:hours,downtimeDays:hours/24,repairWoCount:overlaps.length,repairHistory:overlaps};
+}
 function collectMonthlyRateRows(month){
  let store={records:{}};
  try{store=JSON.parse(localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}')}
  catch(err){console.warn('Data WO lokal tidak dapat dibaca untuk analisa laju kerja:',err)}
- const grouped=new Map();
- // Siapkan seluruh unit master lebih dahulu agar unit tanpa HM tidak hilang dari pemantauan.
- DATA.forEach(unit=>grouped.set(unit.c,{unit,readings:[]}));
+ const grouped=new Map();DATA.forEach(unit=>grouped.set(unit.c,{unit,readings:[],repairs:[]}));
  Object.values(store.records||{}).forEach(item=>{
-  const r=item?.current||item;if(!r)return;
+  const r=item?.current||item;if(!r)return;const unit=rateUnitForRecord(r);if(!unit)return;
+  const repair=rateWoRepairInfo(r,unit);if(repair)grouped.get(unit.c).repairs.push(repair);
   const date=reportImportedWoDate(r);if(!date||date.slice(0,7)!==month)return;
   const hm=parseRateHm(r);if(hm===null)return;
-  const unit=rateUnitForRecord(r);if(!unit)return;
   grouped.get(unit.c).readings.push({date,hm,wo:r.woId||''});
  });
  return [...grouped.values()].map(x=>{
   x.readings.sort((a,b)=>a.date.localeCompare(b.date)||a.hm-b.hm);
-  const first=x.readings[0],last=x.readings[x.readings.length-1],days=first&&last?(Date.parse(last.date+'T00:00:00Z')-Date.parse(first.date+'T00:00:00Z'))/86400000:0;
+  const first=x.readings[0],last=x.readings[x.readings.length-1],days=first&&last?(Date.parse(last.date+'T00:00:00')-Date.parse(first.date+'T00:00:00'))/86400000:0;
+  const downtime=rateDowntimeForMonth(x.repairs,month);
   let rate=null,status='Belum Ada Update HM';
   if(x.readings.length===1)status='Data HM Belum Cukup';
   else if(x.readings.length>=2&&days>0&&last.hm>=first.hm){rate=(last.hm-first.hm)/days;status='Valid'}
   else if(x.readings.length>=2&&last.hm<first.hm)status='Perlu Pemeriksaan (HM menurun)';
   else if(x.readings.length>=2)status='Data HM Belum Cukup';
-  return {unitCode:x.unit.c,unitName:x.unit.d||'',category:x.unit.t,readingCount:x.readings.length,firstHM:first?.hm??null,lastHM:last?.hm??null,firstDate:first?.date||'',lastDate:last?.date||'',days,rate,status,woIds:x.readings.map(y=>y.wo)};
+  const periodDays=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate();
+  const downtimePercent=periodDays?Math.min(100,downtime.downtimeDays/periodDays*100):0;
+  let measurementDowntimeHours=0;
+  if(first&&last&&days>0){const a=Date.parse(first.date+'T00:00:00'),b=Date.parse(last.date+'T00:00:00');x.repairs.forEach(r=>{const overlap=Math.max(0,Math.min(b,r.finishMs)-Math.max(a,r.startMs));measurementDowntimeHours+=overlap/3600000})}
+  const measurementDowntimeDays=measurementDowntimeHours/24,availableDays=days>0?Math.max(0,days-measurementDowntimeDays):null;
+  const availabilityRate=rate!==null&&availableDays>0&&downtimePercent<100? (last.hm-first.hm)/availableDays:null;
+  const availabilityStatus=rate===null?'Tidak dapat dihitung':downtimePercent>=100?'N/A — 100% downtime':availableDays<=0&&days>0?'N/A — 100% downtime':downtimePercent>=80?'Perlu perhatian — downtime ≥80%':'Valid';
+  return {unitCode:x.unit.c,unitName:x.unit.d||'',category:x.unit.t,readingCount:x.readings.length,firstHM:first?.hm??null,lastHM:last?.hm??null,firstDate:first?.date||'',lastDate:last?.date||'',days,rate,status,availabilityRate,availabilityStatus,downtimeHours:downtime.downtimeHours,downtimeDays:downtime.downtimeDays,downtimePercent,repairWoCount:downtime.repairWoCount,availableDays:periodDays-downtime.downtimeDays,measurementDowntimeHours,measurementAvailableDays:availableDays,repairHistory:downtime.repairHistory.map(r=>({woId:r.woId,description:r.description,start:r.start,finish:r.finish,hours:r.monthHours,overlapStart:r.overlapStart,overlapEnd:r.overlapEnd})),woIds:x.readings.map(y=>y.wo)};
  }).sort((a,b)=>a.unitCode.localeCompare(b.unitCode,'id',{numeric:true}));
 }
 function rateTypeLabel(type){return ({D:'Forklift Diesel',B:'Forklift Baterai',T:'Traktor',W:'Wheel Loader'})[type]||'Jenis unit lainnya'}
@@ -1869,86 +1905,85 @@ function renderRateAnalysis(){
  if(updateBtn){updateBtn.innerHTML=period.key==='provisional'?'<i class="fa-solid fa-rotate"></i> Simpan Data Sementara':period.key==='final'?'<i class="fa-solid fa-check"></i> Hitung Rekap Final':'<i class="fa-solid fa-calendar"></i> Periode Belum Dimulai';updateBtn.disabled=period.key==='upcoming';}
  if(period.key==='provisional')$('rateStatus').textContent='Data sementara ditampilkan langsung dari WO Aktual terbaru. Data akan terus berubah mengikuti impor HM selama '+rateMonthLabel(month)+'. Klik “Simpan Data Sementara” untuk menyimpan snapshot periode ini.';
  else if(period.key==='final'&&!snap)$('rateStatus').textContent='Belum ada snapshot final '+rateMonthLabel(month)+'. Tabel menampilkan pratinjau dari data WO yang tersedia; klik “Hitung Rekap Final” untuk menyimpan rekap.';
- else if(period.key==='final'&&snap)$('rateStatus').textContent='Rekap final '+rateMonthLabel(month)+' tersimpan. Jika ada WO susulan atau koreksi, hitung ulang untuk memperbarui rekap.';
+ else if(period.key==='final'&&snap)$('rateStatus').textContent='Rekap final '+rateMonthLabel(month)+' tersimpan · Versi '+(snap.version||1)+' · '+((snap.revisions||[]).length)+' revisi sebelumnya. WO susulan akan memicu perhitungan ulang otomatis saat impor disimpan.';
  else $('rateStatus').textContent='Periode belum dimulai.';
+ const revisionHost=$('rateRevisionHistory');if(revisionHost){const revisions=Array.isArray(snap?.revisions)?snap.revisions:[];revisionHost.innerHTML=revisions.length?'<details><summary>Riwayat revisi snapshot ('+revisions.length+' versi sebelumnya)</summary><ol>'+revisions.slice().reverse().map(r=>'<li><b>Versi '+(r.version||'—')+'</b> · '+escapeHtml(r.updatedAt?new Date(r.updatedAt).toLocaleString('id-ID'):'waktu tidak tersedia')+'<br>'+escapeHtml(r.reason||'Snapshot sebelumnya')+' · '+((r.rows||[]).length)+' unit tersimpan</li>').join('')+'</ol></details>':'';}
  $('rateUnitCount').textContent=rows.filter(x=>x.status==='Valid').length;
  $('rateInsufficientCount').textContent=rows.filter(x=>x.status!=='Valid').length;
  $('rateReadingCount').textContent=rows.reduce((n,x)=>n+(x.readingCount||0),0);
- $('rateResults').innerHTML=rows.length?'<table><thead><tr><th>Unit</th><th>Jenis Unit</th><th>HM awal</th><th>HM akhir</th><th>Rentang hari</th><th>Catatan HM</th><th>Laju kerja</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>'<tr><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+escapeHtml(rateTypeLabel(x.category))+'</td><td>'+(x.firstHM??'—')+'</td><td>'+(x.lastHM??'—')+'</td><td>'+(x.days||0)+'</td><td>'+x.readingCount+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status)+'</td></tr>').join('')+'</tbody></table>':'<div class="workflow-empty">Tidak ada unit yang cocok dengan filter untuk '+escapeHtml(rateMonthLabel(month))+'.</div>';
+ $('rateResults').innerHTML=rows.length?'<table><thead><tr><th>Unit</th><th>Jenis Unit</th><th>HM awal</th><th>HM akhir</th><th>Rentang hari</th><th>Catatan HM</th><th>Laju kalender</th><th>Laju waktu tersedia</th><th>Downtime</th><th>WO Perbaikan</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>'<tr><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+escapeHtml(rateTypeLabel(x.category))+'</td><td>'+(x.firstHM??'—')+'</td><td>'+(x.lastHM??'—')+'</td><td>'+(x.days||0)+'</td><td>'+x.readingCount+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(x.availabilityRate==null?escapeHtml(x.availabilityStatus):x.availabilityRate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(Number(x.downtimeHours||0).toFixed(1).replace('.',',')+' jam · '+Number(x.downtimePercent||0).toFixed(1).replace('.',',')+'%')+'</td><td>'+(x.repairWoCount||0)+'</td><td>'+escapeHtml(x.status)+'</td></tr>').join('')+'</tbody></table>':'<div class="workflow-empty">Tidak ada unit yang cocok dengan filter untuk '+escapeHtml(rateMonthLabel(month))+'.</div>';
  renderRateTrend();
 }
 function renderRateTrend(){
- const snaps=readRateSnapshots(),months=Object.keys(snaps).sort();
- const selectedMonth=$('rateMonth')?.value||'';
- const period=selectedMonth?ratePeriodState(selectedMonth):null;
- const trendMap=new Map();
- months.forEach(month=>(snaps[month].rows||[]).forEach(row=>{
-  const key=row.unitCode;if(!trendMap.has(key))trendMap.set(key,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});
-  trendMap.get(key).points.push({month,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,status:row.status});
- }));
- if(period&&period.key==='provisional'){
-  collectMonthlyRateRows(selectedMonth).forEach(row=>{
-   if(!trendMap.has(row.unitCode))trendMap.set(row.unitCode,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});
-   const item=trendMap.get(row.unitCode);item.points=item.points.filter(p=>p.month!==selectedMonth);
-   item.points.push({month:selectedMonth,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,status:row.status});
-  });
- }
- const chosenCode=$('rateUnitFilter')?.value||'';
- const searchTerm=String($('rateSearch')?.value||'').trim().toLocaleLowerCase('id-ID');
+ const snaps=readRateSnapshots(),months=Object.keys(snaps).sort(),selectedMonth=$('rateMonth')?.value||'',period=selectedMonth?ratePeriodState(selectedMonth):null,trendMap=new Map();
+ const addRow=(month,row)=>{const key=row.unitCode;if(!trendMap.has(key))trendMap.set(key,{unitCode:row.unitCode,unitName:row.unitName||'',category:row.category,points:[]});const item=trendMap.get(key);item.points=item.points.filter(p=>p.month!==month);item.points.push({month,rate:row.status==='Valid'&&Number.isFinite(Number(row.rate))?Number(row.rate):null,availabilityRate:row.status==='Valid'&&Number.isFinite(Number(row.availabilityRate))?Number(row.availabilityRate):null,status:row.status,downtimeHours:Number(row.downtimeHours)||0,downtimeDays:Number(row.downtimeDays)||0,downtimePercent:Number(row.downtimePercent)||0,repairWoCount:Number(row.repairWoCount)||0,availableDays:row.availableDays,availabilityStatus:row.availabilityStatus||'Tidak dapat dihitung',repairHistory:Array.isArray(row.repairHistory)?row.repairHistory:[]})};
+ months.forEach(month=>(snaps[month].rows||[]).forEach(row=>addRow(month,row)));
+ if(period&&period.key==='provisional')collectMonthlyRateRows(selectedMonth).forEach(row=>addRow(selectedMonth,row));
+ const chosenCode=$('rateUnitFilter')?.value||'',searchTerm=String($('rateSearch')?.value||'').trim().toLocaleLowerCase('id-ID');
  const searchMatches=[...trendMap.values()].filter(u=>searchTerm&&String(u.unitCode+' '+u.unitName).toLocaleLowerCase('id-ID').includes(searchTerm));
  const resolvedCode=chosenCode||(searchMatches.length===1?searchMatches[0].unitCode:'');
- const hasSpecificUnit=!!resolvedCode;
- let units=hasSpecificUnit?[...trendMap.values()].filter(u=>u.unitCode===resolvedCode&&rateFilteredRows([{unitCode:u.unitCode,unitName:u.unitName,category:u.category}]).length>0):[];
- units.forEach(u=>u.points.sort((a,b)=>a.month.localeCompare(b.month,'id',{numeric:true})));
+ let units=resolvedCode?[...trendMap.values()].filter(u=>u.unitCode===resolvedCode&&rateFilteredRows([{unitCode:u.unitCode,unitName:u.unitName,category:u.category}]).length>0):[];
+ units.forEach(u=>u.points.sort((a,b)=>a.month.localeCompare(b.month)));
  const chartHost=$('rateTrendCharts');
  if(chartHost){
   const validUnits=units.filter(u=>u.points.some(p=>p.rate!==null));
   chartHost.innerHTML=validUnits.length?validUnits.map((u,idx)=>{
-   const pts=u.points.filter(p=>p.rate!==null),values=pts.map(p=>p.rate),avg=values.reduce((a,b)=>a+b,0)/values.length,max=Math.max(...values),min=Math.min(...values);
-   const width=1000,height=300,left=58,right=24,top=30,bottom=48;
-   const yMax=Math.max(1,Math.ceil(max*1.2)),tickStep=yMax/5;
-   const x=i=>left+(pts.length===1?0:i*(width-left-right)/(pts.length-1));
-   const y=v=>top+(yMax-v)*(height-top-bottom)/yMax;
-   const linePath=pts.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(p.rate).toFixed(1)).join(' ');
-   const areaPath=linePath+' L'+x(pts.length-1).toFixed(1)+','+(height-bottom)+' L'+x(0).toFixed(1)+','+(height-bottom)+' Z';
-   const gid='rateGradient'+idx;
-   const grid=Array.from({length:6},(_,i)=>{const val=tickStep*i,yy=y(val);return '<g><line x1="'+left+'" y1="'+yy.toFixed(1)+'" x2="'+(width-right)+'" y2="'+yy.toFixed(1)+'" class="rate-chart-grid"/><text x="'+(left-12)+'" y="'+(yy+5).toFixed(1)+'" text-anchor="end" class="rate-chart-axis">'+val.toFixed(val%1?1:0)+'</text></g>'}).join('');
-   const xGuides=pts.map((p,i)=>'<line x1="'+x(i).toFixed(1)+'" y1="'+top+'" x2="'+x(i).toFixed(1)+'" y2="'+(height-bottom)+'" class="rate-chart-grid rate-chart-grid-vertical"/>').join('');
-   const circles=pts.map((p,i)=>'<g><circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.rate).toFixed(1)+'" r="9" class="rate-chart-point-halo"/><circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.rate).toFixed(1)+'" r="4.5" class="rate-chart-point"><title>'+escapeHtml(rateMonthLabel(p.month))+': '+p.rate.toFixed(2)+' HM/hari</title></circle><text x="'+x(i).toFixed(1)+'" y="'+(y(p.rate)-17).toFixed(1)+'" text-anchor="middle" class="rate-chart-value">'+p.rate.toFixed(1)+'</text></g>').join('');
-   const labels=pts.map((p,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(height-15)+'" text-anchor="middle" class="rate-chart-month">'+escapeHtml(new Date(p.month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}))+'</text>').join('');
-   const sparkW=150,sparkH=34,sparkPad=4,sparkSpan=max-min||1;
-   const sx=i=>sparkPad+(pts.length===1?0:i*(sparkW-2*sparkPad)/(pts.length-1)),sy=v=>sparkPad+(max-v)*(sparkH-2*sparkPad)/sparkSpan;
-   const spark=pts.map((p,i)=>(i?'L':'M')+sx(i).toFixed(1)+','+sy(p.rate).toFixed(1)).join(' ');
-   const first=pts[0],last=pts[pts.length-1],change=pts.length>1?last.rate-first.rate:null;
+   const pts=u.points.filter(p=>p.rate!==null),calendar=pts.map(p=>p.rate),available=pts.filter(p=>p.availabilityRate!==null).map(p=>p.availabilityRate),allValues=calendar.concat(available),avg=calendar.reduce((a,b)=>a+b,0)/calendar.length,max=Math.max(...calendar),min=Math.min(...calendar),avgAvailable=available.length?available.reduce((a,b)=>a+b,0)/available.length:null;
+   const width=1000,height=330,left=64,right=26,top=34,bottom=54,yMax=Math.max(1,Math.ceil(Math.max(...allValues)*1.2)),x=i=>left+(pts.length===1?0:i*(width-left-right)/(pts.length-1)),y=v=>top+(yMax-v)*(height-top-bottom)/yMax;
+   const line=(arr,key)=>arr.map((p,i)=>({p,i})).filter(o=>o.p[key]!==null&&Number.isFinite(Number(o.p[key]))).map((o,j,a)=>(j?'L':'M')+x(o.i).toFixed(1)+','+y(Number(o.p[key])).toFixed(1)).join(' ');
+   const calendarPath=line(pts,'rate'),availabilityPath=line(pts,'availabilityRate'),gid='rateGradient'+idx;
+   const grid=Array.from({length:6},(_,i)=>{const val=yMax*i/5,yy=y(val);return '<g><line x1="'+left+'" y1="'+yy.toFixed(1)+'" x2="'+(width-right)+'" y2="'+yy.toFixed(1)+'" class="rate-chart-grid"/><text x="'+(left-12)+'" y="'+(yy+5).toFixed(1)+'" text-anchor="end" class="rate-chart-axis">'+val.toFixed(val%1?1:0)+'</text></g>'}).join('');
+   const guides=pts.map((p,i)=>'<line x1="'+x(i).toFixed(1)+'" y1="'+top+'" x2="'+x(i).toFixed(1)+'" y2="'+(height-bottom)+'" class="rate-chart-grid rate-chart-grid-vertical"/>').join('');
+   const bluePoints=pts.map((p,i)=>'<g><circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.rate).toFixed(1)+'" r="4.5" class="rate-chart-point"><title>'+escapeHtml(rateMonthLabel(p.month))+': '+p.rate.toFixed(2)+' HM/hari (kalender)</title></circle><text x="'+x(i).toFixed(1)+'" y="'+(y(p.rate)-14).toFixed(1)+'" text-anchor="middle" class="rate-chart-value">'+p.rate.toFixed(1)+'</text></g>').join('');
+   const yellowPoints=pts.map((p,i)=>p.availabilityRate===null?'':'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.availabilityRate).toFixed(1)+'" r="5" class="rate-chart-availability-point"><title>'+escapeHtml(rateMonthLabel(p.month))+': '+p.availabilityRate.toFixed(2)+' HM/hari (waktu tersedia)</title></circle>').join('');
+   const labels=pts.map((p,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(height-17)+'" text-anchor="middle" class="rate-chart-month">'+escapeHtml(new Date(p.month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}))+'</text>').join('');
    const periodText=pts.length?new Date(pts[0].month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'})+' – '+new Date(pts[pts.length-1].month+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'2-digit'}):'—';
-   const deltaText=change===null?'Satu periode':(change>0?'+':'')+change.toFixed(2)+' HM/hari';
-   return '<article class="rate-trend-card"><header class="rate-chart-card-head"><div class="rate-chart-unit-icon"><i class="fa-solid fa-truck-fast"></i></div><div class="rate-chart-unit-title"><b>'+escapeHtml(u.unitCode)+' — '+escapeHtml(u.unitName||'Nama unit tidak tersedia')+'</b><small>'+escapeHtml(rateTypeLabel(u.category))+'</small></div><div class="rate-chart-period"><span>Periode: '+escapeHtml(periodText)+'</span><small>'+pts.length+' bulan dengan data valid</small></div></header><div class="rate-chart-statusline"><span>HM/hari</span><span class="rate-chart-active"><i></i> Data valid</span></div><div class="rate-chart-canvas"><svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Grafik laju kerja '+escapeHtml(u.unitCode)+' per bulan"><defs><linearGradient id="'+gid+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#3b9cff" stop-opacity=".42"/><stop offset="100%" stop-color="#3b9cff" stop-opacity=".02"/></linearGradient></defs>'+grid+xGuides+'<path d="'+areaPath+'" fill="url(#'+gid+')"/><path d="'+linePath+'" class="rate-chart-line"/>'+circles+labels+'</svg></div><footer class="rate-chart-stats"><div class="rate-chart-stat"><small>Statistik Unit ('+pts.length+' Bulan)</small><b class="rate-chart-active"><i></i> Terdata</b></div><div class="rate-chart-stat"><small>Rata-rata</small><b>'+avg.toFixed(2)+' HM/hari</b></div><div class="rate-chart-stat"><small>Tertinggi</small><b>'+max.toFixed(2)+' HM/hari</b></div><div class="rate-chart-stat"><small>Terendah</small><b>'+min.toFixed(2)+' HM/hari</b></div><div class="rate-chart-stat rate-chart-spark"><small>Sparkline trend</small><svg viewBox="0 0 '+sparkW+' '+sparkH+'" role="img" aria-label="Ringkasan tren"><path d="'+spark+'"/></svg></div><div class="rate-chart-actions"><span class="rate-chart-change">'+escapeHtml(deltaText)+' dari awal</span><button type="button" data-rate-action="print" title="Cetak laporan"><i class="fa-solid fa-print"></i> Cetak Laporan</button><button type="button" data-rate-action="share" data-unit="'+escapeHtml(u.unitCode)+'" title="Bagikan ringkasan"><i class="fa-solid fa-share-nodes"></i> Bagikan</button></div></footer></article>';
-  }).join(''):'<div class="workflow-empty">'+(hasSpecificUnit?'Belum ada data laju kerja bulanan yang valid untuk unit '+escapeHtml(resolvedCode)+'.':'Pilih kode unit untuk menampilkan grafik tren laju kerja bulanan.')+'</div>';
-  chartHost.querySelectorAll('[data-rate-action="print"]').forEach(btn=>btn.addEventListener('click',()=>window.print()));
-  chartHost.querySelectorAll('[data-rate-action="share"]').forEach(btn=>btn.addEventListener('click',async()=>{const unit=btn.dataset.unit,entry=validUnits.find(x=>x.unitCode===unit);if(!entry)return;const p=entry.points.filter(x=>x.rate!==null),v=p.map(x=>x.rate),textShare='Tren laju kerja '+unit+'\n'+p.map(x=>rateMonthLabel(x.month)+': '+x.rate.toFixed(2)+' HM/hari').join('\n');try{if(navigator.share)await navigator.share({title:'Tren Laju Kerja '+unit,text:textShare});else if(navigator.clipboard){await navigator.clipboard.writeText(textShare);alert('Ringkasan tren '+unit+' berhasil disalin.')}else alert(textShare)}catch(err){if(err.name!=='AbortError')alert('Tidak dapat membagikan ringkasan.')}}));
+   const detailRows=pts.map(p=>'<tr><td>'+escapeHtml(rateMonthLabel(p.month))+'</td><td>'+(p.rate===null?'—':p.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(p.availabilityRate===null?escapeHtml(p.availabilityStatus):p.availabilityRate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+p.downtimeHours.toFixed(1).replace('.',',')+' jam ('+p.downtimeDays.toFixed(2).replace('.',',')+' hari)</td><td>'+p.repairWoCount+'</td><td>'+p.downtimePercent.toFixed(1).replace('.',',')+'%</td><td>'+(p.availableDays==null?'—':Math.max(0,p.availableDays).toFixed(2).replace('.',',')+' hari')+'</td><td>'+(p.measurementAvailableDays==null?'—':Math.max(0,p.measurementAvailableDays).toFixed(2).replace('.',',')+' hari')+'</td></tr>').join('');
+   const repairRows=pts.flatMap(p=>p.repairHistory.map(r=>({month:p.month,...r}))).sort((a,b)=>String(a.start).localeCompare(String(b.start)));
+   const repairTable=repairRows.length?'<div class="rate-downtime-history"><h4>Riwayat WO Perbaikan yang memengaruhi periode</h4><div class="wo-table-wrap"><table><thead><tr><th>Bulan</th><th>Nomor WO</th><th>Mulai WO aktual</th><th>Selesai WO aktual</th><th>Segmen waktu bulan</th><th>Durasi dalam bulan</th><th>Deskripsi</th></tr></thead><tbody>'+repairRows.map(r=>'<tr><td>'+escapeHtml(rateMonthLabel(r.month))+'</td><td>'+escapeHtml(r.woId||'—')+'</td><td>'+escapeHtml(new Date(r.start).toLocaleString('id-ID'))+'</td><td>'+escapeHtml(new Date(r.finish).toLocaleString('id-ID'))+'</td><td>'+escapeHtml(new Date(r.overlapStart||r.start).toLocaleString('id-ID')+' – '+new Date(r.overlapEnd||r.finish).toLocaleString('id-ID'))+'</td><td>'+Number(r.hours||0).toFixed(2).replace('.',',')+' jam</td><td>'+escapeHtml(r.description||'Perbaikan')+'</td></tr>').join('')+'</tbody></table></div></div>':'<div class="workflow-empty">Tidak ada WO kategori Perbaikan dengan durasi valid yang tumpang tindih pada bulan-bulan grafik.</div>';
+   const warning=pts.some(p=>p.downtimePercent>=80)?'<div class="rate-downtime-warning">Perhatian: terdapat bulan dengan downtime ≥80%. Kedua indikator tetap ditampilkan; laju berdasarkan waktu tersedia perlu dibaca dengan hati-hati.</div>':'';
+   return '<article class="rate-trend-card"><header class="rate-chart-card-head"><div class="rate-chart-unit-icon"><i class="fa-solid fa-truck-fast"></i></div><div class="rate-chart-unit-title"><b>'+escapeHtml(u.unitCode)+' — '+escapeHtml(u.unitName||'Nama unit tidak tersedia')+'</b><small>'+escapeHtml(rateTypeLabel(u.category))+'</small></div><div class="rate-chart-period"><span>Periode: '+escapeHtml(periodText)+'</span><small>'+pts.length+' bulan dengan data HM valid</small></div></header><div class="rate-chart-statusline"><span>HM/hari</span><span class="rate-chart-legend"><i class="rate-legend-blue"></i> Laju kalender <i class="rate-legend-yellow"></i> Laju waktu tersedia</span></div><div class="rate-chart-canvas"><svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Grafik laju kerja kalender dan waktu tersedia '+escapeHtml(u.unitCode)+' per bulan"><defs><linearGradient id="'+gid+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#3b9cff" stop-opacity=".25"/><stop offset="100%" stop-color="#3b9cff" stop-opacity=".01"/></linearGradient></defs>'+grid+guides+'<path d="'+calendarPath+'" class="rate-chart-line"/><path d="'+availabilityPath+'" class="rate-chart-availability-line"/>'+bluePoints+yellowPoints+labels+'</svg></div><footer class="rate-chart-stats"><div class="rate-chart-stat"><small>Rata-rata laju kalender</small><b>'+avg.toFixed(2)+' HM/hari</b></div><div class="rate-chart-stat"><small>Rata-rata waktu tersedia</small><b>'+(avgAvailable===null?'N/A':avgAvailable.toFixed(2)+' HM/hari')+'</b></div><div class="rate-chart-stat"><small>Laju kalender tertinggi</small><b>'+max.toFixed(2)+' HM/hari</b></div><div class="rate-chart-stat"><small>Laju kalender terendah</small><b>'+min.toFixed(2)+' HM/hari</b></div></footer><div class="rate-downtime-analysis"><h4>Analisis downtime per bulan</h4><div class="wo-table-wrap"><table><thead><tr><th>Periode</th><th>Laju kalender</th><th>Laju waktu tersedia</th><th>Total downtime</th><th>WO Perbaikan</th><th>Downtime periode</th><th>Waktu tersedia bulan</th><th>Waktu tersedia rentang HM</th></tr></thead><tbody>'+detailRows+'</tbody></table></div>'+warning+'<p class=\"wo-note\">Durasi downtime dihitung hanya jika Tanggal Masuk dan Tanggal Selesai WO memiliki jam aktual yang valid. WO tanpa jam lengkap tidak dimasukkan ke perhitungan durasi.</p>'+repairTable+'</div></article>';
+  }).join(''):'<div class="workflow-empty">'+(resolvedCode?'Belum ada data laju kerja bulanan yang valid untuk unit '+escapeHtml(resolvedCode)+'.':'Pilih kode unit untuk menampilkan grafik tren laju kerja bulanan.')+'</div>';
  }
- const rows=units.flatMap(u=>u.points.map(p=>({month:p.month,...u,rate:p.rate,status:p.status}))).sort((a,b)=>a.month.localeCompare(b.month)||a.unitCode.localeCompare(b.unitCode));
- $('rateTrend').innerHTML=rows.length?'<table><thead><tr><th>Periode</th><th>Unit</th><th>Jenis Unit</th><th>Laju kerja</th><th>Perubahan dari bulan sebelumnya</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>{const prev=rows.filter(y=>y.unitCode===x.unitCode&&y.month<x.month&&y.rate!==null).sort((a,b)=>b.month.localeCompare(a.month))[0];const delta=x.rate!==null&&prev?x.rate-prev.rate:null;return '<tr><td>'+escapeHtml(rateMonthLabel(x.month))+'</td><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+escapeHtml(rateTypeLabel(x.category))+'</td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+(delta==null?'—':(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+escapeHtml(x.status||'—')+'</td></tr>'}).join('')+'</tbody></table>':'<div class="workflow-empty">'+(hasSpecificUnit?'Belum ada riwayat pembaruan bulanan untuk unit '+escapeHtml(resolvedCode)+'.':'Pilih kode unit untuk menampilkan rincian tren bulanan.')+'</div>';
+ const rows=units.flatMap(u=>u.points.map(p=>({month:p.month,...u,rate:p.rate,availabilityRate:p.availabilityRate,downtimeHours:p.downtimeHours,downtimePercent:p.downtimePercent,repairWoCount:p.repairWoCount,status:p.status,availabilityStatus:p.availabilityStatus}))).sort((a,b)=>a.month.localeCompare(b.month));
+ $('rateTrend').innerHTML=rows.length?'<table><thead><tr><th>Periode</th><th>Unit</th><th>Laju kalender</th><th>Laju waktu tersedia</th><th>Downtime</th><th>WO Perbaikan</th><th>Status</th></tr></thead><tbody>'+rows.map(x=>{const prev=rows.filter(y=>y.month<x.month&&y.rate!==null).sort((a,b)=>b.month.localeCompare(a.month))[0],delta=x.rate!==null&&prev?x.rate-prev.rate:null;return '<tr><td>'+escapeHtml(rateMonthLabel(x.month))+'</td><td><b>'+escapeHtml(x.unitCode)+'</b><br><small>'+escapeHtml(x.unitName||'')+'</small></td><td>'+(x.rate==null?'—':x.rate.toFixed(2).replace('.',',')+' HM/hari')+(delta==null?'':'<small> ('+(delta>0?'+':'')+delta.toFixed(2).replace('.',',')+' dari bulan sebelumnya)</small>')+'</td><td>'+(x.availabilityRate==null?escapeHtml(x.availabilityStatus):x.availabilityRate.toFixed(2).replace('.',',')+' HM/hari')+'</td><td>'+x.downtimeHours.toFixed(1).replace('.',',')+' jam · '+x.downtimePercent.toFixed(1).replace('.',',')+'%</td><td>'+x.repairWoCount+'</td><td>'+escapeHtml(x.status||'—')+'</td></tr>'}).join('')+'</tbody></table>':'<div class="workflow-empty">'+(resolvedCode?'Belum ada riwayat pembaruan bulanan untuk unit '+escapeHtml(resolvedCode)+'.':'Pilih kode unit untuk menampilkan rincian tren bulanan.')+'</div>';
+}
+async function saveMonthlyRateSnapshot(month,reason='Pembaruan manual'){
+ const period=ratePeriodState(month);if(period.key==='upcoming')return false;
+ const rows=collectMonthlyRateRows(month),snapshots=readRateSnapshots(),old=snapshots[month];
+ if(!rows.length)return false;
+ if(old?.rows)rows.forEach(row=>{if(row.status!=='Valid'){const prev=old.rows.find(x=>x.unitCode===row.unitCode&&x.status==='Valid');if(prev)row.previousValidRate=prev.rate}});
+ const updatedAt=new Date().toISOString(),revisions=Array.isArray(old?.revisions)?old.revisions.slice():[];
+ if(old?.rows){revisions.push({version:Number(old.version)||1,updatedAt:old.updatedAt||'',reason:'Snapshot sebelumnya sebelum '+reason,periodStatus:old.periodStatus||'final',rows:old.rows});}
+ const snapshot={month,version:(Number(old?.version)||0)+1,periodStatus:period.key,updatedAt,reason,method:'Laju kalender = ΔHM / hari kalender antara catatan HM pertama dan terakhir; laju waktu tersedia = ΔHM / rentang hari pengukuran setelah dikurangi downtime Perbaikan yang tumpang tindih',rows,revisions};
+ if(db){await db.collection('laju').doc(rateSnapshotKey(month)).set({snapshot,kind:'monthly_rate_snapshot',updatedAt,version:snapshot.version,reason});lshared[rateSnapshotKey(month)]={snapshot,kind:'monthly_rate_snapshot',updatedAt,version:snapshot.version,reason};}
+ else{snapshots[month]=snapshot;localStorage.setItem('mbk_rate_monthly_v1',JSON.stringify(snapshots));}
+ return snapshot;
 }
 async function updateMonthlyRateSnapshot(){
  const month=$('rateMonth').value;if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)){alert('Pilih periode bulan yang valid.');return}
- const period=ratePeriodState(month);
- if(period.key==='upcoming'){$('rateStatus').textContent='Periode '+rateMonthLabel(month)+' belum dimulai. Perhitungan dapat dilakukan setelah periode berjalan.';return}
- const btn=$('rateUpdateBtn');btn.disabled=true;$('rateStatus').textContent='Menghitung catatan HM dari WO Aktual untuk '+period.label.toLowerCase()+'…';
- try{
-  const rows=collectMonthlyRateRows(month),snapshots=readRateSnapshots(),old=snapshots[month];
-  if(!rows.length){$('rateStatus').textContent='Tidak ditemukan unit master atau catatan yang dapat dianalisa pada periode '+rateMonthLabel(month)+'. Snapshot lama tidak diubah.';return}
-  // Pertahankan referensi laju valid terdahulu tanpa menggantikan status data periode yang sedang dihitung.
-  if(old?.rows)rows.forEach(row=>{if(row.status!=='Valid'){const prev=old.rows.find(x=>x.unitCode===row.unitCode&&x.status==='Valid');if(prev){row.previousValidRate=prev.rate;}}});
-  const updatedAt=new Date().toISOString();
-  const snapshot={month,periodStatus:period.key,updatedAt,method:'HM selisih dibagi hari kalender antara catatan pertama dan terakhir dalam bulan',rows};
-  if(db){await db.collection('laju').doc(rateSnapshotKey(month)).set({snapshot,kind:'monthly_rate_snapshot',updatedAt});}
-  else{snapshots[month]=snapshot;localStorage.setItem('mbk_rate_monthly_v1',JSON.stringify(snapshots));}
-  $('rateStatus').textContent=(period.key==='provisional'?'Data sementara ':'Rekap final ')+rateMonthLabel(month)+' berhasil diperbarui. '+rows.filter(x=>x.status==='Valid').length+' unit valid; '+rows.filter(x=>x.status!=='Valid').length+' unit belum cukup data/perlu pemeriksaan.';
-  renderRateAnalysis();
- }catch(err){console.error('Pembaruan laju kerja:',err);$('rateStatus').textContent='Gagal menyimpan snapshot: '+(err.message||String(err));}
- finally{btn.disabled=ratePeriodState(month).key==='upcoming';}
+ const period=ratePeriodState(month);if(period.key==='upcoming'){$('rateStatus').textContent='Periode '+rateMonthLabel(month)+' belum dimulai. Perhitungan dapat dilakukan setelah periode berjalan.';return}
+ const btn=$('rateUpdateBtn');btn.disabled=true;$('rateStatus').textContent='Menghitung HM dan downtime WO Perbaikan untuk '+period.label.toLowerCase()+'…';
+ try{const old=readRateSnapshots()[month],snapshot=await saveMonthlyRateSnapshot(month,old?'Pembaruan manual':'Snapshot pertama');if(!snapshot){$('rateStatus').textContent='Tidak ditemukan unit master atau catatan yang dapat dianalisa pada periode '+rateMonthLabel(month)+'. Snapshot lama tidak diubah.';return}
+  $('rateStatus').textContent=(period.key==='provisional'?'Data sementara ':'Rekap final ')+rateMonthLabel(month)+' berhasil diperbarui. Versi '+snapshot.version+'; '+snapshot.rows.filter(x=>x.status==='Valid').length+' unit valid; '+snapshot.rows.filter(x=>x.status!=='Valid').length+' unit belum cukup data/perlu pemeriksaan.'+(snapshot.revisions.length?' Riwayat revisi: '+snapshot.revisions.length+' versi sebelumnya tersimpan.':'');renderRateAnalysis();
+ }catch(err){console.error('Pembaruan laju kerja:',err);$('rateStatus').textContent='Gagal menyimpan snapshot: '+(err.message||String(err))}
+ finally{btn.disabled=ratePeriodState(month).key==='upcoming'}
 }
+let rateReconcileRunning=false;
+async function reconcileRateSnapshots(){
+ if(rateReconcileRunning)return;rateReconcileRunning=true;
+ try{
+  const snapshots=readRateSnapshots(),months=Object.keys(snapshots).filter(m=>ratePeriodState(m).key==='final').sort();
+  for(const month of months){const old=snapshots[month];if(!old?.rows)continue;const fresh=collectMonthlyRateRows(month);
+   const compact=rows=>rows.map(r=>({unitCode:r.unitCode,readingCount:r.readingCount,firstHM:r.firstHM,lastHM:r.lastHM,firstDate:r.firstDate,lastDate:r.lastDate,rate:r.rate,status:r.status,downtimeHours:r.downtimeHours,downtimePercent:r.downtimePercent,repairWoCount:r.repairWoCount,availabilityRate:r.availabilityRate,repairHistory:r.repairHistory}));
+   if(JSON.stringify(compact(fresh))===JSON.stringify(compact(old.rows)))continue;
+   const updated=await saveMonthlyRateSnapshot(month,'Revisi otomatis karena WO Aktual susulan/perubahan data sumber');
+   if(updated)console.info('Snapshot laju kerja direvisi otomatis:',month,'versi',updated.version);
+  }
+  if(typeof renderRateAnalysis==='function'&&document.getElementById('rateAnalysisPage')&&!document.getElementById('rateAnalysisPage').hidden)renderRateAnalysis();
+ }catch(err){console.error('Rekonsiliasi snapshot laju kerja:',err)}finally{rateReconcileRunning=false}
+}
+window.mbkReconcileRateSnapshots=reconcileRateSnapshots;
 $('rateMonth').value=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
 $('rateUpdateBtn').addEventListener('click',updateMonthlyRateSnapshot);
 const rateResultsToggle=$('rateResultsToggle'),rateResultsBody=$('rateResultsBody');
@@ -2053,7 +2088,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const readStore=()=>{try{return JSON.parse(localStorage.getItem(STORE)||'{"records":{},"audit":[]}')}catch(e){return {records:{},audit:[]}}};
 const writeStore=x=>localStorage.setItem(STORE,JSON.stringify(x));
 const fmt=n=>Number(n||0).toLocaleString('id-ID');
-const headerMap={woid:['woid','workorderid','nomorwo','nowo'],equipmentcode:['equipmentcode','kodeunit','equipment'],slot:['slot'],location:['location','lokasi'],description:['description','deskripsi'],diagnosa:['diagnosa','diagnosis'],startdiagnosa:['startdiagnosa'],finishdiagnosa:['finishdiagnosa'],ordercreate:['ordercreate','tanggalbuatwo'],orderapproved:['orderapproved'],assignedto:['assignedto'],actualorderstart:['actualorderstart'],actualorderfinish:['actualorderfinish','actualfinish','tanggalwofinish'],actualorderfinishapproved:['actualorderfinishapproved'],actualordertime:['actualordertime'],planorderstart:['planorderstart'],planorderfinish:['planorderfinish'],totaltasktime:['totaltasktime'],planvsactual:['planvsactual'],taskcode:['taskcode'],taskdesc:['taskdesc','taskdescription'],taskstart:['taskstart'],taskfinish:['taskfinish'],taskstartvstaskfinish:['taskstartvstaskfinish'],estimatedtime:['estimatedtime'],estimatedtimevsactualfinish:['estimatedtimevsactualfinish'],partcode:['partcode'],item:['item','material'],qty:['qty','quantity']};
+const headerMap={woid:['woid','workorderid','nomorwo','nowo'],wocategory:['wocategory','workcategory','maintenancecategory','category','kategori','jenispekerjaan','worktype'],equipmentcode:['equipmentcode','kodeunit','equipment'],slot:['slot'],location:['location','lokasi'],description:['description','deskripsi'],diagnosa:['diagnosa','diagnosis'],startdiagnosa:['startdiagnosa'],finishdiagnosa:['finishdiagnosa'],ordercreate:['ordercreate','tanggalbuatwo'],orderapproved:['orderapproved'],assignedto:['assignedto'],actualorderstart:['actualorderstart'],actualorderfinish:['actualorderfinish','actualfinish','tanggalwofinish'],actualorderfinishapproved:['actualorderfinishapproved'],actualordertime:['actualordertime'],planorderstart:['planorderstart'],planorderfinish:['planorderfinish'],totaltasktime:['totaltasktime'],planvsactual:['planvsactual'],taskcode:['taskcode'],taskdesc:['taskdesc','taskdescription'],taskstart:['taskstart'],taskfinish:['taskfinish'],taskstartvstaskfinish:['taskstartvstaskfinish'],estimatedtime:['estimatedtime'],estimatedtimevsactualfinish:['estimatedtimevsactualfinish'],partcode:['partcode'],item:['item','material'],qty:['qty','quantity']};
 function pick(row,aliases){for(const k of Object.keys(row)){if(aliases.includes(norm(k)))return row[k]}return ''}
 const monthNumber={jan:1,januari:1,feb:2,februari:2,mar:3,maret:3,apr:4,april:4,may:5,mei:5,jun:6,juni:6,jul:7,juli:7,aug:8,agu:8,agustus:8,sep:9,sept:9,september:9,oct:10,okt:10,oktober:10,nov:11,november:11,dec:12,des:12,desember:12};
 function periodFromFilename(filename){
@@ -2186,7 +2221,7 @@ function setCloudRecords(cloudRows){
 window.mbkSetWoCloudRecords=setCloudRecords;
 function renderSaved(){const db=readStore(),all=Object.values(db.records).map(x=>x.current),totalTask=all.reduce((n,x)=>n+x.tasks.length,0),totalMat=all.reduce((n,x)=>n+x.materials.length,0),units=[...new Set(all.map(x=>x.equipmentCode).filter(Boolean))];$wo('woTotal').textContent=fmt(all.length);$wo('woTaskTotal').textContent=fmt(totalTask);$wo('woMaterialTotal').textContent=fmt(totalMat);$wo('woUnitTotal').textContent=fmt(units.length);
  refreshWoUnitOptions();
- const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');$wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';renderAnalytics();renderUnitHistory();if(window.mbkRefreshRateAnalysis&&document.getElementById('rateAnalysisPage')&&!document.getElementById('rateAnalysisPage').hidden)window.mbkRefreshRateAnalysis();}
+ const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');$wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';renderAnalytics();renderUnitHistory();if(window.mbkReconcileRateSnapshots)window.mbkReconcileRateSnapshots();if(window.mbkRefreshRateAnalysis&&document.getElementById('rateAnalysisPage')&&!document.getElementById('rateAnalysisPage').hidden)window.mbkRefreshRateAnalysis();}
 function dateKey(value,fallbackYear){
  const raw=String(value??'').trim();if(!raw)return '';
  // Terima ISO, dd/mm/yyyy, dd-mm-yyyy, dan tanggal berformat Indonesia/Inggris.
@@ -2463,5 +2498,23 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 @media print{body *{visibility:hidden!important}#rateAnalysisPage #rateTrendCharts,#rateAnalysisPage #rateTrendCharts *{visibility:visible!important}#rateAnalysisPage #rateTrendCharts{position:absolute;left:0;top:0;width:100%}#rateAnalysisPage .rate-chart-actions{display:none!important}#rateAnalysisPage .rate-trend-card{break-inside:avoid;background:#fff!important;color:#111!important;box-shadow:none!important}#rateAnalysisPage .rate-chart-unit-title b,#rateAnalysisPage .rate-chart-stat b{color:#111!important}}
 </style>
 
+<style id="rate-downtime-dual-line-style">
+#rateAnalysisPage .rate-chart-availability-line{fill:none;stroke:#facc15;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:9 5;filter:drop-shadow(0 0 4px rgba(250,204,21,.3))}
+#rateAnalysisPage .rate-chart-availability-point{fill:#fef08a;stroke:#eab308;stroke-width:3}
+#rateAnalysisPage .rate-chart-legend{display:inline-flex;align-items:center;gap:7px;color:#cbd5e1;font-size:11px}
+#rateAnalysisPage .rate-legend-blue,#rateAnalysisPage .rate-legend-yellow{display:inline-block;width:19px;height:4px;border-radius:4px}
+#rateAnalysisPage .rate-legend-blue{background:#4da3ff}#rateAnalysisPage .rate-legend-yellow{background:#facc15;margin-left:9px}
+#rateAnalysisPage .rate-downtime-analysis{padding:4px 14px 16px}
+#rateAnalysisPage .rate-downtime-analysis h4,#rateAnalysisPage .rate-downtime-history h4{font-size:13px;color:#e2e8f0;margin:12px 0 8px}
+#rateAnalysisPage .rate-downtime-analysis .wo-table-wrap{overflow-x:auto}
+#rateAnalysisPage .rate-downtime-analysis table{min-width:760px}
+#rateAnalysisPage .rate-downtime-warning{margin:10px 0;padding:10px 12px;border:1px solid #a16207;border-radius:9px;background:rgba(120,53,15,.28);color:#fde68a;font-size:12px;line-height:1.5}
+#rateAnalysisPage .rate-downtime-history{margin-top:10px}
+#rateAnalysisPage .rate-revision-history{margin:6px 0 10px;color:#94a3b8;font-size:11px}
+#rateAnalysisPage .rate-revision-history summary{cursor:pointer;color:#cbd5e1;font-weight:600}
+#rateAnalysisPage .rate-revision-history ol{margin:7px 0 0;padding-left:22px}
+#rateAnalysisPage .rate-revision-history li{margin:5px 0;line-height:1.45}
+</style>
 </body>
 </html>
+
