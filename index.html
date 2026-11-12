@@ -6,8 +6,65 @@
 <title>Master Plan PM Forklift &amp; Traktor 2027 — Enterprise Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js">
+<link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js">
+<link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js">
+<link rel="preload" as="script" href="data-forklift-2027.js?v=4">
+<link rel="preload" as="script" href="data-tractor-2027.js?v=1">
+<link rel="preload" as="script" href="data-wheel-loader-2027.js?v=1">
+<style id="fa-icons-inline">
+/* Ikon: Font Awesome Free (CC BY 4.0, https://fontawesome.com/license/free) dalam bentuk SVG inline */
+.fa-solid,.fa-regular{display:inline-block;width:1em;height:1em;vertical-align:-.125em;font-style:normal;background-color:currentColor;-webkit-mask:var(--fa) center/contain no-repeat;mask:var(--fa) center/contain no-repeat}
+.fa-angles-left{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160zm352-160-160 160c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L269.3 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0z'/%3E%3C/svg%3E")}
+.fa-angles-right{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M439.1 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L371.2 256 233.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160zm-352 160 160-160c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L179.2 256 41.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0z'/%3E%3C/svg%3E")}
+.fa-arrow-left{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.4-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z'/%3E%3C/svg%3E")}
+.fa-bell{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M224 0c-17.7 0-32 14.3-32 32v3.2C119 50 64 114.6 64 192v21.7c0 48.1-16.4 94.8-46.4 132.4l-9.8 12.2C2.7 364.6 0 372.4 0 380.5 0 400.1 15.9 416 35.5 416h376.9c19.6 0 35.5-15.9 35.5-35.5 0-8.1-2.7-15.9-7.8-22.2l-9.8-12.2c-29.9-37.6-46.3-84.3-46.3-132.4V192c0-77.4-55-142-128-156.8V32c0-17.7-14.3-32-32-32m-62 464c7.1 27.6 32.2 48 62 48s54.9-20.4 62-48z'/%3E%3C/svg%3E")}
+.fa-calendar{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M128 0c-17.7 0-32 14.3-32 32v32H64C28.7 64 0 92.7 0 128v48h448v-48c0-35.3-28.7-64-64-64h-32V32c0-17.7-14.3-32-32-32s-32 14.3-32 32v32H160V32c0-17.7-14.3-32-32-32M0 224v192c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V224z'/%3E%3C/svg%3E")}
+.fa-calendar-check{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M320 0c17.7 0 32 14.3 32 32v32h32c35.3 0 64 28.7 64 64v288c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128c0-35.3 28.7-64 64-64h32V32c0-17.7 14.3-32 32-32s32 14.3 32 32v32h128V32c0-17.7 14.3-32 32-32m22 161.7c-10.7-7.8-25.7-5.4-33.5 5.3L189.1 331.2 137 279.1c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l72 72c5 5 11.9 7.5 18.8 7s13.4-4.1 17.5-9.8l135.9-187c7.8-10.7 5.4-25.7-5.3-33.5'/%3E%3C/svg%3E")}
+.fa-calendar-days{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M128 0c17.7 0 32 14.3 32 32v32h128V32c0-17.7 14.3-32 32-32s32 14.3 32 32v32h32c35.3 0 64 28.7 64 64v288c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128c0-35.3 28.7-64 64-64h32V32c0-17.7 14.3-32 32-32M64 240v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16H80c-8.8 0-16 7.2-16 16m128 0v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16m144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zM64 368v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16H80c-8.8 0-16 7.2-16 16m144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm112 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16'/%3E%3C/svg%3E")}
+.fa-calendar-xmark{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M128 0c17.7 0 32 14.3 32 32v32h128V32c0-17.7 14.3-32 32-32s32 14.3 32 32v32h32c35.3 0 64 28.7 64 64v288c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128c0-35.3 28.7-64 64-64h32V32c0-17.7 14.3-32 32-32m163.9 220.1c-9.4-9.4-24.6-9.4-33.9 0L224.1 254l-33.9-33.9c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l33.9 33.9-33.9 33.9c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l33.9-33.9 33.9 33.9c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L258 287.9l33.9-33.9c9.4-9.4 9.4-24.6 0-33.9'/%3E%3C/svg%3E")}
+.fa-car-battery{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M80 64c0-17.7 14.3-32 32-32h64c17.7 0 32 14.3 32 32h96c0-17.7 14.3-32 32-32h64c17.7 0 32 14.3 32 32h16c35.3 0 64 28.7 64 64v256c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128c0-35.3 28.7-64 64-64zm312 120c0-13.3-10.7-24-24-24s-24 10.7-24 24v32h-32c-13.3 0-24 10.7-24 24s10.7 24 24 24h32v32c0 13.3 10.7 24 24 24s24-10.7 24-24v-32h32c13.3 0 24-10.7 24-24s-10.7-24-24-24h-32zM64 240c0 13.3 10.7 24 24 24h112c13.3 0 24-10.7 24-24s-10.7-24-24-24H88c-13.3 0-24 10.7-24 24'/%3E%3C/svg%3E")}
+.fa-chart-column{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M32 32c17.7 0 32 14.3 32 32v336c0 8.8 7.2 16 16 16h400c17.7 0 32 14.3 32 32s-14.3 32-32 32H80c-44.2 0-80-35.8-80-80V64c0-17.7 14.3-32 32-32m112 192c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32s-32-14.3-32-32v-64c0-17.7 14.3-32 32-32m144-64v160c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32m80 32c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32s-32-14.3-32-32v-96c0-17.7 14.3-32 32-32m144-96v224c0 17.7-14.3 32-32 32s-32-14.3-32-32V96c0-17.7 14.3-32 32-32s32 14.3 32 32'/%3E%3C/svg%3E")}
+.fa-chart-line{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64v336c0 44.2 35.8 80 80 80h400c17.7 0 32-14.3 32-32s-14.3-32-32-32H80c-8.8 0-16-7.2-16-16zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.3c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l73.4-73.4 57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z'/%3E%3C/svg%3E")}
+.fa-chart-pie{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M512.4 240h-176c-17.7 0-32-14.3-32-32V32c0-17.7 14.4-32.2 31.9-29.9 107 14.2 191.8 99 206 206 2.3 17.5-12.2 31.9-29.9 31.9M222.6 37.2c18.1-3.8 33.8 11 33.8 29.5V264c0 5.6 2 11 5.5 15.3L394 438.7c11.7 14.1 9.2 35.4-6.9 44.1C353 501.4 313.9 512 272.4 512c-132.5 0-240-107.5-240-240 0-115.5 81.5-211.9 190.2-234.8M477.8 288h64c18.5 0 33.3 15.7 29.5 33.8-10.2 48.4-35 91.4-69.6 124.2-12.3 11.7-31.6 9.2-42.4-3.9l-84.4-101.7c-17.3-20.9-2.4-52.4 24.6-52.4h78.2z'/%3E%3C/svg%3E")}
+.fa-check{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M434.8 70.1c14.3 10.4 17.5 30.4 7.1 44.7l-256 352c-5.5 7.6-14 12.3-23.4 13.1s-18.5-2.7-25.1-9.3l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l101.5 101.5 234-321.7c10.4-14.3 30.4-17.5 44.7-7.1z'/%3E%3C/svg%3E")}
+.fa-chevron-down{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M201.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 338.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z'/%3E%3C/svg%3E")}
+.fa-chevron-left{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3E%3Cpath d='M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z'/%3E%3C/svg%3E")}
+.fa-chevron-right{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3E%3Cpath d='M311.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L243.2 256 73.9 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z'/%3E%3C/svg%3E")}
+.fa-chevron-up{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M201.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 173.3 54.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z'/%3E%3C/svg%3E")}
+.fa-circle-info{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m-32-352a32 32 0 1 1 64 0 32 32 0 1 1-64 0m-8 64h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-80c-13.3 0-24-10.7-24-24s10.7-24 24-24h24v-64h-24c-13.3 0-24-10.7-24-24s10.7-24 24-24'/%3E%3C/svg%3E")}
+.fa-clipboard-check{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath d='M256 0c23.7 0 44.4 12.9 55.4 32h8.6c35.3 0 64 28.7 64 64v352c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96c0-35.3 28.7-64 64-64h8.6c11-19.1 31.7-32 55.4-32zm26.9 212.6c-10.7-7.8-25.7-5.4-33.5 5.3l-85.6 117.7-26.5-27.4c-9.2-9.5-24.4-9.8-33.9-.6s-9.8 24.4-.6 33.9l46.4 48c4.9 5.1 11.8 7.8 18.9 7.3s13.6-4.1 17.8-9.8l102.3-140.9c7.8-10.7 5.4-25.7-5.3-33.5M136 64c-13.3 0-24 10.7-24 24s10.7 24 24 24h112c13.3 0 24-10.7 24-24s-10.7-24-24-24z'/%3E%3C/svg%3E")}
+.fa-clock-rotate-left{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M288 64c106 0 192 86 192 192s-86 192-192 192c-65.2 0-122.9-32.5-157.6-82.3-10.1-14.5-30.1-18-44.6-7.9s-18 30.1-7.9 44.6C124.1 468.6 201 512 288 512c141.4 0 256-114.6 256-256S429.4 0 288 0C202.3 0 126.5 42.1 80 106.7V80c0-17.7-14.3-32-32-32S16 62.3 16 80v112c0 17.7 14.3 32 32 32h112.1c17.7 0 32-14.3 32-32s-14.3-32-32-32h-38.3C154.9 102.6 217 64 288 64m24 88c0-13.3-10.7-24-24-24s-24 10.7-24 24v104c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152z'/%3E%3C/svg%3E")}
+.fa-database{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M448 205.8c-14.8 9.8-31.8 17.7-49.5 24-47 16.8-108.7 26.2-174.5 26.2s-127.6-9.5-174.5-26.2c-17.6-6.3-34.7-14.2-49.5-24V288c0 44.2 100.3 80 224 80s224-35.8 224-80zm0-77.8V80c0-44.2-100.3-80-224-80S0 35.8 0 80v48c0 44.2 100.3 80 224 80s224-35.8 224-80m-49.5 261.8C351.6 406.5 289.9 416 224 416s-127.6-9.5-174.5-26.2c-17.6-6.3-34.7-14.2-49.5-24V432c0 44.2 100.3 80 224 80s224-35.8 224-80v-66.2c-14.8 9.8-31.8 17.7-49.5 24'/%3E%3C/svg%3E")}
+.fa-download{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M256 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v210.7l-41.4-41.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 242.7zM64 320c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64h-46.9l-56.6 56.6c-31.2 31.2-81.9 31.2-113.1 0L110.9 320zm304 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48'/%3E%3C/svg%3E")}
+.fa-eye{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M288 32c-80.8 0-145.5 36.8-192.6 80.6-46.8 43.5-78.1 95.4-93 131.1-3.3 7.9-3.3 16.7 0 24.6 14.9 35.7 46.2 87.7 93 131.1C142.5 443.1 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1 3.3-7.9 3.3-16.7 0-24.6-14.9-35.7-46.2-87.7-93-131.1C433.5 68.9 368.8 32 288 32M144 256a144 144 0 1 1 288 0 144 144 0 1 1-288 0m144-64c0 35.3-28.7 64-64 64-11.5 0-22.3-3-31.7-8.4-1 10.9-.1 22.1 2.9 33.2 13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-12.2-45.7-55.5-74.8-101.1-70.8 5.3 9.3 8.4 20.1 8.4 31.7'/%3E%3C/svg%3E")}
+.fa-file-export{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M96.5 0c-35.3 0-64 28.7-64 64v384c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64v-96h78.1l-31 31c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l72-72c9.4-9.4 9.4-24.6 0-33.9l-72-72c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l31 31h-78.1V170.4c0-17-6.7-33.3-18.7-45.3L291.2 18.7C279.2 6.7 263 0 246 0zM358 176h-93.5c-13.3 0-24-10.7-24-24V58.5zM224.5 328c0-13.3 10.7-24 24-24h104v48h-104c-13.3 0-24-10.7-24-24'/%3E%3C/svg%3E")}
+.fa-file-import{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath d='M64 0C28.7 0 0 28.7 0 64v240h182.1l-31-31c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l72 72c9.4 9.4 9.4 24.6 0 33.9l-72 72c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l31-31H0v96c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64V170.6c0-17-6.7-33.3-18.7-45.3L258.7 18.7C246.7 6.7 230.5 0 213.5 0zm261.5 176H232c-13.3 0-24-10.7-24-24V58.5z'/%3E%3C/svg%3E")}
+.fa-file-pdf{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M96 0C60.7 0 32 28.7 32 64v384c0 35.3 28.7 64 64 64h80V400c0-35.3 28.7-64 64-64h176V170.5c0-17-6.7-33.3-18.7-45.3L290.7 18.7C278.7 6.7 262.5 0 245.5 0zm261.5 176H264c-13.3 0-24-10.7-24-24V58.5zM240 380c-11 0-20 9-20 20v128c0 11 9 20 20 20s20-9 20-20v-28h12c33.1 0 60-26.9 60-60s-26.9-60-60-60zm32 80h-12v-40h12c11 0 20 9 20 20s-9 20-20 20m96-80c-11 0-20 9-20 20v128c0 11 9 20 20 20h32c28.7 0 52-23.3 52-52v-64c0-28.7-23.3-52-52-52zm20 128v-88h12c6.6 0 12 5.4 12 12v64c0 6.6-5.4 12-12 12zm88-108v128c0 11 9 20 20 20s20-9 20-20v-44h28c11 0 20-9 20-20s-9-20-20-20h-28v-24h28c11 0 20-9 20-20s-9-20-20-20h-48c-11 0-20 9-20 20'/%3E%3C/svg%3E")}
+.fa-floppy-disk{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M64 32C28.7 32 0 60.7 0 96v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V173.3c0-17-6.7-33.3-18.7-45.3L352 50.7c-12-12-28.3-18.7-45.3-18.7zm32 96c0-17.7 14.3-32 32-32h160c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H128c-17.7 0-32-14.3-32-32zm128 160a64 64 0 1 1 0 128 64 64 0 1 1 0-128'/%3E%3C/svg%3E")}
+.fa-list-check{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M133.8 36.3c10.9 7.6 13.5 22.6 5.9 33.4l-56 80c-4.1 5.8-10.5 9.5-17.6 10.1S52 158 47 153L7 113c-9.3-9.4-9.3-24.6 0-34s24.6-9.3 34 0l19.8 19.8 39.6-56.6c7.6-10.9 22.6-13.5 33.4-5.9m0 160c10.9 7.6 13.5 22.6 5.9 33.4l-56 80c-4.1 5.8-10.5 9.5-17.6 10.1S52 318 47 313L7 273c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l19.8 19.8 39.6-56.6c7.6-10.9 22.6-13.5 33.4-5.9zM224 96c0-17.7 14.3-32 32-32h224c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32m0 160c0-17.7 14.3-32 32-32h224c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32m-64 160c0-17.7 14.3-32 32-32h288c17.7 0 32 14.3 32 32s-14.3 32-32 32H192c-17.7 0-32-14.3-32-32m-96-40a40 40 0 1 1 0 80 40 40 0 1 1 0-80'/%3E%3C/svg%3E")}
+.fa-magnifying-glass{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M416 208c0 45.9-14.9 88.3-40 122.7l126.6 126.7c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.1-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208M208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288'/%3E%3C/svg%3E")}
+.fa-paper-plane{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M536.4-26.3c9.8-3.5 20.6-1 28 6.3s9.8 18.2 6.3 28l-178 496.9c-5 13.9-18.1 23.1-32.8 23.1-14.2 0-27-8.6-32.3-21.7l-64.2-158c-4.5-11-2.5-23.6 5.2-32.6l94.5-112.4c5.1-6.1 4.7-15-.9-20.6s-14.6-6-20.6-.9l-112.4 94.3c-9.1 7.6-21.6 9.6-32.6 5.2L38.1 216.8c-13.1-5.3-21.7-18.1-21.7-32.3 0-14.7 9.2-27.8 23.1-32.8z'/%3E%3C/svg%3E")}
+.fa-pen{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M352.9 21.2 308 66.1 445.9 204l44.9-44.9c13.6-13.5 21.2-31.9 21.2-51.1s-7.6-37.6-21.2-51.1l-35.7-35.7C441.6 7.6 423.2 0 404 0s-37.6 7.6-51.1 21.2M274.1 100 58.9 315.1c-10.7 10.7-18.5 24.1-22.6 38.7L.9 481.6c-2.3 8.3 0 17.3 6.2 23.4s15.1 8.5 23.4 6.2l127.8-35.5c14.6-4.1 27.9-11.8 38.7-22.6l215-215.2z'/%3E%3C/svg%3E")}
+.fa-plus{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M256 64c0-17.7-14.3-32-32-32s-32 14.3-32 32v160H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h160v160c0 17.7 14.3 32 32 32s32-14.3 32-32V288h160c17.7 0 32-14.3 32-32s-14.3-32-32-32H256z'/%3E%3C/svg%3E")}
+.fa-right-from-bracket{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M505 273c9.4-9.4 9.4-24.6 0-33.9L361 95c-6.9-6.9-17.2-8.9-26.2-5.2S320 102.3 320 112v80H208c-26.5 0-48 21.5-48 48v32c0 26.5 21.5 48 48 48h112v80c0 9.7 5.8 18.5 14.8 22.2s19.3 1.7 26.2-5.2zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96C43 32 0 75 0 128v256c0 53 43 96 96 96h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H96c-17.7 0-32-14.3-32-32V128c0-17.7 14.3-32 32-32z'/%3E%3C/svg%3E")}
+.fa-rotate{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M480.1 192h7.9c13.3 0 24-10.7 24-24V24c0-9.7-5.8-18.5-14.8-22.2S477.9.2 471 7l-51.7 51.8C375 22.1 318 0 256 0 127 0 20.3 95.4 2.6 219.5c-2.5 17.5 9.6 33.7 27.1 36.2s33.7-9.7 36.2-27.1C79.2 135.5 159.3 64 256 64c44.4 0 85.2 15 117.7 40.3L327 151c-6.9 6.9-8.9 17.2-5.2 26.2S334.3 192 344 192zm29.4 100.5c2.5-17.5-9.7-33.7-27.1-36.2s-33.7 9.7-36.2 27.1c-13.3 93-93.4 164.5-190.1 164.5-44.4 0-85.2-15-117.7-40.3L185 361c6.9-6.9 8.9-17.2 5.2-26.2S177.7 320 168 320H24c-13.3 0-24 10.7-24 24v144c0 9.7 5.8 18.5 14.8 22.2s19.3 1.6 26.2-5.2l51.8-51.8C137 489.9 194 512 256 512c129 0 235.7-95.4 253.4-219.5z'/%3E%3C/svg%3E")}
+.fa-rotate-left{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M24 192h144c9.7 0 18.5-5.8 22.2-14.8s1.7-19.3-5.2-26.2l-46.7-46.7c75.3-58.6 184.3-53.3 253.5 15.9 75 75 75 196.5 0 271.5s-196.5 75-271.5 0c-10.2-10.2-19-21.3-26.4-33-9.5-14.9-29.3-19.3-44.2-9.8s-19.3 29.3-9.8 44.2c9.8 15.6 21.5 30.4 35.1 43.9 100 100 262 100 362 0s100-262 0-362C342.8-19.3 193.3-24.7 92.7 58.8L41 7C34.1.2 23.8-1.9 14.8 1.8S0 14.3 0 24v144c0 13.3 10.7 24 24 24'/%3E%3C/svg%3E")}
+.fa-screwdriver-wrench{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M70.8-6.7c5.4-5.4 13.8-6.2 20.2-2l118.9 79.2c8.9 5.9 14.2 15.9 14.2 26.6v49.6l90.8 90.8c33.3-15 73.9-8.9 101.2 18.5l126.1 126.1c18.7 18.7 18.7 49.1 0 67.9l-60.1 60.1c-18.7 18.7-49.1 18.7-67.9 0L288.1 384c-27.4-27.4-33.5-67.9-18.5-101.2L178.8 192h-49.6c-10.7 0-20.7-5.3-26.6-14.2L23.4 58.9c-4.2-6.3-3.4-14.8 2-20.2zm145 303.5c-6.3 36.9 2.3 75.9 26.2 107.2l-94.9 95c-28.1 28.1-73.7 28.1-101.8 0s-28.1-73.7 0-101.8l135.4-135.5 35.2 35.1zM384.1 0c20.1 0 39.4 3.7 57.1 10.5 10 3.8 11.8 16.5 4.3 24.1l-56.7 56.7c-3 3-4.7 7.1-4.7 11.3V144c0 8.8 7.2 16 16 16h41.4c4.2 0 8.3-1.7 11.3-4.7l56.7-56.7c7.6-7.5 20.3-5.7 24.1 4.3 6.8 17.7 10.5 37 10.5 57.1 0 43.2-17.2 82.3-45 111.1L450 222c-33.1-33-78.5-45.7-121.1-38.4l-56.8-56.8V97.1l-.2-5c-.8-12.4-4.4-24.3-10.5-34.9C290.8 22.2 334.8 0 384.1-.1z'/%3E%3C/svg%3E")}
+.fa-sliders{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M32 64C14.3 64 0 78.3 0 96s14.3 32 32 32h86.7c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H265.3C253 35.7 224.8 16 192 16s-61 19.7-73.3 48zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32h246.7c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48H480c17.7 0 32-14.3 32-32s-14.3-32-32-32h-54.7c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32h54.7c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H233.3c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48z'/%3E%3C/svg%3E")}
+.fa-tractor{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M160 96v96h133.4l-57.6-96zM96 223V64c0-17.7 14.3-32 32-32h107.8c22.5 0 43.3 11.8 54.9 31.1L368.1 192h64v-72c0-13.3 10.7-24 24-24s24 10.7 24 24v72h48c26.5 0 48 21.5 48 48v41.5c0 14.2-6.3 27.8-17.3 36.9l-35 29.2c26.5 15.2 44.3 43.7 44.3 76.4 0 48.6-39.4 88-88 88s-88-39.4-88-88c0-14.4 3.5-28 9.6-40H300.5c-3 13.4-7.9 26-14.4 37.7 7.7 9.4 7.2 23.4-1.6 32.2l-22.6 22.6c-8.8 8.8-22.7 9.3-32.2 1.6-9.3 5.2-19.3 9.3-29.8 12.3-1.2 12.1-11.4 21.6-23.9 21.6h-32c-12.4 0-22.7-9.5-23.9-21.6-10.5-3-20.4-7.2-29.8-12.3-9.4 7.7-23.4 7.2-32.2-1.6l-22.6-22.7c-8.8-8.8-9.3-22.7-1.6-32.2-5.2-9.3-9.3-19.3-12.3-29.8C9.5 390.6 0 380.4 0 367.9v-32c0-12.4 9.5-22.7 21.6-23.9 3-10.5 7.2-20.4 12.3-29.8-7.7-9.4-7.2-23.4 1.6-32.2l22.6-22.6c8.8-8.8 22.7-9.3 32.2-1.6 1.9-1 3.7-2 5.7-3zm64 65a64 64 0 1 0 0 128 64 64 0 1 0 0-128m280 136a40 40 0 1 0 80 0 40 40 0 1 0-80 0'/%3E%3C/svg%3E")}
+.fa-trash{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M136.7 5.9 128 32H32C14.3 32 0 46.3 0 64s14.3 32 32 32h384c17.7 0 32-14.3 32-32s-14.3-32-32-32h-96l-8.7-26.1C306.9-7.2 294.7-16 280.9-16H167.1c-13.8 0-26 8.8-30.4 21.9M416 144H32l21.1 323.1C54.7 492.4 75.7 512 101 512h246c25.3 0 46.3-19.6 47.9-44.9z'/%3E%3C/svg%3E")}
+.fa-triangle-exclamation{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M256 0c14.7 0 28.2 8.1 35.2 21l216 400c6.7 12.4 6.4 27.4-.8 39.5S486.1 480 472 480H40c-14.1 0-27.2-7.4-34.4-19.5s-7.5-27.1-.8-39.5l216-400c7-12.9 20.5-21 35.2-21m0 352a32 32 0 1 0 0 64 32 32 0 1 0 0-64m0-192c-18.2 0-32.7 15.5-31.4 33.7l7.4 104c.9 12.5 11.4 22.3 23.9 22.3 12.6 0 23-9.7 23.9-22.3l7.4-104c1.3-18.2-13.1-33.7-31.4-33.7z'/%3E%3C/svg%3E")}
+.fa-truck{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M0 96c0-35.3 28.7-64 64-64h288c35.3 0 64 28.7 64 64v32h50.7c17 0 33.3 6.7 45.3 18.7l45.3 45.3c12 12 18.7 28.3 18.7 45.3V384c0 35.3-28.7 64-64 64h-3.3c-10.4 36.9-44.4 64-84.7 64s-74.2-27.1-84.7-64H236.7c-10.4 36.9-44.4 64-84.7 64s-74.2-27.1-84.7-64H64c-35.3 0-64-28.7-64-64zm512 192v-50.7L466.7 192H416v96zM192 424a40 40 0 1 0-80 0 40 40 0 1 0 80 0m232 40a40 40 0 1 0 0-80 40 40 0 1 0 0 80'/%3E%3C/svg%3E")}
+.fa-truck-fast{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'%3E%3Cpath d='M64 96c0-35.3 28.7-64 64-64h288c35.3 0 64 28.7 64 64v32h50.7c17 0 33.3 6.7 45.3 18.7l45.3 45.3c12 12 18.7 28.3 18.7 45.3V384c0 35.3-28.7 64-64 64h-3.3c-10.4 36.9-44.4 64-84.7 64s-74.2-27.1-84.7-64H300.7c-10.4 36.9-44.4 64-84.7 64s-74.2-27.1-84.7-64H128c-35.3 0-64-28.7-64-64v-48H24c-13.3 0-24-10.7-24-24s10.7-24 24-24h112c13.3 0 24-10.7 24-24s-10.7-24-24-24H24c-13.3 0-24-10.7-24-24s10.7-24 24-24h176c13.3 0 24-10.7 24-24s-10.7-24-24-24H24c-13.3 0-24-10.7-24-24s10.7-24 24-24zm512 192v-50.7L530.7 192H480v96zM256 424a40 40 0 1 0-80 0 40 40 0 1 0 80 0m232 40a40 40 0 1 0 0-80 40 40 0 1 0 0 80'/%3E%3C/svg%3E")}
+.fa-truck-monster{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='m336 96 48 64H256V96zm128 64L387.2 57.6C375.1 41.5 356.1 32 336 32H224c-17.7 0-32 14.3-32 32v96H48c-26.5 0-48 21.5-48 48v64c0 18.1 10.1 33.9 24.9 42.1-.5 5.7 1.1 11.6 4.7 16.4-3.7 6.9-6.8 14.1-9 21.8C9 354 0 364 0 376.1v16c0 12.1 8.9 22.1 20.6 23.8 2.2 7.6 5.3 14.9 9 21.8-7 9.4-6.3 22.8 2.3 31.3l11.3 11.3c8.6 8.6 21.9 9.3 31.3 2.2 6.8 3.7 14.1 6.8 21.7 9 1.7 11.6 11.7 20.6 23.8 20.6h16c12.1 0 22.1-8.9 23.8-20.6 7.6-2.2 14.9-5.3 21.7-9 9.4 7 22.8 6.3 31.3-2.2l11.3-11.3c8.6-8.6 9.3-21.9 2.3-31.3 3.7-6.8 6.8-14.1 9-21.7 11.6-1.7 20.6-11.7 20.6-23.8v-16c0-12.1-8.9-22.1-20.6-23.8-2.2-7.6-5.3-14.9-9-21.7 2.4-3.2 3.9-6.8 4.5-10.5h114.2c.6 3.7 2.1 7.3 4.5 10.5-3.7 6.9-6.8 14.1-9 21.8-11.6 1.7-20.6 11.7-20.6 23.8v16c0 12.1 8.9 22.1 20.6 23.8 2.2 7.6 5.3 14.9 9 21.8-7 9.4-6.3 22.8 2.2 31.3l11.3 11.3c8.5 8.6 21.9 9.3 31.3 2.2 6.8 3.7 14.1 6.8 21.7 9 1.7 11.6 11.7 20.6 23.8 20.6h16c12.1 0 22.1-8.9 23.8-20.6 7.6-2.2 14.9-5.3 21.8-9 9.4 7 22.8 6.3 31.3-2.2l11.3-11.3c8.6-8.6 9.3-21.9 2.2-31.3 3.7-6.8 6.8-14.1 9-21.7 11.6-1.7 20.6-11.7 20.6-23.8v-16c0-12.1-8.9-22.1-20.6-23.8-2.2-7.6-5.3-14.9-9-21.7 3.6-4.8 5.2-10.7 4.7-16.4 14.8-8.2 24.9-23.9 24.9-42.1v-64c0-26.5-21.5-48-48-48h-64zM128 336a48 48 0 1 1 0 96 48 48 0 1 1 0-96m272 48a48 48 0 1 1 96 0 48 48 0 1 1-96 0'/%3E%3C/svg%3E")}
+.fa-wrench{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M509.4 98.6c7.6-7.6 20.3-5.7 24.1 4.3 6.8 17.7 10.5 37 10.5 57.1 0 88.4-71.6 160-160 160-17.5 0-34.4-2.8-50.2-8L146.9 498.9c-28.1 28.1-73.7 28.1-101.8 0s-28.1-73.7 0-101.8L232 210.2c-5.2-15.8-8-32.6-8-50.2C224 71.6 295.6 0 384 0c20.1 0 39.4 3.7 57.1 10.5 10 3.8 11.8 16.5 4.3 24.1l-88.7 88.7c-3 3-4.7 7.1-4.7 11.3V176c0 8.8 7.2 16 16 16h41.4c4.2 0 8.3-1.7 11.3-4.7z'/%3E%3C/svg%3E")}
+.fa-regular.fa-eye{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath d='M288 80c-65.2 0-118.8 29.6-159.9 67.7C89.6 183.5 63 226 49.4 256c13.6 30 40.2 72.5 78.7 108.3C169.2 402.4 222.8 432 288 432s118.8-29.6 159.9-67.7C486.4 328.5 513 286 526.6 256c-13.6-30-40.2-72.5-78.7-108.3C406.8 109.6 353.2 80 288 80M95.4 112.6C142.5 68.8 207.2 32 288 32s145.5 36.8 192.6 80.6c46.8 43.5 78.1 95.4 93 131.1 3.3 7.9 3.3 16.7 0 24.6-14.9 35.7-46.2 87.7-93 131.1C433.5 443.1 368.8 480 288 480s-145.5-36.8-192.6-80.6c-46.8-43.5-78.1-95.4-93-131.1-3.3-7.9-3.3-16.7 0-24.6 14.9-35.7 46.2-87.7 93-131.1M288 336c44.2 0 80-35.8 80-80 0-29.6-16.1-55.5-40-69.3-1.4 59.7-49.6 107.9-109.3 109.3 13.8 23.9 39.7 40 69.3 40m-79.6-88.4c2.5.3 5 .4 7.6.4 35.3 0 64-28.7 64-64 0-2.6-.2-5.1-.4-7.6-37.4 3.9-67.2 33.7-71.1 71.1zm45.6-115c10.8-3 22.2-4.5 33.9-4.5 8.8 0 17.5.9 25.8 2.6.3.1.5.1.8.2 57.9 12.2 101.4 63.7 101.4 125.2 0 70.7-57.3 128-128 128-61.6 0-113-43.5-125.2-101.4-1.8-8.6-2.8-17.5-2.8-26.6 0-11 1.4-21.8 4-32 .2-.7.3-1.3.5-1.9 11.9-43.4 46.1-77.6 89.5-89.5z'/%3E%3C/svg%3E")}
+.fa-regular.fa-calendar-days{--fa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M120 0c13.3 0 24 10.7 24 24v40h160V24c0-13.3 10.7-24 24-24s24 10.7 24 24v40h32c35.3 0 64 28.7 64 64v288c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128c0-35.3 28.7-64 64-64h32V24c0-13.3 10.7-24 24-24m264 432c8.8 0 16-7.2 16-16v-64h-88v80zm16-128v-80h-88v80zm-136 0v-80h-80v80zm-128 0v-80H48v80zm-88 48v64c0 8.8 7.2 16 16 16h72v-80zm136 0v80h80v-80zm-64-240H64c-8.8 0-16 7.2-16 16v48h352v-48c0-8.8-7.2-16-16-16z'/%3E%3C/svg%3E")}
+</style>
 <style>
 :root {
   color-scheme: dark;
@@ -1128,14 +1185,6 @@ function ask(msg,ok,o){o=o||{};const md=$('md'),mi=$('mi');$('mt').textContent=m
 let db=null,canWrite=null,shared={},auth=null,currentUser=null,currentRole=null;
 window.db=null;window.currentUser=null;window.currentRole=null;window.firestoreErrorText=firestoreErrorText;
 let breakdownRows=[],rescheduleRows=[],dailyServiceRows=[],workflowUnsubs=[];
-let authStateVersion=0;
-
-function stopWorkflowListeners(){
-  workflowUnsubs.forEach(fn=>{
-    try{fn()}catch(e){console.warn('Gagal menghentikan listener:',e)}
-  });
-  workflowUnsubs=[];
-}
 let editingBreakdownId=null;
 let editingDailyServiceId=null;
 const did=c=>'dt_'+c.replace(/[^A-Za-z0-9_.:@+~-]/g,'_');
@@ -1170,220 +1219,25 @@ $('logoutBtn').addEventListener('click',()=>auth.signOut());
 
 if(!firebaseConfigReady){showAuth('Setup diperlukan: konfigurasi Firebase belum diisi.');banner();}
 else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
-
-auth.onAuthStateChanged(async user=>{
-  // Setiap perubahan autentikasi membatalkan proses sesi sebelumnya.
-  const version=++authStateVersion;
-
-  // Hentikan semua listener dari sesi sebelumnya.
-  stopWorkflowListeners();
-
-  // Bersihkan data sesi sebelumnya.
-  breakdownRows=[];
-  rescheduleRows=[];
-  dailyServiceRows=[];
-  shared={};
-  lshared={};
-
-  if(!user){
-    currentUser=null;
-    currentRole=null;
-    window.currentUser=null;
-    window.currentRole=null;
-    window.db=db;
-    canWrite=false;
-    $('appShell').hidden=true;
-    showAuth();
-    return;
-  }
-
-  try{
-    const profile=await db.collection('users').doc(user.uid).get();
-
-    // Abaikan hasil jika sesi sudah berubah selama pemeriksaan profil.
-    if(
-      version!==authStateVersion ||
-      !auth.currentUser ||
-      auth.currentUser.uid!==user.uid
-    ) return;
-
-    const role=profile.exists?profile.data().role:null;
-
-    if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){
-      showAuth('Akun belum diberi peran akses.');
-      return;
-    }
-
-    showApp(user,role);
-
-    // Listener downtime.
-    workflowUnsubs.push(
-      db.collection('downtime').onSnapshot(sn=>{
-        shared={};
-        sn.docs.forEach(d=>{
-          shared[d.id]=d.data();
-        });
-        render();
-      },err=>{
-        console.error('Firestore downtime:',err);
-        setFirestoreMessage(
-          'historyDbStatus',
-          'Gagal membaca collection downtime: '+firestoreErrorText(err),
-          'error'
-        );
-      })
-    );
-
-    // Listener laju kerja.
-    workflowUnsubs.push(
-      db.collection('laju').onSnapshot(sn=>{
-        lshared={};
-        sn.docs.forEach(d=>{
-          lshared[d.id]=d.data();
-        });
-        render();
-      },err=>{
-        console.error('Firestore laju:',err);
-        setFirestoreMessage(
-          'historyDbStatus',
-          'Gagal membaca collection laju: '+firestoreErrorText(err),
-          'error'
-        );
-      })
-    );
-
-    // Listener data impor WO.
-    if(window.mbkSetWoCloudRecords){
-      workflowUnsubs.push(
-        db.collection('wo_import_records').onSnapshot(sn=>{
-          const cloudRecords=sn.docs.map(d=>({
-            id:d.id,
-            ...d.data()
-          }));
-          window.mbkSetWoCloudRecords(cloudRecords);
-        },err=>{
-          console.error('WO import listener:',err);
-          setFirestoreMessage(
-            'woImportStatus',
-            'Gagal membaca data WO dari Firebase: '+firestoreErrorText(err),
-            'error'
-          );
-        })
-      );
-    }
-
-    // Listener rekap servis: pertahankan hak akses yang sudah ada.
-    if(role==='admin'){
-      workflowUnsubs.push(
-        db.collection('daily_service_records')
-          .orderBy('serviceDate','desc')
-          .limit(500)
-          .onSnapshot(sn=>{
-            dailyServiceRows=sn.docs.map(d=>({
-              id:d.id,
-              ...d.data()
-            }));
-            renderDailyServiceList();
-            setFirestoreMessage(
-              'dailyServiceStatus',
-              'Rekap servis berhasil disinkronkan.',
-              'success'
-            );
-          },err=>{
-            console.error('Rekap servis listener:',err);
-            const msg='Gagal membaca rekap servis: '+firestoreErrorText(err);
-            if($('dailyServiceList')){
-              $('dailyServiceList').innerHTML=
-                '<div class="workflow-empty">'+workflowEsc(msg)+'</div>';
-            }
-            setFirestoreMessage('dailyServiceStatus',msg,'error');
-          })
-      );
-    }
-
-    // Listener laporan breakdown.
-    workflowUnsubs.push(
-      db.collection('breakdown_reports')
-        .orderBy('createdAt','desc')
-        .limit(100)
-        .onSnapshot(sn=>{
-          breakdownRows=sn.docs.map(d=>({
-            id:d.id,
-            ...d.data()
-          }));
-          renderWorkflowLists();
-          setFirestoreMessage(
-            'breakdownDbStatus',
-            'Data breakdown berhasil disinkronkan.',
-            'success'
-          );
-          setFirestoreMessage(
-            'historyDbStatus',
-            'Riwayat berhasil disinkronkan.',
-            'success'
-          );
-        },err=>{
-          console.error('Breakdown listener:',err);
-          const msg='Gagal membaca laporan breakdown: '+firestoreErrorText(err);
-          ['breakdownList','breakdownHistoryList'].forEach(id=>{
-            if($(id)){
-              $(id).innerHTML=
-                '<div class="workflow-empty">'+workflowEsc(msg)+'</div>';
-            }
-          });
-          setFirestoreMessage('breakdownDbStatus',msg,'error');
-          setFirestoreMessage('historyDbStatus',msg,'error');
-        })
-    );
-
-    // Listener pengajuan perubahan jadwal PM.
-    workflowUnsubs.push(
-      db.collection('pm_reschedule_requests')
-        .orderBy('createdAt','desc')
-        .limit(100)
-        .onSnapshot(sn=>{
-          rescheduleRows=sn.docs.map(d=>({
-            id:d.id,
-            ...d.data()
-          }));
-          renderWorkflowLists();
-          setFirestoreMessage(
-            'rescheduleDbStatus',
-            'Data pengajuan berhasil disinkronkan.',
-            'success'
-          );
-          setFirestoreMessage(
-            'historyDbStatus',
-            'Riwayat berhasil disinkronkan.',
-            'success'
-          );
-        },err=>{
-          console.error('Reschedule listener:',err);
-          const msg='Gagal membaca pengajuan PM: '+firestoreErrorText(err);
-          ['rescheduleList','rescheduleHistoryList'].forEach(id=>{
-            if($(id)){
-              $(id).innerHTML=
-                '<div class="workflow-empty">'+workflowEsc(msg)+'</div>';
-            }
-          });
-          setFirestoreMessage('rescheduleDbStatus',msg,'error');
-          setFirestoreMessage('historyDbStatus',msg,'error');
-        })
-    );
-
-  }catch(err){
-    // Jangan mengganggu sesi baru akibat kesalahan sesi lama.
-    if(version!==authStateVersion) return;
-
-    console.error(err);
-    await auth.signOut();
-
-    if(version===authStateVersion){
-      showAuth('Tidak dapat memeriksa hak akses.');
-    }
-  }
-});
-
+ auth.onAuthStateChanged(async user=>{
+  if(!user){workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];breakdownRows=[];rescheduleRows=[];currentUser=null;currentRole=null;window.currentUser=null;window.currentRole=null;window.db=db;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
+  try{const profile=await db.collection('users').doc(user.uid).get();const role=profile.exists?profile.data().role:null;
+   if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
+   showApp(user,role);
+   db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error('Firestore downtime:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection downtime: '+firestoreErrorText(err),'error')});
+   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
+   workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];
+   if(window.mbkSetWoCloudRecords){
+    workflowUnsubs.push(db.collection('wo_import_records').onSnapshot(sn=>{
+     const cloudRecords=sn.docs.map(d=>({id:d.id,...d.data()}));
+     window.mbkSetWoCloudRecords(cloudRecords);
+    },err=>{console.error('WO import listener:',err);setFirestoreMessage('woImportStatus','Gagal membaca data WO dari Firebase: '+firestoreErrorText(err),'error')}));
+   }
+   if(role==='admin')workflowUnsubs.push(db.collection('daily_service_records').orderBy('serviceDate','desc').limit(500).onSnapshot(sn=>{dailyServiceRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderDailyServiceList();setFirestoreMessage('dailyServiceStatus','Rekap servis berhasil disinkronkan.','success')},err=>{console.error('Rekap servis listener:',err);const msg='Gagal membaca rekap servis: '+firestoreErrorText(err);if($('dailyServiceList'))$('dailyServiceList').innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>';setFirestoreMessage('dailyServiceStatus',msg,'error')}));
+   workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Data breakdown berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Breakdown listener:',err);const msg='Gagal membaca laporan breakdown: '+firestoreErrorText(err);['breakdownList','breakdownHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('breakdownDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
+   workflowUnsubs.push(db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Data pengajuan berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Reschedule listener:',err);const msg='Gagal membaca pengajuan PM: '+firestoreErrorText(err);['rescheduleList','rescheduleHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('rescheduleDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
+  }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses.')}
+ });
  }catch(err){showAuth('Firebase gagal dimulai: '+err.message)}}
 banner();
 
@@ -2352,7 +2206,17 @@ setActiveView('dashboard');
 banner(); render();renderDashboardNotifications();
 </script>
 <!-- SheetJS untuk membaca file Excel report WO; tidak mengubah alur Firebase yang sudah ada -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+/* Library Excel (SheetJS) dimuat hanya saat fitur impor/ekspor Excel dipakai pertama kali */
+window.mbkLoadXLSX=function(){
+ if(window.XLSX)return Promise.resolve(window.XLSX);
+ if(window.__mbkXlsxPromise)return window.__mbkXlsxPromise;
+ const urls=['https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js','https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'];
+ const load=i=>new Promise((res,rej)=>{if(i>=urls.length)return rej(new Error('Library Excel gagal dimuat'));const el=document.createElement('script');el.src=urls[i];el.onload=()=>window.XLSX?res(window.XLSX):load(i+1).then(res,rej);el.onerror=()=>{el.remove();load(i+1).then(res,rej)};document.head.appendChild(el)});
+ window.__mbkXlsxPromise=load(0).catch(e=>{window.__mbkXlsxPromise=null;throw e});
+ return window.__mbkXlsxPromise;
+};
+</script>
 <script>
 (()=>{
 'use strict';
@@ -2445,7 +2309,7 @@ function renderWoCards(records,statusFor){
  }).join('');
 }
 function wireWoDetailButtons(root){if(root.dataset.woDetailsWired)return;root.dataset.woDetailsWired='1';root.addEventListener('click',e=>{const b=e.target.closest('.wo-detail-toggle');if(!b)return;const panel=document.getElementById(b.getAttribute('aria-controls'));if(!panel)return;const open=panel.hidden;panel.hidden=!open;b.setAttribute('aria-expanded',String(open));b.textContent=open?'Tutup rincian':'Rincian';});}
-function preview(){const f=$wo('woExcelFile').files[0];if(!f){alert('Pilih file Excel terlebih dahulu.');return}if(!window.XLSX){$wo('woImportStatus').textContent='Library pembaca Excel belum termuat. Periksa koneksi internet lalu muat ulang.';return}
+function preview(){const f=$wo('woExcelFile').files[0];if(!f){alert('Pilih file Excel terlebih dahulu.');return}if(!window.XLSX){$wo('woImportStatus').textContent='Memuat library Excel…';window.mbkLoadXLSX().then(()=>preview()).catch(()=>{$wo('woImportStatus').textContent='Library pembaca Excel gagal dimuat. Periksa koneksi internet lalu coba lagi.'});return}
  const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});const parsed=parseRows(rows,f.name);pending=parsed;const c=classify(parsed.records);$wo('woImportStatus').textContent=`File: ${f.name}\nSheet: ${wb.SheetNames[0]} · Baris data: ${parsed.sourceRows}\n${summaryHtml(parsed.records)}\nBaris tanpa WO induk: ${parsed.errors.length}`;$wo('woPreviewSummary').innerHTML=`<span class="wo-pill new">${fmt(c.fresh.length)} WO baru</span> <span class="wo-pill updated">${fmt(c.updated.length)} WO berubah</span> <span class="wo-pill same">${fmt(c.same.length)} tidak berubah</span> <span class="wo-pill warn">${fmt(c.unmatched.length)} unit belum terdaftar</span><br><br>${parsed.errors.slice(0,8).map(esc).join('<br>')||'Tidak ditemukan baris tanpa WO induk.'}`;
  $wo('woPreviewTable').innerHTML=renderWoCards(parsed.records, r=>c.fresh.some(x=>x.woId===r.woId)?'Baru':c.updated.some(x=>x.record.woId===r.woId)?'Berubah':'Sama');wireWoDetailButtons($wo('woPreviewTable'));$wo('woCommitBtn').disabled=false;
  
@@ -2656,6 +2520,7 @@ function renderUnitHistory(){
  $wo('woUnitHistory').innerHTML=html;wireWoDetailButtons($wo('woUnitHistory'));
 }
 function exportWoUnitHistory(){
+ if(!window.XLSX&&$wo('woHistoryExportFormat').value==='excel'){window.mbkLoadXLSX().then(()=>exportWoUnitHistory()).catch(()=>alert('Fitur Excel belum siap. Periksa koneksi internet lalu coba lagi.'));return}
  const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value,from=$wo('woFrom').value,to=$wo('woTo').value;
  const store=readStore();
  const wos=filteredRecords().filter(x=>woRecordMatchesUnitFilter(x,u)&&(!cat||unitCategory(x.equipmentCode)===cat));
