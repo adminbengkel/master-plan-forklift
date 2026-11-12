@@ -785,19 +785,11 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
   </div>
 
-  <!-- Main Title Bar -->
-  <div class="main-title-bar">
-    <div class="title-brand">
-      <img class="brand-logo" src="logo-bengkel.png" alt="Logo MBK" onerror="this.outerHTML='<div class=&quot;brand-logo-fallback&quot;>MBK</div>'">
-      <div class="title-text">
-        <h1>MASTER PLAN</h1>
-        <div class="title-sub">MAINTENANCE BENGKEL KENDARAAN (MBK)</div>
-        <div class="user-line" id="userBadge"></div>
-      </div>
-    </div>
-  </div>
+  <span id="userBadge" hidden></span>
 
   <div class="app-layout">
+    <div class="sidebar-col">
+    <div class="sidebar-logo-card"><img class="sidebar-logo" src="logo-bengkel.png" alt="Logo MBK" onerror="this.outerHTML='<div class=&quot;sidebar-logo-fallback&quot;>MBK</div>'"></div>
     <aside class="app-sidebar" id="appSidebar" aria-label="Navigasi utama MBK">
       <div class="sidebar-topline"><div class="sidebar-label">Navigasi</div><button type="button" id="sidebarCollapseBtn" class="sidebar-collapse-btn" aria-label="Tampilkan menu navigasi" title="Tampilkan menu navigasi"><i class="fa-solid fa-angles-right"></i></button></div>
       <nav class="sidebar-nav" id="mainNavigation">
@@ -831,6 +823,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
         </div>
       </nav>
     </aside>
+    </div>
     <main class="app-main" id="appMain">
       <div class="view-heading"><div><h2 id="activeViewTitle">Dashboard</h2><p id="activeViewSubtitle">Ringkasan kondisi PM dan notifikasi penting.</p></div></div>
 
@@ -841,10 +834,6 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </div>
 
   <section id="dashboardOverview" data-view="dashboard" aria-label="Notifikasi penting">
-    <div class="mode-control" data-view="dashboard">
-      <label><i class="fa-solid fa-calendar-days"></i> Periode Jadwal</label>
-      <div class="unit-kind">Jadwal gabungan: Desember 2026 sampai Desember 2027. Desember 2026 merupakan periode tambahan; jadwal 2027 tetap mengikuti master plan.</div>
-    </div>
     <div class="notice-grid">
       <div class="notice-card danger"><div class="notice-label">PM Terlambat / Mendesak</div><div class="notice-number" id="dashboardUrgentCount">—</div><div class="notice-desc">Jadwal yang lewat atau mendekati jatuh tempo</div></div>
       <div class="notice-card warn"><div class="notice-label">Pengajuan Menunggu Persetujuan</div><div class="notice-number" id="dashboardPendingCount">0</div><div class="notice-desc">Perlu ditinjau Supervisor / Kepala Bengkel</div></div>
@@ -1208,7 +1197,9 @@ function banner(){
 function showAuth(message=''){ $('authGate').hidden=false; $('appShell').hidden=true; $('authMsg').textContent=message; }
 function showApp(user,role){
  currentUser=user; currentRole=role; window.db=db; window.currentUser=user; window.currentRole=role; canWrite=['admin','technician'].includes(role); $('authGate').hidden=true; $('appShell').hidden=false; if($('dailyServiceNav'))$('dailyServiceNav').hidden=true; if($('dailyServicePage'))$('dailyServicePage').hidden=true; initWorkflowForms(); renderWorkflowLists();
- $('userBadge').textContent=(user.email||user.uid)+' · '+({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja',supervisor:'Supervisor',head_bengkel:'Kepala Bengkel',kepala_bengkel:'Kepala Bengkel'}[role]||role);
+ const _roleLabel=({admin:'Admin',technician:'Teknisi',viewer:'Lihat saja',supervisor:'Supervisor',head_bengkel:'Kepala Bengkel',kepala_bengkel:'Kepala Bengkel'}[role]||role);
+ $('userBadge').textContent=(user.email||user.uid)+' · '+_roleLabel;
+ window.mbkWelcome='Selamat datang, '+_roleLabel;if(activeView==='dashboard'){const _s=$('activeViewSubtitle');_s.textContent=window.mbkWelcome;_s.classList.add('welcome-line')}
  banner(); render();
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -2149,7 +2140,7 @@ function setActiveView(view){
  if(!VIEW_META[view])view='dashboard';activeView=view;
  $('appShell').dataset.activeView=view;
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
- $('activeViewTitle').textContent=VIEW_META[view][0];$('activeViewSubtitle').textContent=VIEW_META[view][1];
+ $('activeViewTitle').textContent=VIEW_META[view][0];const _sub=$('activeViewSubtitle'),_wel=view==='dashboard'&&window.mbkWelcome;_sub.textContent=_wel||VIEW_META[view][1];_sub.classList.toggle('welcome-line',!!_wel);
  document.querySelectorAll('#appMain [data-view]').forEach(el=>{
   const isActive=el.dataset.view===view;
   el.hidden=!isActive;
@@ -2670,6 +2661,19 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 #rateAnalysisPage .rate-downtime-history td:last-child{white-space:normal;min-width:240px;text-align:left}
 #rateAnalysisPage .rate-scroll-hint{display:none;align-items:center;gap:6px;margin:0 0 6px;color:#94a3b8;font-size:11px}
 @media(max-width:1280px){#rateAnalysisPage .rate-scroll-hint{display:flex}}
+</style>
+<style id="dashboard-layout-v2">
+/* Logo di atas sidebar, tanpa judul "Master Plan"; sapaan di bawah judul Dashboard */
+.sidebar-col{position:sticky;top:12px;align-self:start;display:flex;flex-direction:column;gap:12px;min-width:0}
+.sidebar-col .app-sidebar{position:static;min-height:calc(100vh - 150px)}
+.sidebar-logo-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;display:flex;align-items:center;justify-content:center;min-height:92px}
+.sidebar-logo{height:76px;width:auto;max-width:100%;object-fit:contain;display:block}
+.sidebar-logo-fallback{width:64px;height:64px;border-radius:14px;background:var(--ac);color:#070a0f;display:grid;place-items:center;font-weight:800;font-size:20px}
+#appShell.sidebar-collapsed .sidebar-logo-card{padding:6px;min-height:0}
+#appShell.sidebar-collapsed .sidebar-logo{height:36px}
+#appShell.sidebar-collapsed .sidebar-logo-fallback{width:36px;height:36px;font-size:12px;border-radius:9px}
+.view-heading p.welcome-line{color:#22c55e;font-size:16px;font-weight:800;margin-top:2px}
+@media(max-width:900px){.sidebar-col{position:static}.sidebar-col .app-sidebar{min-height:0}.sidebar-logo-card{min-height:0}.sidebar-logo{height:60px}}
 </style>
 </body>
 </html>
