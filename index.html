@@ -1992,7 +1992,7 @@ function setActiveView(view){
  if(view==='rateAnalysis'){renderRateAnalysis();}
  if(view==='woImport'||view==='woAnalysis'){
   if(window.mbkEnsureWoCloudSync)window.mbkEnsureWoCloudSync();
-  renderSaved();
+  if(typeof window.mbkRenderWoSaved==='function')window.mbkRenderWoSaved();
  }
  if(view==='units')renderUnitDirectory();
  if(view==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
@@ -2364,6 +2364,7 @@ function setCloudRecords(cloudRows){
  if(changed){writeStore(local);renderSaved();}
 }
 window.mbkSetWoCloudRecords=setCloudRecords;
+window.mbkRenderWoSaved=renderSaved;
 function renderSaved(){
  const db=readStore(),all=Object.values(db.records).map(x=>x.current);
  const totalTask=all.reduce((n,x)=>n+(x.tasks||[]).length,0),totalMat=all.reduce((n,x)=>n+(x.materials||[]).length,0),units=new Set(all.map(x=>x.equipmentCode).filter(Boolean));
