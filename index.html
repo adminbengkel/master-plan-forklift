@@ -655,22 +655,6 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #appShell.sidebar-collapsed #mainNavigation button i{flex:0 0 auto}
 @media(max-width:900px){.app-layout{grid-template-columns: minmax(0,1fr)!important}.app-sidebar{position:relative;top:auto;min-height:0}.sidebar-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.nav-group{min-width:0}.nav-group-items{padding-left:0}#appShell.sidebar-collapsed .app-layout{grid-template-columns:minmax(0,1fr)!important}#appShell.sidebar-collapsed .sidebar-label,#appShell.sidebar-collapsed .nav-text{display:initial!important}#appShell.sidebar-collapsed .sidebar-topline{justify-content:space-between}#appShell.sidebar-collapsed #mainNavigation button{justify-content:flex-start!important;padding:10px!important}#appShell.sidebar-collapsed .nav-group-items{padding-left:0}}
 @media(max-width:520px){.sidebar-nav{grid-template-columns:minmax(0,1fr)}}
-
-/* FINAL NAV HIERARCHY FIX: submenu is visibly nested and never shares the parent text column */
-#mainNavigation .nav-group{margin-top:8px;gap:5px}
-#mainNavigation .nav-group-toggle{min-height:40px;padding:10px 9px!important;background:#172943!important;border:1px solid #263b59!important;color:#f1f5f9!important;font-size:10px!important;font-weight:850!important;letter-spacing:.045em}
-#mainNavigation .nav-group-toggle .nav-text{text-transform:uppercase;white-space:normal;line-height:1.15}
-#mainNavigation .nav-group-toggle>i:first-child{color:#93c5fd!important}
-#mainNavigation .nav-group-items{margin:3px 0 5px 24px!important;padding:5px 4px 5px 9px!important;border-left:2px solid #45617f!important;border-radius:0 8px 8px 0;background:rgba(5,14,29,.42)!important;gap:3px!important}
-#mainNavigation .nav-group-items [data-view-target]{min-height:34px;padding:7px 7px!important;margin:0!important;gap:7px!important;border:1px solid transparent!important;border-radius:6px!important;background:transparent!important;color:#cbd5e1!important;font-size:10px!important;font-weight:650!important;line-height:1.2!important;white-space:normal!important}
-#mainNavigation .nav-group-items [data-view-target]>i:first-child{width:13px!important;flex:0 0 13px!important;font-size:10px!important;color:#94a3b8!important}
-#mainNavigation .nav-group-items [data-view-target]:hover{background:#1c304b!important;color:#fff!important}
-#mainNavigation .nav-group-items [data-view-target].active{background:#1d4ed8!important;border-color:#3b82f6!important;color:#fff!important}
-#mainNavigation .nav-group-items [data-view-target].active>i:first-child{color:#bfdbfe!important}
-#mainNavigation .nav-group.is-collapsed .nav-group-items{display:none!important}
-@media(max-width:900px){#mainNavigation .nav-group-items{margin-left:24px!important;padding-left:9px!important}}
-@media(max-width:520px){#mainNavigation .nav-group-items{margin-left:24px!important}}
-
 .mode-control { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 12px; margin:0 0 12px; border:1px solid #475569; border-radius:10px; background:rgba(15,23,42,.94); }
 .mode-control label { color:#fcd34d; font-size:12px; font-weight:800; }
 .mode-control select { max-width:100%; background:#0b1220; color:#f8fafc; border:1px solid #475569; border-radius:8px; padding:9px 10px; }
@@ -795,34 +779,34 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <nav class="sidebar-nav" id="mainNavigation">
         <button type="button" class="active" data-view-target="dashboard" title="Dashboard"><i class="fa-solid fa-house"></i><span class="nav-text">Dashboard</span></button>
         <div class="nav-group is-collapsed" data-nav-group="master">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-database"></i><span class="nav-text">MASTER DATA</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-database"></i><span class="nav-text">Master Data</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Unit</span></button>
+            <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Daftar Unit</span></button>
             <button type="button" data-view-target="users" title="Manajemen Pengguna"><i class="fa-solid fa-user"></i><span class="nav-text">Pengguna</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="planning">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">PERENCANAAN</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">Perencanaan Maintenance</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="schedule" title="Jadwal Preventive Maintenance"><i class="fa-solid fa-calendar-days"></i><span class="nav-text">Jadwal PM</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="operations">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">OPERASIONAL</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">Operasional Maintenance</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="breakdown" title="Pencatatan Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Breakdown</span></button>
+            <button type="button" data-view-target="breakdown" title="Pencatatan Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Data Breakdown</span></button>
             <button type="button" data-view-target="woImport" title="Impor Data Work Order"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor WO</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="monitoring">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-chart-line"></i><span class="nav-text">MONITORING</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Monitoring &amp; Analisis</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="rateAnalysis" title="Analisa Laju Kerja Unit"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Laju Unit</span></button>
+            <button type="button" data-view-target="rateAnalysis" title="Analisa Laju Kerja Unit"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Analisis Laju Unit</span></button>
             <button type="button" data-view-target="woAnalysis" title="Analisis Work Order"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Analisis WO</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="approvals">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">PERSETUJUAN &amp; AUDIT</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan &amp; Audit</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="reschedule" title="Persetujuan"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan</span></button>
             <button type="button" data-view-target="history" title="Riwayat Aktivitas"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-text">Riwayat</span></button>
@@ -3314,68 +3298,6 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 }
 #appShell.sidebar-collapsed .nav-group-items{margin-left:0;padding-left:0;border-left:0}
 #appShell.sidebar-collapsed .nav-group-items button::before{display:none}
-</style>
-
-
-<style id="nav-two-level-clear">
-/* ===== Navigasi dua tingkat: MENU UTAMA = kartu tebal + ikon; SUBMENU = daftar ringan + garis & titik ===== */
-#appShell #mainNavigation{display:grid!important;grid-template-columns:minmax(0,1fr);gap:6px!important;align-items:stretch!important}
-
-/* --- Tingkat 1: Dashboard & judul grup (kartu solid, huruf kapital, ikon dalam kotak) --- */
-#appShell #mainNavigation>button[data-view-target],
-#appShell #mainNavigation>.nav-group>.nav-group-toggle{
-  display:flex!important;align-items:center!important;gap:11px!important;width:100%!important;min-height:46px!important;
-  margin:0!important;padding:8px 12px!important;box-sizing:border-box!important;
-  background:#1a2f4e!important;border:1px solid #2f4d77!important;border-radius:11px!important;
-  color:#fff!important;font-size:12px!important;font-weight:800!important;letter-spacing:.08em!important;text-transform:uppercase!important;
-  text-align:left!important;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.22)!important}
-#appShell #mainNavigation>button[data-view-target] .nav-text,
-#appShell #mainNavigation>.nav-group>.nav-group-toggle .nav-text{flex:1;font-size:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important;text-transform:inherit!important}
-#appShell #mainNavigation>button[data-view-target]>i:first-child,
-#appShell #mainNavigation>.nav-group>.nav-group-toggle>i:first-child{
-  flex:0 0 17px!important;width:17px!important;height:17px!important;display:inline-block!important;
-  color:#93c5fd!important;font-size:17px!important}
-#appShell #mainNavigation>.nav-group>.nav-group-toggle .group-chevron{flex:0 0 12px!important;width:12px!important;height:12px!important;color:#93c5fd!important;font-size:12px!important;margin-left:auto}
-#appShell #mainNavigation>button[data-view-target]:hover,
-#appShell #mainNavigation>.nav-group>.nav-group-toggle:hover{background:#22406a!important;border-color:#4b78b4!important}
-#appShell #mainNavigation>.nav-group{display:grid!important;grid-template-columns:minmax(0,1fr);gap:0!important;margin:8px 0 0!important}
-/* grup yang submenunya sedang aktif / terbuka diberi penanda di sisi kiri kartu */
-#appShell #mainNavigation>.nav-group:not(.is-collapsed)>.nav-group-toggle,
-#appShell #mainNavigation>.nav-group:has(.nav-group-items button.active)>.nav-group-toggle{border-color:#60a5fa!important;box-shadow:inset 4px 0 0 #60a5fa,0 2px 6px rgba(0,0,0,.22)!important}
-/* Dashboard saat aktif */
-#appShell #mainNavigation>button[data-view-target].active{background:linear-gradient(135deg,#2f6df6,#2459d8)!important;border-color:#60a5fa!important;box-shadow:0 8px 20px rgba(37,99,235,.35)!important}
-#appShell #mainNavigation>button[data-view-target].active>i:first-child{color:#fff!important}
-
-/* --- Tingkat 2: submenu (tanpa kotak, tanpa ikon, indentasi + garis panduan + titik) --- */
-#appShell #mainNavigation>.nav-group.is-collapsed>.nav-group-items{display:none!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items{
-  display:grid!important;grid-template-columns:minmax(0,1fr);gap:2px!important;
-  margin:6px 0 2px 22px!important;padding:2px 0 2px 10px!important;width:calc(100% - 22px)!important;box-sizing:border-box!important;
-  background:transparent!important;border:0!important;border-left:2px solid #35557f!important;border-radius:0!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]{
-  position:relative!important;display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;min-height:36px!important;
-  margin:0!important;padding:7px 10px!important;box-sizing:border-box!important;
-  background:transparent!important;border:0!important;border-radius:8px!important;box-shadow:none!important;
-  color:#a9b8cf!important;font-size:12.5px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;line-height:1.3!important;text-align:left!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]::before{
-  content:""!important;position:static!important;left:auto!important;top:auto!important;border:0!important;
-  flex:0 0 7px;width:7px!important;height:7px;border-radius:50%;background:#5a7499}
-#appShell:not(.sidebar-collapsed) #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]>i:first-child{display:none!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]:hover{background:rgba(96,165,250,.12)!important;color:#fff!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]:hover::before{background:#93c5fd}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target].active{background:rgba(37,99,235,.30)!important;color:#fff!important;font-weight:700!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target].active::before{background:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.28)}
-
-/* --- Sidebar diciutkan: hanya ikon --- */
-#appShell.sidebar-collapsed #mainNavigation>button[data-view-target],
-#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-toggle{justify-content:center!important;padding:8px 4px!important;min-height:42px!important}
-#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items{margin:4px 0 0!important;width:100%!important;padding:0!important;border-left:0!important}
-#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]{justify-content:center!important;padding:8px 4px!important}
-#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]::before{display:none!important}
-#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]>i:first-child{display:inline-block!important;width:15px!important;height:15px!important;font-size:15px!important;color:#93a8c8!important}
-
-/* --- Layar kecil --- */
-@media(max-width:900px){#appShell #mainNavigation>.nav-group>.nav-group-items{margin-left:18px!important;width:calc(100% - 18px)!important}}
 </style>
 </body>
 </html>
