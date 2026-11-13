@@ -1024,13 +1024,13 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
   <section class="card workflow-page" id="woImportPage" data-view="woImport" hidden aria-labelledby="woImportTitle">
     <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-file-import"></i></span><div class="ud-head-text"><h2 id="woImportTitle">Impor Data Work Order</h2><p>Unggah report WO selesai dari sistem resmi, periksa pratinjau, lalu simpan hasil impor.</p></div></div>
-    <div class="rate-info"><i class="fa-solid fa-circle-info"></i><span>Data hanya disimpan lokal di browser untuk tahap uji; belum menulis ke Firebase.</span></div>
+    <div class="rate-info"><i class="fa-solid fa-circle-info"></i><span>Hasil impor disimpan ke Firebase (koleksi <b>wo_import_records</b>) beserta riwayat impornya, sehingga dapat dilihat dari perangkat lain. Salinan juga disimpan di browser sebagai cache. Penyimpanan hanya bisa dilakukan oleh akun admin atau teknisi.</span></div>
     <div class="wo-panel wo-upload">
       <h3>1. Unggah report Excel WO selesai</h3>
       <div class="wo-tools"><input id="woExcelFile" type="file" accept=".xlsx,.xls,.csv"><button type="button" class="pdf-btn" id="woPreviewBtn"><i class="fa-solid fa-magnifying-glass"></i> Baca &amp; Pratinjau</button><button type="button" id="woClearPreview">Bersihkan pratinjau</button></div>
       <div class="wo-note">Gunakan report WO selesai dari sistem resmi. Identitas utama adalah WO ID. Baris Task dan Material yang tidak mengulang WO ID akan dikelompokkan ke WO induk. Periksa hasil pratinjau sebelum menyimpan.</div>
       <div id="woImportStatus" class="wo-status" role="status" aria-live="polite">Belum ada file yang dibaca.</div>
-      <div class="wo-actions"><button type="button" class="primary" id="woCommitBtn" disabled><i class="fa-solid fa-database"></i> Simpan hasil impor uji</button></div>
+      <div class="wo-actions"><button type="button" class="primary" id="woCommitBtn" disabled><i class="fa-solid fa-database"></i> Simpan hasil impor</button></div>
     </div>
     <div class="wo-grid">
       <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
