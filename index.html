@@ -1097,21 +1097,18 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </section>
 
   <section class="card workflow-page" id="rateAnalysisPage" data-view="rateAnalysis" hidden aria-labelledby="rateAnalysisTitle">
-    <div class="overview-head"><div><h2 id="rateAnalysisTitle"><i class="fa-solid fa-chart-line"></i> Analisa Laju Kerja Unit</h2><div class="overview-meta">Analisa per bulan. Periode berjalan ditampilkan sebagai data sementara dan menjadi final setelah bulan berakhir.</div></div><span class="table-chip" id="ratePeriodState">Memuat status periode…</span></div>
-    <div class="unit-report-tools">
-      <div><label for="rateMonth">Periode pembaruan</label><input type="month" id="rateMonth"></div>
-      <div style="display:flex;align-items:end"><button type="button" class="pdf-btn" id="rateUpdateBtn"><i class="fa-solid fa-rotate"></i> Hitung &amp; Simpan Bulanan</button></div>
+    <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-chart-column"></i></span><div class="ud-head-text"><h2 id="rateAnalysisTitle">Analisa Laju Kerja Unit</h2><p>Pantau dan bandingkan performa unit operasional setiap bulan. Periode berjalan berstatus sementara dan menjadi final setelah bulan berakhir.</p></div><span class="table-chip" id="ratePeriodState">Memuat status periode…</span></div>
+    <div class="rate-toolbar" id="rateFilterTools">
+      <div class="rt-field"><label for="rateMonth">Periode pembaruan</label><input type="month" id="rateMonth"></div>
+      <div class="rt-field"><label for="rateCategoryFilter">Jenis unit</label><div class="rt-select"><select id="rateCategoryFilter" aria-label="Filter jenis unit"><option value="">Semua jenis unit</option></select><i class="fa-solid fa-chevron-down"></i></div></div>
+      <div class="rt-field"><label for="rateUnitFilter">Kode unit</label><div class="rt-select"><select id="rateUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><i class="fa-solid fa-chevron-down"></i></div></div>
+      <div class="rt-field rt-grow"><label for="rateSearch">Cari unit</label><div class="sch-q-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="rateSearch" placeholder="Cari kode atau nama unit…" aria-label="Cari kode atau nama unit" autocomplete="off"></div></div>
+      <div class="rt-actions"><button type="button" id="rateFilterReset" class="rt-reset" title="Reset filter"><i class="fa-solid fa-rotate-left"></i> Reset</button><button type="button" class="pdf-btn" id="rateUpdateBtn"><i class="fa-solid fa-rotate"></i> Hitung &amp; Simpan Bulanan</button></div>
     </div>
-    <div class="wo-tools" id="rateFilterTools" style="margin:12px 0;align-items:end">
-      <div style="min-width:190px"><label for="rateCategoryFilter">Jenis unit</label><select id="rateCategoryFilter" aria-label="Filter jenis unit"><option value="">Semua jenis unit</option></select></div>
-      <div style="min-width:190px"><label for="rateUnitFilter">Kode unit</label><select id="rateUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select></div>
-      <div style="min-width:220px;flex:1"><label for="rateSearch">Cari unit</label><input type="search" id="rateSearch" placeholder="Cari kode atau nama unit…" aria-label="Cari kode atau nama unit"></div>
-      <button type="button" id="rateFilterReset" title="Reset filter">Reset Filter</button>
-    </div>
-    <div id="rateStatus" class="firestore-message" role="status" aria-live="polite">Pilih periode lalu hitung laju kerja dari catatan HM WO Aktual.</div><div id="rateRevisionHistory" class="rate-revision-history"></div>
-    <div class="wo-kpi-grid" id="rateKpis"><div class="wo-kpi"><small>Unit berhasil dihitung</small><strong id="rateUnitCount">0</strong></div><div class="wo-kpi"><small>Belum cukup data</small><strong id="rateInsufficientCount">0</strong></div><div class="wo-kpi"><small>WO dengan HM valid</small><strong id="rateReadingCount">0</strong></div><div class="wo-kpi"><small>Periode</small><strong id="ratePeriodLabel">—</strong></div></div>
-    <div class="wo-panel rate-results-panel"><div class="rate-section-heading"><h3>Hasil pembaruan periode</h3><button type="button" id="rateResultsToggle" class="rate-collapse-btn" aria-expanded="false" aria-controls="rateResultsBody"><i class="fa-solid fa-chevron-down"></i> Maksimalkan</button></div><div id="rateResultsBody" hidden><div id="rateResults" class="wo-table-wrap"><div class="workflow-empty">Belum ada hasil perhitungan.</div></div></div></div>
-    <div class="wo-panel" style="margin-top:12px"><h3>Grafik tren laju kerja bulanan</h3><div class="overview-meta" style="margin-bottom:10px">Pilih satu unit melalui pencarian kode unit untuk menampilkan grafiknya.</div><div id="rateTrendCharts" class="rate-trend-charts"><div class="workflow-empty">Pilih kode unit untuk menampilkan grafik tren laju kerja bulanan.</div></div><h3 style="margin-top:18px">Rincian tren bulanan</h3><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Pilih kode unit untuk menampilkan rincian tren bulanan.</div></div></div>
+    <div class="rate-info"><i class="fa-solid fa-circle-info"></i><div id="rateStatus" class="firestore-message" role="status" aria-live="polite">Pilih periode lalu hitung laju kerja dari catatan HM WO Aktual.</div></div><div id="rateRevisionHistory" class="rate-revision-history"></div>
+    <div class="wo-kpi-grid" id="rateKpis"><div class="wo-kpi rk"><span class="rk-icon rk-blue"><i class="fa-solid fa-truck"></i></span><div class="rk-body"><small>Unit berhasil dihitung</small><strong id="rateUnitCount">0</strong></div><i class="fa-solid fa-truck rk-wm"></i></div><div class="wo-kpi rk"><span class="rk-icon rk-orange"><i class="fa-solid fa-circle-exclamation"></i></span><div class="rk-body"><small>Belum cukup data</small><strong id="rateInsufficientCount">0</strong></div><i class="fa-solid fa-circle-exclamation rk-wm"></i></div><div class="wo-kpi rk"><span class="rk-icon rk-green"><i class="fa-solid fa-clipboard-check"></i></span><div class="rk-body"><small>WO dengan HM valid</small><strong id="rateReadingCount">0</strong></div><i class="fa-solid fa-clipboard-check rk-wm"></i></div><div class="wo-kpi rk"><span class="rk-icon rk-purple"><i class="fa-solid fa-calendar-days"></i></span><div class="rk-body"><small>Periode</small><strong id="ratePeriodLabel">—</strong></div><i class="fa-solid fa-calendar-days rk-wm"></i></div></div>
+    <div class="wo-panel rate-results-panel"><div class="rate-section-heading"><h3><i class="fa-solid fa-chart-column"></i> Hasil pembaruan periode</h3><button type="button" id="rateResultsToggle" class="rate-collapse-btn" aria-expanded="false" aria-controls="rateResultsBody"><i class="fa-solid fa-chevron-down"></i> Maksimalkan</button></div><div id="rateResultsBody" hidden><div id="rateResults" class="wo-table-wrap"><div class="workflow-empty">Belum ada hasil perhitungan.</div></div></div></div>
+    <div class="wo-panel" style="margin-top:12px"><h3><i class="fa-solid fa-chart-line"></i> Grafik tren laju kerja bulanan</h3><div class="overview-meta" style="margin-bottom:10px">Pilih satu unit melalui pencarian kode unit untuk menampilkan grafiknya.</div><div id="rateTrendCharts" class="rate-trend-charts"><div class="workflow-empty">Pilih kode unit untuk menampilkan grafik tren laju kerja bulanan.</div></div><h3 style="margin-top:18px">Rincian tren bulanan</h3><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Pilih kode unit untuk menampilkan rincian tren bulanan.</div></div></div>
     <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Garis biru = ΔHM ÷ hari kalender; garis kuning = ΔHM ÷ waktu pengukuran setelah dikurangi downtime WO kategori Perbaikan. Downtime dihitung dari Actual Order Start sampai Actual Order Finish dan dibagi ke setiap bulan berdasarkan jam aktual. Jika downtime mencapai 80% atau lebih, tampilkan peringatan; jika satu bulan 100% downtime, laju waktu tersedia ditampilkan N/A. Selama bulan berjalan, hasil berstatus <b>Sementara</b> dan dapat diperbarui setiap kali data WO baru diimpor. Setelah bulan berakhir, periode berubah menjadi <b>Final</b>. Unit tanpa pencatatan HM tetap ditampilkan; data yang belum cukup tidak dianggap bernilai nol.</p>
   </section>
 
@@ -1241,7 +1238,7 @@ function showApp(user,role){
  $('logoutBtn').title=$('userBadge').textContent;
  window.mbkWelcome='Selamat datang, '+_roleLabel;if(activeView==='dashboard'){const _s=$('activeViewSubtitle');_s.textContent=window.mbkWelcome;_s.classList.add('welcome-line')}
  banner(); render();
- document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule'].includes(activeView));
+ document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis'].includes(activeView));
  if(activeView==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -2185,7 +2182,7 @@ let activeView='dashboard';
 function setActiveView(view){
  if(!VIEW_META[view])view='dashboard';activeView=view;
  $('appShell').dataset.activeView=view;
- document.body.classList.toggle('dash-light',['dashboard','units','schedule'].includes(view));
+ document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis'].includes(view));
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];const _sub=$('activeViewSubtitle'),_wel=view==='dashboard'&&window.mbkWelcome;_sub.textContent=_wel||VIEW_META[view][1];_sub.classList.toggle('welcome-line',!!_wel);
  document.querySelectorAll('#appMain [data-view]').forEach(el=>{
@@ -3169,6 +3166,90 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 #appShell[data-active-view="schedule"] #res button:hover{background:#eef3fd;border-color:#2563eb}
 #appShell[data-active-view="schedule"] #res #la{background:#eef3fd!important;color:#1d4fd8}
 @media(max-width:700px){#appShell[data-active-view="schedule"] .control-toolbar{grid-template-columns:1fr}}
+</style>
+<style id="rate-light-theme">
+#appShell[data-active-view="rateAnalysis"] #appMain{--bd:#e1e8f5;--card:#fff;--card-hover:#eef3fd;--in:#f3f6fc;--tx:#0f172a;--mu:#64748b;--ac:#2563eb;--ac-glow:rgba(37,99,235,.15)}
+#appShell[data-active-view="rateAnalysis"] .view-heading{display:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage{background:transparent;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage #ratePeriodState{background:#fff;color:#334155;border:1px solid #dbe3f0;font-weight:700}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage #ratePeriodState[data-state="provisional"]{background:#fef3c7;color:#b45309;border-color:#fcd34d}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage #ratePeriodState[data-state="final"]{background:#dcfce7;color:#15803d;border-color:#86efac}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage #ratePeriodState[data-state="upcoming"]{background:#e2e8f0;color:#475569;border-color:#cbd5e1}
+/* toolbar */
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(170px,1fr) minmax(190px,1fr) minmax(200px,1.3fr) auto;gap:16px;align-items:end;background:#fff;border:1px solid #e6ecf6;border-radius:18px;padding:18px 20px;margin:0 0 14px;box-shadow:0 8px 24px rgba(30,58,138,.06)}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-field{min-width:0}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-field label{display:block;margin:0 0 6px;color:#111827;font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar input,#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar select{width:100%;height:46px;min-width:0;padding:0 14px;background:#fff;color:#0f172a;border:1px solid #dbe3f0;border-radius:12px;font:inherit;font-size:15px;font-weight:600;color-scheme:light;outline:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar select{appearance:none;-webkit-appearance:none;padding-right:40px;cursor:pointer}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar input[type="search"]{padding-left:46px;font-weight:500}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar input::placeholder{color:#94a3b8}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar input:focus,#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.rt-select{position:relative}
+.rt-select i{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#0f172a;font-size:13px;pointer-events:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-actions{display:flex;gap:12px;align-items:center}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-actions button{height:46px;padding:0 20px;border-radius:12px;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:none;transform:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-reset{background:#eef1f7;color:#111827;border:0}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-reset:hover{background:#e1e7f2}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage #rateUpdateBtn{background:linear-gradient(135deg,#2f6df6,#1d4fd8);color:#fff;border:0;box-shadow:0 8px 20px rgba(37,99,235,.28)}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage #rateUpdateBtn:hover:not(:disabled){background:linear-gradient(135deg,#4a82ff,#1a44bb)}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage #rateUpdateBtn:disabled{background:#cbd5e1;color:#64748b;box-shadow:none}
+/* info banner */
+.rate-info{display:flex;align-items:center;gap:12px;background:#eaf2ff;border:1px solid #cfe0fb;border-radius:12px;padding:12px 16px;margin:0 0 16px;color:#1e3a8a;font-size:14px}
+.rate-info>i{color:#2563eb;font-size:18px;flex:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-info .firestore-message{margin:0;color:#1e3a8a}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-revision-history{color:#64748b}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-revision-history summary{color:#334155}
+/* KPI */
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0 0 18px}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-kpi.rk{position:relative;display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #edf1f8;border-radius:18px;padding:20px;overflow:hidden;box-shadow:0 8px 24px rgba(30,58,138,.07)}
+.rk-icon{flex:none;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:23px;box-shadow:0 8px 18px rgba(15,23,42,.15)}
+.rk-blue{background:linear-gradient(135deg,#3b9bff,#1d63f2)}.rk-orange{background:linear-gradient(135deg,#fbbf24,#f08a0c)}.rk-green{background:linear-gradient(135deg,#34d399,#10a35a)}.rk-purple{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
+.rk-body{min-width:0;position:relative;z-index:1}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rk-body small{display:block;color:#111827;font-size:14px;font-weight:700;text-transform:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rk-body strong{display:block;margin-top:2px;color:#0b1220;font-size:32px;line-height:1.15;font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rk-wm{position:absolute;right:14px;bottom:10px;font-size:58px;color:#64748b;opacity:.07;pointer-events:none}
+/* panel */
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-panel{background:#fff;border:1px solid #e6ecf6;border-radius:18px;padding:18px 20px;box-shadow:0 8px 24px rgba(30,58,138,.06);color:#0f172a}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-panel h3{color:#0b1220;font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px;margin:0 0 8px}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-panel h3>i{color:#2563eb}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .overview-meta,#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-note{color:#64748b}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-collapse-btn{background:#fff;color:#1d4fd8;border:1px solid #d5dff2;border-radius:999px;font-weight:700;padding:8px 16px}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-collapse-btn:hover{background:#eaf1ff;border-color:#2563eb;filter:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .workflow-empty{background:#f6f9ff;border:1px dashed #c3cfe6;color:#64748b}
+/* tabel */
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-table-wrap{border:1px solid #e1e8f5;border-radius:12px;background:#fff}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage th{background:#1e293b;color:#fff;border-bottom:0;font-size:11px}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage td{background:#fff;color:#1f2937;border-bottom:1px solid #e8edf6}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage tbody tr:hover td{background:#f6f9ff}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage td small{color:#64748b}
+/* grafik */
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-trend-card{background:#fff;border:1px solid #e6ecf6;box-shadow:0 8px 24px rgba(30,58,138,.07);color:#0f172a}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-card-head{background:#f6f9ff;border-bottom:1px solid #e6ecf6}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-unit-icon{background:#eaf1ff;color:#1d4fd8}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-unit-title b{color:#0b1220}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-unit-title small,#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-period small{color:#64748b}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-period,#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-statusline,#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-legend{color:#475569}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-grid{stroke:#cbd5e1;stroke-opacity:.85}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-axis,#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-month{fill:#64748b}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-value{fill:#0f172a;stroke:#fff}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-line{stroke:#2563eb;filter:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-point{fill:#fff;stroke:#2563eb}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-availability-line{stroke:#f59e0b;filter:none}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-availability-point{fill:#fff;stroke:#f59e0b}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-legend-blue{background:#2563eb}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-legend-yellow{background:#f59e0b}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-stats{background:#f6f9ff;border-color:#e1e8f5}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-stat{border-right-color:#e1e8f5}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-stat small{color:#64748b}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-chart-stat b{color:#0b1220}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-downtime-analysis h4,#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-downtime-history h4{color:#0b1220}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-downtime-warning{background:#fff7e6;border-color:#f5c26b;color:#92400e}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-scroll-hint{color:#64748b}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-downtime-analysis .wo-table-wrap{scrollbar-color:#94a3b8 #e8edf6}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-downtime-analysis .wo-table-wrap::-webkit-scrollbar-track{background:#e8edf6}
+#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-downtime-analysis .wo-table-wrap::-webkit-scrollbar-thumb{background:#94a3b8}
+@media(max-width:1200px){#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar{grid-template-columns:1fr 1fr}#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-actions{grid-column:1/-1;justify-content:flex-end}#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rate-toolbar{grid-template-columns:1fr}#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-actions{flex-direction:column;align-items:stretch}#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .wo-kpi-grid{grid-template-columns:1fr}}
 </style>
 </body>
 </html>
