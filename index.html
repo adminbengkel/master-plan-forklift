@@ -1119,6 +1119,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div class="ud-toolbar">
       <label class="ud-search"><i class="fa-solid fa-magnifying-glass"></i><input id="unitDirectorySearch" type="search" placeholder="Cari kode unit atau departemen…" aria-label="Cari data unit" autocomplete="off"></label>
+      <button type="button" class="ud-reset-btn" id="unitDirectoryReset" title="Reset pencarian dan filter"><i class="fa-solid fa-rotate-left"></i> Reset</button>
       <div class="ud-select"><select id="unitDirectoryFilter" aria-label="Filter jenis unit"><option value="ALL">Semua Jenis Unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><i class="fa-solid fa-chevron-down"></i></div>
     </div>
     <div id="unitDirectoryTable"></div>
@@ -1127,6 +1128,19 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
   </main>
     </div>
+  </div>
+
+  <!-- Modal edit informasi unit -->
+  <div id="unitEditModal" class="ov" hidden>
+    <form class="bx ud-edit-box" id="unitEditForm" autocomplete="off">
+      <h3 class="ud-edit-title"><i class="fa-solid fa-pen"></i> Edit Informasi Unit</h3>
+      <div class="ud-edit-field"><label for="ueCode">Kode Unit</label><input id="ueCode" readonly></div>
+      <div class="ud-edit-field"><label for="ueModel">Type</label><input id="ueModel" list="ueModelList" placeholder="Contoh: Toyota 8FD25"><datalist id="ueModelList"></datalist></div>
+      <div class="ud-edit-field"><label for="ueDept">Departemen</label><input id="ueDept" list="ueDeptList" placeholder="Nama departemen"><datalist id="ueDeptList"></datalist></div>
+      <div class="ud-edit-field"><label for="ueInterval">Interval PM (HM)</label><input id="ueInterval" type="number" min="1" step="any" required></div>
+      <div class="ud-edit-msg" id="unitEditMsg" role="status" aria-live="polite"></div>
+      <div class="ud-edit-actions"><button type="button" class="ud-edit-restore" id="unitEditRestore" title="Hapus perubahan dan pakai data awal"><i class="fa-solid fa-rotate-left"></i> Data awal</button><span class="ud-edit-spacer"></span><button type="button" id="unitEditCancel">Batal</button><button type="submit" id="unitEditSave" class="ud-edit-save"><i class="fa-solid fa-floppy-disk"></i> Simpan</button></div>
+    </form>
   </div>
 
   <!-- Modal Dialog -->
@@ -1240,7 +1254,7 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
    if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
    showApp(user,role);
    db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error('Firestore downtime:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection downtime: '+firestoreErrorText(err),'error')});
-   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});render()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
+   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});applyUnitInfoOverrides();render();if(activeView==='units')renderUnitDirectory()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
    workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];
    if(window.mbkSetWoCloudRecords){
     workflowUnsubs.push(db.collection('wo_import_records').onSnapshot(sn=>{
@@ -2286,15 +2300,82 @@ function renderUnitDirectory(){
   const pages=Math.max(1,Math.ceil(rows.length/UD_PAGE_SIZE));
   let pg=Math.min(Math.max(1,unitDirPages[g.key]||1),pages);unitDirPages[g.key]=pg;
   const start=(pg-1)*UD_PAGE_SIZE,shown=rows.slice(start,start+UD_PAGE_SIZE);
-  const body=shown.map((r,i)=>'<tr><td class="ud-no">'+(start+i+1)+'</td><td class="ud-unit">'+escapeHtml(r.c)+'</td><td>'+unitKindOf(r)+'</td><td>'+escapeHtml(r.model||'-')+'</td><td>'+escapeHtml(r.d||'-')+'</td><td>'+(r.h||200)+' HM</td><td class="ud-act"><button type="button" class="ud-detail-btn" data-unit="'+escapeHtml(r.c)+'">Lihat Detail <i class="fa-solid fa-chevron-right"></i></button></td></tr>').join('');
+  const body=shown.map((r,i)=>'<tr><td class="ud-no">'+(start+i+1)+'</td><td class="ud-unit">'+escapeHtml(r.c)+'</td><td>'+unitKindOf(r)+'</td><td>'+escapeHtml(r.model||'-')+'</td><td>'+escapeHtml(r.d||'-')+'</td><td>'+(r.h||200)+' HM</td><td class="ud-act"><div class="ud-act-wrap"><button type="button" class="ud-detail-btn" data-unit="'+escapeHtml(r.c)+'">Lihat Detail <i class="fa-solid fa-chevron-right"></i></button>'+(['admin','technician'].includes(currentRole)?'<button type="button" class="ud-edit-btn" data-edit-unit="'+escapeHtml(r.c)+'" title="Edit informasi unit" aria-label="Edit unit '+escapeHtml(r.c)+'"><i class="fa-solid fa-pen"></i></button>':'')+'</div></td></tr>').join('');
   let nums='';for(let n=1;n<=pages;n++)nums+='<button type="button" class="ud-page'+(n===pg?' on':'')+'" data-ud-group="'+g.key+'" data-ud-page="'+n+'">'+n+'</button>';
   return '<section class="ud-group"><div class="ud-group-head"><i class="fa-solid fa-list-check"></i><h3>'+g.title+'</h3><span class="ud-chip">'+rows.length.toLocaleString('id-ID')+' Unit</span></div><div class="ud-table-wrap"><table class="ud-table"><thead><tr><th>No</th><th>Unit</th><th>Jenis</th><th>Type</th><th>Departemen</th><th>Interval PM</th><th>Aksi</th></tr></thead><tbody>'+body+'</tbody></table></div><div class="ud-pager"><span>Menampilkan '+(start+1)+' - '+(start+shown.length)+' dari '+rows.length+' data</span><div class="ud-pager-btns"><button type="button" class="ud-page" data-ud-group="'+g.key+'" data-ud-page="'+(pg-1)+'" '+(pg===1?'disabled':'')+' aria-label="Halaman sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>'+nums+'<button type="button" class="ud-page" data-ud-group="'+g.key+'" data-ud-page="'+(pg+1)+'" '+(pg===pages?'disabled':'')+' aria-label="Halaman berikutnya"><i class="fa-solid fa-chevron-right"></i></button></div></div></section>';
  }).join('');
  host.innerHTML=html||'<div class="ud-group"><div class="workflow-empty" style="margin:18px">Tidak ada unit yang sesuai dengan filter.</div></div>';
  host.querySelectorAll('[data-unit]').forEach(b=>b.addEventListener('click',()=>{$('q').value=b.dataset.unit;setActiveView('schedule');render();window.scrollTo({top:0,behavior:'smooth'})}));
+ host.querySelectorAll('[data-edit-unit]').forEach(b=>b.addEventListener('click',()=>openUnitEdit(b.dataset.editUnit)));
  host.querySelectorAll('[data-ud-page]').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;unitDirPages[b.dataset.udGroup]=+b.dataset.udPage;renderUnitDirectory()}));
 }
 $('unitDirectorySearch').addEventListener('input',()=>{unitDirPages={};renderUnitDirectory()});$('unitDirectoryFilter').addEventListener('change',()=>{unitDirPages={};renderUnitDirectory()});
+
+/* ===== Edit informasi unit (type, departemen, interval PM) =====
+   Disimpan di collection 'laju' (dokumen unit_info_<kode>) agar memakai izin tulis yang sudah ada; fallback localStorage bila offline. */
+const UNIT_INFO_LOCAL='mbk_unit_info_v1';
+function unitInfoDocId(code){return 'unit_info_'+String(code).replace(/[^A-Za-z0-9_.:@+~-]/g,'_')}
+function unitInfoOverrides(){
+ const out={};
+ if(!db){try{Object.assign(out,JSON.parse(localStorage.getItem(UNIT_INFO_LOCAL)||'{}'))}catch(e){}}
+ Object.values(lshared||{}).forEach(v=>{if(v&&v.kind==='unit_info'&&v.code)out[v.code]=v.info||{}});
+ return out;
+}
+function applyUnitInfoOverrides(){
+ const ov=unitInfoOverrides();
+ DATA.forEach(r=>{
+  if(!r.__o)r.__o={model:r.model,d:r.d,h:r.h};
+  const o=ov[r.c]||{};
+  r.model=(o.model!==undefined&&o.model!==null)?o.model:r.__o.model;
+  r.d=(o.d!==undefined&&o.d!==null)?o.d:r.__o.d;
+  const h=Number(o.h);r.h=h>0?h:r.__o.h;
+ });
+}
+let editingUnitCode=null;
+function openUnitEdit(code){
+ if(!['admin','technician'].includes(currentRole)){alert('Hanya admin atau teknisi yang dapat mengubah informasi unit.');return}
+ const r=by[String(code).toLowerCase()];if(!r)return;
+ editingUnitCode=r.c;
+ $('ueCode').value=r.c;$('ueModel').value=r.model||'';$('ueDept').value=r.d||'';$('ueInterval').value=r.h||200;
+ $('ueModelList').innerHTML=[...new Set(DATA.map(x=>x.model).filter(Boolean))].sort().map(v=>'<option value="'+escapeHtml(v)+'"></option>').join('');
+ $('ueDeptList').innerHTML=[...new Set(DATA.map(x=>x.d).filter(Boolean))].sort().map(v=>'<option value="'+escapeHtml(v)+'"></option>').join('');
+ $('unitEditMsg').textContent='';$('unitEditMsg').className='ud-edit-msg';$('unitEditSave').disabled=false;
+ $('unitEditModal').hidden=false;$('ueModel').focus();
+}
+function closeUnitEdit(){$('unitEditModal').hidden=true;editingUnitCode=null}
+async function saveUnitInfo(code,info,reason){
+ const id=unitInfoDocId(code),at=new Date().toISOString(),before=Object.assign({},lshared[id]||{});
+ const r=by[String(code).toLowerCase()],prev=r?{model:r.model||'',d:r.d||'',h:r.h}:{};
+ if(db){
+  lshared[id]={code,info,kind:'unit_info',at};applyUnitInfoOverrides();
+  try{await db.collection('laju').doc(id).set({code,info,kind:'unit_info',at})}
+  catch(err){if(before&&before.kind)lshared[id]=before;else delete lshared[id];applyUnitInfoOverrides();throw err}
+  try{await writeWorkflowAudit('unit_info_updated','laju',id,{unitCode:code,reason,before:prev,after:info})}catch(e){console.error('Audit edit unit gagal:',e)}
+ }else{
+  let store={};try{store=JSON.parse(localStorage.getItem(UNIT_INFO_LOCAL)||'{}')}catch(e){}
+  if(info&&Object.keys(info).length)store[code]=info;else delete store[code];
+  localStorage.setItem(UNIT_INFO_LOCAL,JSON.stringify(store));applyUnitInfoOverrides();
+ }
+ renderUnitDirectory();render();
+}
+$('unitEditForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!editingUnitCode)return;
+ const h=Number($('ueInterval').value);
+ if(!(h>0)){$('unitEditMsg').textContent='Interval PM harus berupa angka lebih dari 0.';$('unitEditMsg').className='ud-edit-msg err';return}
+ const btn=$('unitEditSave');btn.disabled=true;$('unitEditMsg').textContent='Menyimpan…';$('unitEditMsg').className='ud-edit-msg';
+ try{await saveUnitInfo(editingUnitCode,{model:$('ueModel').value.trim(),d:$('ueDept').value.trim(),h},'edit');closeUnitEdit()}
+ catch(err){console.error('Simpan info unit:',err);$('unitEditMsg').textContent='Gagal menyimpan: '+firestoreErrorText(err);$('unitEditMsg').className='ud-edit-msg err';btn.disabled=false}
+});
+$('unitEditRestore').addEventListener('click',async()=>{
+ if(!editingUnitCode||!confirm('Kembalikan informasi unit '+editingUnitCode+' ke data awal?'))return;
+ try{await saveUnitInfo(editingUnitCode,{},'restore');closeUnitEdit()}
+ catch(err){$('unitEditMsg').textContent='Gagal mengembalikan: '+firestoreErrorText(err);$('unitEditMsg').className='ud-edit-msg err'}
+});
+$('unitEditCancel').addEventListener('click',closeUnitEdit);
+$('unitEditModal').addEventListener('click',e=>{if(e.target===$('unitEditModal'))closeUnitEdit()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('unitEditModal').hidden)closeUnitEdit()});
+$('unitDirectoryReset').addEventListener('click',()=>{$('unitDirectorySearch').value='';$('unitDirectoryFilter').value='ALL';unitDirPages={};renderUnitDirectory();$('unitDirectorySearch').focus()});
+applyUnitInfoOverrides();
 initWorkflowForms();
 initUnitReportOptions();
 setActiveView('dashboard');
@@ -2905,8 +2986,11 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 
 </style>
 <style id="units-theme-and-dashboard-zoom">
-/* Dashboard tampil seperti zoom 75% */
-#appShell[data-active-view="dashboard"] #appMain{zoom:.75}
+/* Seluruh aplikasi (bar atas, sidebar, konten) tampil seperti zoom 80%.
+   Khusus menu Dashboard, isi konten dikembalikan ke ukuran normal (hanya bar atas & sidebar yang mengecil). */
+#appShell{zoom:.8}
+#appShell[data-active-view="dashboard"] #appMain{zoom:1.25}
+@media(min-width:901px){#appShell .sidebar-col{height:calc(100vh / .8)}}
 /* Menu Daftar Unit: tema cerah */
 #appShell[data-active-view="units"] .view-heading{display:none}
 #unitDirectoryCard{background:transparent;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a}
@@ -2951,6 +3035,31 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 .ud-page:disabled{opacity:.4;cursor:not-allowed}
 #unitDirectoryCard>.workflow-note{color:#64748b}
 @media(max-width:700px){.ud-head-icon{width:64px;height:60px;font-size:26px;border-radius:16px}.ud-head-text h2{font-size:28px}.ud-head-text p{font-size:14px}.ud-toolbar{flex-direction:column;align-items:stretch}.ud-select{width:100%}.ud-group{padding:14px}.ud-group-head h3{font-size:20px}}
+</style>
+<style id="units-edit-reset-style">
+.ud-reset-btn{flex:none;display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 20px;border-radius:12px;border:1px solid #dbe3f0;background:#fff;color:#334155;font-size:15px;font-weight:700;cursor:pointer}
+.ud-reset-btn:hover{background:#eef3fd;border-color:#2563eb;color:#1d4fd8}
+.ud-act-wrap{display:inline-flex;align-items:center;gap:8px}
+.ud-edit-btn{width:34px;height:34px;padding:0;display:inline-grid;place-items:center;border-radius:10px;border:1px solid #d5dcea;background:#fff;color:#475569;cursor:pointer;font-size:13px}
+.ud-edit-btn:hover{background:#fff7e6;border-color:#f59e0b;color:#b45309}
+.ud-edit-box{max-width:440px;background:#fff;color:#0f172a;border:1px solid #e1e7f2;border-radius:18px;padding:24px;box-shadow:0 24px 60px rgba(15,23,42,.35)}
+.ud-edit-title{margin:0 0 16px;font-size:20px;font-weight:800;color:#0b1220;display:flex;align-items:center;gap:10px}
+.ud-edit-title i{color:#2563eb}
+.ud-edit-field{margin-bottom:12px}
+.ud-edit-field label{display:block;margin:0 0 5px;font-size:12px;font-weight:700;color:#475569}
+.ud-edit-field input{width:100%;height:42px;padding:0 12px;border:1px solid #dbe3f0;border-radius:10px;background:#f3f6fc;color:#0f172a;font:inherit;font-size:14px;outline:none}
+.ud-edit-field input[readonly]{background:#e8edf6;color:#64748b;font-weight:700}
+.ud-edit-field input:focus:not([readonly]){border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);background:#fff}
+.ud-edit-msg{min-height:18px;font-size:12px;color:#64748b;margin:4px 0 8px}
+.ud-edit-msg.err{color:#dc2626}
+.ud-edit-actions{display:flex;align-items:center;gap:8px;margin-top:6px}
+.ud-edit-spacer{flex:1}
+.ud-edit-actions button{height:40px;padding:0 16px;border-radius:10px;border:1px solid #dbe3f0;background:#fff;color:#334155;font-size:13px;font-weight:700;cursor:pointer}
+.ud-edit-actions button:hover{background:#f1f5fb}
+.ud-edit-actions .ud-edit-save{background:#1d4fd8;border-color:#1d4fd8;color:#fff}
+.ud-edit-actions .ud-edit-save:hover{background:#1a44bb}
+.ud-edit-actions button:disabled{opacity:.6;cursor:wait}
+@media(max-width:700px){.ud-reset-btn{width:100%;justify-content:center}}
 </style>
 </body>
 </html>
