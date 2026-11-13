@@ -779,34 +779,34 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <nav class="sidebar-nav" id="mainNavigation">
         <button type="button" class="active" data-view-target="dashboard" title="Dashboard"><i class="fa-solid fa-house"></i><span class="nav-text">Dashboard</span></button>
         <div class="nav-group is-collapsed" data-nav-group="master">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-database"></i><span class="nav-text">1. MASTER DATA</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-database"></i><span class="nav-text">Master Data</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Daftar Unit</span></button>
             <button type="button" data-view-target="users" title="Manajemen Pengguna"><i class="fa-solid fa-user"></i><span class="nav-text">Manajemen Pengguna</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="planning">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">2. PERENCANAAN MAINTENANCE</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">Perencanaan Maintenance</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="schedule" title="Jadwal Preventive Maintenance"><i class="fa-solid fa-calendar-days"></i><span class="nav-text">Jadwal Preventive Maintenance</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="operations">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">3. OPERASIONAL MAINTENANCE</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">Operasional Maintenance</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="breakdown" title="Pencatatan Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Pencatatan Breakdown</span></button>
             <button type="button" data-view-target="woImport" title="Impor Data Work Order"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor Data Work Order</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="monitoring">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-chart-line"></i><span class="nav-text">4. MONITORING &amp; ANALISIS</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Monitoring &amp; Analisis</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="rateAnalysis" title="Analisa Laju Kerja Unit"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Analisa Laju Kerja Unit</span></button>
             <button type="button" data-view-target="woAnalysis" title="Analisis Work Order"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Analisis Work Order</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="approvals">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">5. PERSETUJUAN &amp; AUDIT</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan &amp; Audit</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="reschedule" title="Persetujuan"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan</span></button>
             <button type="button" data-view-target="history" title="Riwayat Aktivitas"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-text">Riwayat Aktivitas</span></button>
@@ -1310,11 +1310,13 @@ function getModeRows(r){
  return [...decRows,...yearRows].sort((a,b)=>a.rv-b.rv);
 }
 function updateScheduleMode(){ scheduleMode='combined'; upcomingPage=1; render(); }
+let servicesTotal=0;
 function renderOverview(){
  const rows=[];
  DATA.forEach(r=>getModeRows(r).forEach(x=>rows.push({r,...x})));
  if(!unitDonutAnimating)renderUnitDonut(false);
- $('kpiServices').textContent=rows.length.toLocaleString('id-ID');
+ servicesTotal=rows.length;
+ if(!unitDonutAnimating)$('kpiServices').textContent=servicesTotal.toLocaleString('id-ID');
 }
 
 let upcomingPage=1;
@@ -2022,6 +2024,7 @@ function paintUnitDonut(p){
  svg.innerHTML='<circle cx="60" cy="60" r="'+R+'" fill="none" stroke="#e8edf6" stroke-width="24"/>'+seg;
  const tot=Math.round(total*q).toLocaleString('id-ID');
  $('kpiUnits').textContent=tot;
+ const sv=$('kpiServices');if(sv)sv.textContent=Math.round(servicesTotal*q).toLocaleString('id-ID');
  const ct=$('unitDonutTotal');if(ct)ct.textContent=tot;
  const lg=$('unitLegend');
  if(lg)lg.innerHTML=UNIT_CATS.map(cat=>{const pc=total?counts[cat.k]/total*100*q:0;return '<li><i style="background:'+cat.color+'"></i><span class="lg-name">'+cat.label+' :</span><b>'+Math.round(counts[cat.k]*q).toLocaleString('id-ID')+'</b><em>('+pc.toFixed(1).replace('.',',')+'%)</em></li>'}).join('');
@@ -3200,7 +3203,9 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 </style>
 <style id="nav-regroup-and-users-page">
 /* Judul grup navigasi bernomor, huruf kapital */
-#appShell .nav-group-toggle .nav-text{text-transform:uppercase;letter-spacing:.02em;font-weight:800;font-size:12.5px}
+/* Semua teks navigasi (grup & submenu) memakai gaya yang sama dengan menu Dashboard */
+#appShell .sidebar-nav button,#appShell .nav-group-toggle,#appShell .nav-group-items button{font-family:inherit;font-size:13.5px;font-weight:600;letter-spacing:normal;text-transform:none}
+#appShell .sidebar-nav .nav-text,#appShell .nav-group-toggle .nav-text{font-size:inherit;font-weight:inherit;letter-spacing:inherit;text-transform:none}
 /* Halaman Manajemen Pengguna (placeholder): tema cerah */
 #appShell[data-active-view="users"] #appMain{--bd:#e1e8f5;--card:#fff;--mu:#64748b;--tx:#0f172a}
 #appShell[data-active-view="users"] .view-heading{display:none}
