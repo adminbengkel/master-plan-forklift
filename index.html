@@ -862,10 +862,15 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </section>
   </div>
 
+  <div class="ud-head sch-head" data-view="schedule">
+    <span class="ud-head-icon"><i class="fa-solid fa-calendar-days"></i></span>
+    <div class="ud-head-text"><h2>Jadwal PM</h2><p>Cari jadwal, lihat pekerjaan, dan kelola detail unit.</p></div>
+  </div>
+
   <!-- Control Toolbar: kategori, kode unit, tanggal servis, laporan -->
   <div class="control-toolbar" data-view="schedule">
     <div class="search-box-wrapper category-select-wrapper">
-      <label class="search-label" for="categoryFilter">Kategori Kendaraan</label>
+      <label class="search-label" for="categoryFilter">Kategori Perawatan</label>
       <select id="categoryFilter" aria-label="Kategori Kendaraan">
         <option value="ALL">Semua Unit (209)</option>
         <option value="D">Forklift Diesel (103)</option>
@@ -876,11 +881,11 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div class="search-box-wrapper">
       <label class="search-label" for="q">Cari kode unit</label>
-      <input id="q" list="dl" placeholder="Cari kode, contoh: A71 atau T1" autocomplete="off">
+      <div class="sch-q-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="q" list="dl" placeholder="Cari kode, contoh: A71 atau T1" autocomplete="off"></div>
       <datalist id="dl"></datalist>
     </div>
     <div class="toolbar-date search-box-wrapper">
-      <label class="search-label" for="serviceDate">Tanggal servis</label>
+      <label class="search-label" for="serviceDate">Tanggal jadwal</label>
       <div class="service-date-input-wrap">
         <input type="text" id="serviceDate" aria-label="Tanggal servis (DD/MM/YYYY)" inputmode="numeric" autocomplete="off" value="" title="Ketik tanggal dengan format DD/MM/YYYY atau klik ikon kalender" placeholder="DD/MM/YYYY">
         <button type="button" id="openServiceDatePicker" aria-label="Buka kalender tanggal servis" title="Pilih tanggal dari kalender"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i></button>
@@ -889,13 +894,13 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div class="toolbar-actions">
       <button type="button" class="pdf-btn reset-btn" id="resetFiltersBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-      <button type="button" class="pdf-btn" id="exportPdfBtnMain"><i class="fa-solid fa-file-pdf"></i> Unduh PDF (A4)</button>
+      <button type="button" class="pdf-btn" id="exportPdfBtnMain"><i class="fa-solid fa-download"></i> Unduh PDF (A4)</button>
     </div>
   </div>
 
   <!-- Status Bar Info -->
   <div class="status-bar-info" data-view="schedule">
-    <div id="st">Pilih atau ketik kode forklift atau traktor untuk menampilkan rincian master plan.</div>
+    <div class="sch-status-left"><i class="fa-solid fa-circle-info"></i><span id="st">Pilih atau ketik kode forklift atau traktor untuk menampilkan rincian master plan.</span></div>
     <div>Master Plan Preventive Maintenance Forklift &amp; Traktor • Tahun 2027</div>
   </div>
 
@@ -905,8 +910,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   <section class="card overview-card" data-view="schedule" id="upcomingServicesCard" aria-labelledby="upcomingTitle">
     <div class="overview-head">
       <div>
-        <h2 id="upcomingTitle"><i class="fa-solid fa-calendar-check"></i> Jadwal Servis Mendatang</h2>
-        <div class="overview-meta">Preventive Maintenance • Master Plan 2027</div>
+        <div class="sch-card-title"><span class="sch-card-icon"><i class="fa-solid fa-calendar-check"></i></span><div><h2 id="upcomingTitle">Jadwal Servis Mendatang</h2><div class="overview-meta">Daftar unit yang dijadwalkan untuk perawatan berikutnya.</div></div></div>
       </div>
       <span class="table-chip" id="upcomingCount">Memuat jadwal…</span>
     </div>
@@ -1237,7 +1241,7 @@ function showApp(user,role){
  $('logoutBtn').title=$('userBadge').textContent;
  window.mbkWelcome='Selamat datang, '+_roleLabel;if(activeView==='dashboard'){const _s=$('activeViewSubtitle');_s.textContent=window.mbkWelcome;_s.classList.add('welcome-line')}
  banner(); render();
- document.body.classList.add('app-open');document.body.classList.toggle('dash-light',activeView==='dashboard'||activeView==='units');
+ document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule'].includes(activeView));
  if(activeView==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -1387,11 +1391,15 @@ function renderUpcomingTable(){
  if(!rows.length){card.hidden=true;empty.hidden=false;$('overviewTable').innerHTML='';$('upcomingPagination').innerHTML='';return;}
  const pages=Math.max(1,Math.ceil(rows.length/UPCOMING_PAGE_SIZE));upcomingPage=Math.min(Math.max(1,upcomingPage),pages);
  const first=(upcomingPage-1)*UPCOMING_PAGE_SIZE,shown=rows.slice(first,first+UPCOMING_PAGE_SIZE);
+ const _t=new Date(),todayUtc=Date.UTC(_t.getFullYear(),_t.getMonth(),_t.getDate());
  let h='<table><thead><tr><th>Tanggal Servis</th><th>Kode Unit &amp; Jenis</th><th>Departemen</th><th>Kategori</th><th>Maintenance</th><th>Prioritas</th><th>Aksi</th></tr></thead><tbody>';
  shown.forEach(x=>{
   const icon=x.kind==='Traktor'?'fa-tractor':x.kind==='Baterai'?'fa-car-battery':'fa-truck';
   const p=x.priority==='critical'?'Critical':x.priority==='high'?'High':'Normal';
-  h+='<tr><td><strong>'+dateId(x.rv)+'</strong><div class="unit-kind">Target '+x.targetHM.toLocaleString('id-ID')+' HM</div></td><td><div class="unit-cell"><span class="unit-icon"><i class="fa-solid '+icon+'"></i></span><span><span class="unit-code">'+escapeHtml(x.r.c)+'</span><span class="unit-kind">'+x.kind+'</span></span></div></td><td>'+escapeHtml(x.r.d||'-')+'</td><td>'+x.kind+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span></td><td><span class="priority '+x.priority+'">'+p+'</span></td><td><div class="action-buttons"><button type="button" data-unit="'+escapeHtml(x.r.c)+'" class="detail-btn">Detail</button><button type="button" data-unit="'+escapeHtml(x.r.c)+'" class="history-btn">History</button></div></td></tr>';
+  const diff=Math.round((Date.UTC(x.rv.getUTCFullYear(),x.rv.getUTCMonth(),x.rv.getUTCDate())-todayUtc)/864e5);
+  const sisa=diff>0?'Sisa: '+diff+' hari':diff===0?'Jadwal hari ini':'Terlambat '+Math.abs(diff)+' hari';
+  const cat=x.kind==='Baterai'?'Electric':x.kind,sub=x.kind==='Diesel'?'Forklift Diesel':cat;
+  h+='<tr><td><span class="sch-date">'+dateId(x.rv)+'</span><span class="sch-sisa'+(diff<0?' late':'')+'">'+sisa+'</span></td><td><div class="unit-cell"><span class="unit-icon"><i class="fa-solid '+icon+'"></i></span><span><span class="unit-code">'+escapeHtml(x.r.c)+'</span><span class="unit-kind">'+sub+'</span></span></div></td><td>'+escapeHtml(x.r.d||'-')+'</td><td>'+cat+'</td><td><span class="t'+x.j+'">PM '+x.j+' HM</span><span class="sch-target">Target '+x.targetHM.toLocaleString('id-ID')+' HM</span></td><td><span class="priority '+x.priority+'">'+p+'</span></td><td><div class="action-buttons"><button type="button" data-unit="'+escapeHtml(x.r.c)+'" class="detail-btn"><i class="fa-solid fa-file-lines"></i> Detail</button><button type="button" data-unit="'+escapeHtml(x.r.c)+'" class="history-btn"><i class="fa-solid fa-clock-rotate-left"></i> History</button></div></td></tr>';
  });
  h+='</tbody></table>';$('overviewTable').innerHTML=h;
  $('upcomingPagination').innerHTML='<span>Menampilkan '+(first+1)+'–'+Math.min(first+shown.length,rows.length)+' dari '+rows.length.toLocaleString('id-ID')+' jadwal</span><div class="pagination-controls"><button type="button" id="pagePrev" '+(upcomingPage===1?'disabled':'')+' aria-label="Halaman sebelumnya"><i class="fa-solid fa-chevron-left"></i></button><span>Halaman '+upcomingPage+' / '+pages+'</span><button type="button" id="pageNext" '+(upcomingPage===pages?'disabled':'')+' aria-label="Halaman berikutnya"><i class="fa-solid fa-chevron-right"></i></button></div>';
@@ -2177,7 +2185,7 @@ let activeView='dashboard';
 function setActiveView(view){
  if(!VIEW_META[view])view='dashboard';activeView=view;
  $('appShell').dataset.activeView=view;
- document.body.classList.toggle('dash-light',view==='dashboard'||view==='units');
+ document.body.classList.toggle('dash-light',['dashboard','units','schedule'].includes(view));
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];const _sub=$('activeViewSubtitle'),_wel=view==='dashboard'&&window.mbkWelcome;_sub.textContent=_wel||VIEW_META[view][1];_sub.classList.toggle('welcome-line',!!_wel);
  document.querySelectorAll('#appMain [data-view]').forEach(el=>{
@@ -2987,9 +2995,9 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 </style>
 <style id="units-theme-and-dashboard-zoom">
 /* Seluruh aplikasi (bar atas, sidebar, konten) tampil seperti zoom 80%.
-   Khusus menu Dashboard, isi konten dikembalikan ke ukuran normal (hanya bar atas & sidebar yang mengecil). */
+   Khusus menu Dashboard, isi konten setara zoom 75% (0.8 x 0.9375). */
 #appShell{zoom:.8}
-#appShell[data-active-view="dashboard"] #appMain{zoom:1.25}
+#appShell[data-active-view="dashboard"] #appMain{zoom:.9375}
 @media(min-width:901px){#appShell .sidebar-col{height:calc(100vh / .8)}}
 /* Menu Daftar Unit: tema cerah */
 #appShell[data-active-view="units"] .view-heading{display:none}
@@ -3060,6 +3068,107 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 .ud-edit-actions .ud-edit-save:hover{background:#1a44bb}
 .ud-edit-actions button:disabled{opacity:.6;cursor:wait}
 @media(max-width:700px){.ud-reset-btn{width:100%;justify-content:center}}
+</style>
+<style id="schedule-light-theme">
+/* Kolom pencarian / filter Daftar Unit: putih */
+.ud-search input,.ud-select select,.ud-edit-field input:not([readonly]){background:#fff}
+/* ===== Menu Jadwal PM: tema cerah ===== */
+#appShell[data-active-view="schedule"] #appMain{--bd:#e1e8f5;--card:#fff;--card-hover:#eef3fd;--in:#f3f6fc;--tx:#0f172a;--mu:#64748b;--ac:#2563eb;--ac-glow:rgba(37,99,235,.15)}
+#appShell[data-active-view="schedule"] .view-heading{display:none}
+#appShell[data-active-view="schedule"] .sch-head{margin-bottom:20px}
+#appShell[data-active-view="schedule"] .control-toolbar{display:grid;grid-template-columns:minmax(190px,.9fr) minmax(220px,1.3fr) minmax(180px,.9fr) auto;gap:16px;align-items:end;background:#fff;border:1px solid #e6ecf6;border-radius:18px;padding:18px 20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(30,58,138,.06)}
+#appShell[data-active-view="schedule"] .control-toolbar .search-label{color:#111827;font-size:12px;font-weight:800;letter-spacing:.03em;margin-bottom:6px}
+#appShell[data-active-view="schedule"] #categoryFilter{height:46px;padding:0 14px;background:#fff;border:1px solid #dbe3f0;border-radius:12px;color:#0f172a;font-size:15px;font-weight:700;color-scheme:light}
+#appShell[data-active-view="schedule"] #categoryFilter:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.sch-q-wrap{position:relative}
+.sch-q-wrap i{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#1d4fd8;font-size:16px;pointer-events:none}
+#appShell[data-active-view="schedule"] #q{height:46px;min-height:46px;padding:0 14px 0 46px;background:#fff!important;color:#0f172a!important;border:1px solid #dbe3f0!important;border-radius:12px;font-size:15px;font-weight:500;color-scheme:light}
+#appShell[data-active-view="schedule"] #q:focus{border-color:#2563eb!important;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+#appShell[data-active-view="schedule"] #q::placeholder{color:#94a3b8}
+#appShell[data-active-view="schedule"] #serviceDate{height:46px;min-height:46px;padding:0 48px 0 14px;background:#fff;color:#0f172a;border:1px solid #dbe3f0;border-radius:12px;font-size:15px;color-scheme:light}
+#appShell[data-active-view="schedule"] #serviceDate:focus{outline:0;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+#appShell[data-active-view="schedule"] #serviceDate::placeholder{color:#94a3b8}
+#appShell[data-active-view="schedule"] #openServiceDatePicker,#appShell[data-active-view="schedule"] #serviceDatePicker{top:7px;right:8px;width:32px;height:32px}
+#appShell[data-active-view="schedule"] #openServiceDatePicker{background:transparent;border:0;color:#1e3a8a;border-radius:8px}
+#appShell[data-active-view="schedule"] #openServiceDatePicker:hover{background:#eef3fd}
+#appShell[data-active-view="schedule"] .toolbar-actions{gap:12px}
+#appShell[data-active-view="schedule"] .toolbar-actions .pdf-btn{height:46px;padding:0 22px;border-radius:12px;font-size:15px;font-weight:700;box-shadow:none;transform:none}
+#appShell[data-active-view="schedule"] .toolbar-actions .pdf-btn.reset-btn{background:#eef1f7!important;color:#111827!important;border:0!important}
+#appShell[data-active-view="schedule"] .toolbar-actions .pdf-btn.reset-btn:hover{background:#e1e7f2!important}
+#appShell[data-active-view="schedule"] #exportPdfBtnMain{background:linear-gradient(135deg,#2f6df6,#1d4fd8);color:#fff;border:0;box-shadow:0 8px 20px rgba(37,99,235,.28)}
+#appShell[data-active-view="schedule"] #exportPdfBtnMain:hover{background:linear-gradient(135deg,#4a82ff,#1a44bb)}
+#appShell[data-active-view="schedule"] .status-bar-info{color:#475569;font-size:14px;margin-bottom:16px}
+#appShell[data-active-view="schedule"] .status-bar-info>div:last-child{color:#0f172a;font-weight:600;font-size:13px}
+#appShell[data-active-view="schedule"] .sch-status-left{display:flex;align-items:center;gap:10px}
+#appShell[data-active-view="schedule"] .sch-status-left i{color:#64748b}
+#appShell[data-active-view="schedule"] .overview-card{background:#fff;border:1px solid #e6ecf6;border-radius:18px;box-shadow:0 8px 24px rgba(30,58,138,.06);margin-top:0}
+#appShell[data-active-view="schedule"] .overview-head{padding:18px 22px;border-bottom:0}
+.sch-card-title{display:flex;align-items:center;gap:14px}
+.sch-card-icon{width:44px;height:44px;border-radius:12px;background:#eaf1ff;color:#1d4fd8;display:grid;place-items:center;font-size:20px;flex:none}
+#appShell[data-active-view="schedule"] .overview-head h2{margin:0;color:#0b1220;font-size:22px;font-weight:800}
+#appShell[data-active-view="schedule"] .overview-meta{color:#64748b;font-size:13px}
+#appShell[data-active-view="schedule"] .table-chip{background:#fff;color:#334155;border-color:#dbe3f0;font-weight:700}
+#appShell[data-active-view="schedule"] #overviewTable{padding:0 18px 8px}
+#appShell[data-active-view="schedule"] #overviewTable table{min-width:1000px}
+#appShell[data-active-view="schedule"] #overviewTable th{background:#1e293b;color:#fff;font-size:12px;padding:14px;text-align:left;border:0;letter-spacing:.03em}
+#appShell[data-active-view="schedule"] #overviewTable th:first-child{border-radius:12px 0 0 0}
+#appShell[data-active-view="schedule"] #overviewTable th:last-child{border-radius:0 12px 0 0;text-align:center}
+#appShell[data-active-view="schedule"] #overviewTable td{background:#fff;color:#1f2937;text-align:left;padding:12px 14px;border-bottom:1px solid #e8edf6;font-size:14px;vertical-align:middle}
+#appShell[data-active-view="schedule"] #overviewTable td:last-child{text-align:center}
+#appShell[data-active-view="schedule"] #overviewTable tbody tr:hover td{background:#f6f9ff}
+#appShell[data-active-view="schedule"] .unit-icon{width:30px;height:30px;border-radius:8px;background:#f59e0b;color:#fff;font-size:13px}
+#appShell[data-active-view="schedule"] .unit-code{color:#0b1220;font-weight:800;font-size:15px}
+#appShell[data-active-view="schedule"] .unit-kind{color:#64748b;font-size:12px}
+.sch-date{display:block;font-weight:800;color:#0b1220;font-size:15px}
+.sch-sisa{display:block;font-size:12px;color:#64748b}
+.sch-sisa.late{color:#dc2626;font-weight:700}
+.sch-target{display:block;font-size:11px;color:#64748b;margin-top:4px}
+#appShell[data-active-view="schedule"] #overviewTable td span[class^="t"]{border-radius:999px;padding:4px 12px;font-size:12px}
+#appShell[data-active-view="schedule"] .priority.normal{background:#dcfce7;color:#15803d;border:1px solid #86efac}
+#appShell[data-active-view="schedule"] .priority.high{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
+#appShell[data-active-view="schedule"] .priority.critical{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+#appShell[data-active-view="schedule"] .action-buttons{justify-content:center}
+#appShell[data-active-view="schedule"] .action-buttons button,#appShell[data-active-view="schedule"] .action-buttons .history-btn{padding:7px 14px;border-radius:999px;background:#fff;border:1px solid #d5dff2;color:#1d4fd8;font-size:13px;font-weight:700;gap:6px}
+#appShell[data-active-view="schedule"] .action-buttons button:hover{background:#eaf1ff;border-color:#2563eb}
+#appShell[data-active-view="schedule"] .pagination-bar{border-top:1px solid #e8edf6;color:#64748b;font-size:13px;padding:14px 22px}
+#appShell[data-active-view="schedule"] .pagination-controls button{background:#fff;border:1px solid #dbe3f0;color:#334155;border-radius:10px;min-width:36px;height:36px}
+#appShell[data-active-view="schedule"] .pagination-controls button:hover:not(:disabled){background:#eaf1ff;border-color:#2563eb}
+#appShell[data-active-view="schedule"] .empty-state{background:#fff;border:1px dashed #c3cfe6;border-radius:18px}
+#appShell[data-active-view="schedule"] .empty-state h3{color:#0b1220}
+#appShell[data-active-view="schedule"] .empty-state p{color:#64748b}
+#appShell[data-active-view="schedule"] .empty-state>i{color:#94a3b8}
+#appShell[data-active-view="schedule"] #emptyResetBtn{background:#1d4fd8;color:#fff;border:0;box-shadow:none}
+/* warna interval PM versi cerah */
+#appShell[data-active-view="schedule"] .t100{background:#dcfce7;color:#15803d;border:1px solid #86efac}
+#appShell[data-active-view="schedule"] .t200{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
+#appShell[data-active-view="schedule"] .t250{background:#ccfbf1;color:#0f766e;border:1px solid #5eead4}
+#appShell[data-active-view="schedule"] .t400{background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc}
+#appShell[data-active-view="schedule"] .t500{background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd}
+#appShell[data-active-view="schedule"] .t1000{background:#dbeafe;color:#1d4fd8;border:1px solid #93c5fd}
+#appShell[data-active-view="schedule"] .t1200{background:#ffedd5;color:#c2410c;border:1px solid #fdba74}
+#appShell[data-active-view="schedule"] .t2000{background:#dbeafe;color:#1e40af;border:1px solid #60a5fa}
+#appShell[data-active-view="schedule"] .t2400{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+/* detail unit (setelah mencari kode unit) */
+#appShell[data-active-view="schedule"] #res .card{background:#fff;border:1px solid #e6ecf6;border-radius:18px;box-shadow:0 8px 24px rgba(30,58,138,.06);color:#0f172a}
+#appShell[data-active-view="schedule"] #res h2{color:#0b1220;font-size:18px}
+#appShell[data-active-view="schedule"] #res .section-header-title{color:#1d4fd8}
+#appShell[data-active-view="schedule"] #res .info div{background:#f3f6fc;border-color:#e1e8f5}
+#appShell[data-active-view="schedule"] #res .info b{color:#64748b}
+#appShell[data-active-view="schedule"] #res .info span{color:#0f172a}
+#appShell[data-active-view="schedule"] #res .wrap{background:#fff;border-color:#e1e8f5}
+#appShell[data-active-view="schedule"] #res table th{background:#1e293b;color:#fff;border-bottom:0}
+#appShell[data-active-view="schedule"] #res td{background:#fff;color:#1f2937;border-bottom:1px solid #e8edf6}
+#appShell[data-active-view="schedule"] #res td.l{color:#111827}
+#appShell[data-active-view="schedule"] #res tr.out td{background:#f8fafc;color:#94a3b8}
+#appShell[data-active-view="schedule"] #res tr:hover td{background:#f6f9ff}
+#appShell[data-active-view="schedule"] #res td input,#appShell[data-active-view="schedule"] #res #lj input{background:#fff;color:#0f172a;border:1px solid #dbe3f0;border-radius:8px}
+#appShell[data-active-view="schedule"] #res .mx td:first-child{color:#0b1220}
+#appShell[data-active-view="schedule"] #res .note,#appShell[data-active-view="schedule"] #res .simulator-subtitle{color:#64748b}
+#appShell[data-active-view="schedule"] #res #lj{color:#334155}
+#appShell[data-active-view="schedule"] #res button{background:#fff;color:#334155;border:1px solid #dbe3f0}
+#appShell[data-active-view="schedule"] #res button:hover{background:#eef3fd;border-color:#2563eb}
+#appShell[data-active-view="schedule"] #res #la{background:#eef3fd!important;color:#1d4fd8}
+@media(max-width:700px){#appShell[data-active-view="schedule"] .control-toolbar{grid-template-columns:1fr}}
 </style>
 </body>
 </html>
