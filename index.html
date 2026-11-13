@@ -1210,19 +1210,23 @@ $('logoutBtn').addEventListener('click',()=>auth.signOut());
 if(!firebaseConfigReady){showAuth('Setup diperlukan: konfigurasi Firebase belum diisi.');banner();}
 else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
  auth.onAuthStateChanged(async user=>{
-  if(!user){workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];breakdownRows=[];rescheduleRows=[];currentUser=null;currentRole=null;window.currentUser=null;window.currentRole=null;window.db=db;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
+  if(!user){workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];window.__mbkWoCloudUnsub=null;window.mbkEnsureWoCloudSync=null;breakdownRows=[];rescheduleRows=[];currentUser=null;currentRole=null;window.currentUser=null;window.currentRole=null;window.db=db;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
   try{const profile=await db.collection('users').doc(user.uid).get();const role=profile.exists?profile.data().role:null;
    if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
    showApp(user,role);
    db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error('Firestore downtime:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection downtime: '+firestoreErrorText(err),'error')});
    db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});applyUnitInfoOverrides();render();if(activeView==='units')renderUnitDirectory()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
    workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];
-   if(window.mbkSetWoCloudRecords){
-    workflowUnsubs.push(db.collection('wo_import_records').onSnapshot(sn=>{
+   // Sinkronisasi WO ditunda sampai menu Impor/Analisis dibuka.
+   // Listener tetap realtime dan hanya dibuat satu kali per sesi login.
+   window.mbkEnsureWoCloudSync=function(){
+    if(window.__mbkWoCloudUnsub||!window.mbkSetWoCloudRecords)return;
+    window.__mbkWoCloudUnsub=db.collection('wo_import_records').onSnapshot(sn=>{
      const cloudRecords=sn.docs.map(d=>({id:d.id,...d.data()}));
      window.mbkSetWoCloudRecords(cloudRecords);
-    },err=>{console.error('WO import listener:',err);setFirestoreMessage('woImportStatus','Gagal membaca data WO dari Firebase: '+firestoreErrorText(err),'error')}));
-   }
+    },err=>{console.error('WO import listener:',err);setFirestoreMessage('woImportStatus','Gagal membaca data WO dari Firebase: '+firestoreErrorText(err),'error')});
+    workflowUnsubs.push(window.__mbkWoCloudUnsub);
+   };
    workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Data breakdown berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Breakdown listener:',err);const msg='Gagal membaca laporan breakdown: '+firestoreErrorText(err);['breakdownList','breakdownHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('breakdownDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
    workflowUnsubs.push(db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Data pengajuan berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Reschedule listener:',err);const msg='Gagal membaca pengajuan PM: '+firestoreErrorText(err);['rescheduleList','rescheduleHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('rescheduleDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
   }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses. ('+((err&&(err.code||err.message))||'tidak diketahui')+')')}
@@ -1986,6 +1990,10 @@ function setActiveView(view){
  });
  if(view==='schedule'){render();}
  if(view==='rateAnalysis'){renderRateAnalysis();}
+ if(view==='woImport'||view==='woAnalysis'){
+  if(window.mbkEnsureWoCloudSync)window.mbkEnsureWoCloudSync();
+  renderSaved();
+ }
  if(view==='units')renderUnitDirectory();
  if(view==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
@@ -2258,7 +2266,7 @@ function parseRows(rows, sourceFilename){
  return {records:out,errors,sourceRows:objects.length};
 }
 function summaryHtml(records){const a=Object.values(records),tasks=a.reduce((n,x)=>n+x.tasks.length,0),materials=a.reduce((n,x)=>n+x.materials.length,0),units=new Set(a.map(x=>x.equipmentCode).filter(Boolean));return `Jumlah WO: <b>${fmt(a.length)}</b> · Task: <b>${fmt(tasks)}</b> · Detail Material: <b>${fmt(materials)}</b> · Unit teridentifikasi: <b>${fmt(units.size)}</b>`}
-function classify(incoming){const db=readStore(),result={fresh:[],updated:[],same:[],unmatched:[]};for(const [id,record] of Object.entries(incoming)){const old=db.records[id];if(!old)result.fresh.push(record);else if(JSON.stringify(old.current)!==JSON.stringify(record))result.updated.push({record,old:old.current});else result.same.push(record);if(record.equipmentCode&&!findMasterUnitForEquipmentCode(record.equipmentCode))result.unmatched.push(record)}return result}
+function classify(incoming,store){const db=store||readStore(),result={fresh:[],updated:[],same:[],unmatched:[]};for(const [id,record] of Object.entries(incoming)){const old=db.records[id];if(!old)result.fresh.push(record);else if(JSON.stringify(old.current)!==JSON.stringify(record))result.updated.push({record,old:old.current});else result.same.push(record);if(record.equipmentCode&&!findMasterUnitForEquipmentCode(record.equipmentCode))result.unmatched.push(record)}return result}
 function splitDescriptionHM(value){
  const raw=String(value||'').trim();
  // Pisahkan hanya keterangan HM yang eksplisit, tanpa mengarang nilai HM.
@@ -2298,22 +2306,23 @@ async function commit(){
   const cloudSnapshot=await window.db.collection('wo_import_records').get();
   cloudSnapshot.docs.forEach(doc=>{const row=doc.data();if(!row||!row.woId||!row.current)return;const key=String(row.woId),existing=local.records[key];if(!existing||String(existing.updatedAt||'')<String(row.updatedAt||'')){local.records[key]={current:row.current,createdAt:row.createdAt||'',updatedAt:row.updatedAt||'',versions:Array.isArray(row.versions)?row.versions:[]}}});
  }catch(readErr){btn.disabled=false;$wo('woImportStatus').textContent='Tidak dapat membaca data WO di Firebase: '+(window.firestoreErrorText?window.firestoreErrorText(readErr):readErr.message);alert('Impor dibatalkan karena data lama di Firebase tidak dapat dibaca. Tidak ada data yang ditulis. Periksa izin baca collection wo_import_records.');return}
- const c=classify(pending.records),now=new Date().toISOString(),changes=[];
+ const c=classify(pending.records,local),now=new Date().toISOString(),changes=[];
  for(const r of c.fresh){local.records[r.woId]={current:r,createdAt:now,updatedAt:now,versions:[{at:now,source:'import',data:r}]};changes.push({woId:r.woId,type:'baru'})}
  for(const x of c.updated){const rec=local.records[x.record.woId];rec.current=x.record;rec.updatedAt=now;rec.versions=rec.versions||[];rec.versions.push({at:now,source:'import',data:x.record});changes.push({woId:x.record.woId,type:'diperbarui'})}
  const audit={at:now,file:$wo('woExcelFile').files[0]?.name||'File Excel',period:'Berdasarkan Actual Order Finish',total:Object.keys(pending.records).length,new:c.fresh.length,updated:c.updated.length,same:c.same.length,unmatched:c.unmatched.length,errors:pending.errors.length,changes};
- $wo('woImportStatus').textContent='Menyimpan '+Object.keys(local.records).length+' WO ke Firebase…';
+ $wo('woImportStatus').textContent='Menyimpan '+changes.length+' WO baru/berubah ke Firebase…';
  try{
-  const entries=Object.entries(local.records),chunkSize=400;
-  for(let i=0;i<entries.length;i+=chunkSize){
+  const changedIds=[...new Set(changes.map(x=>String(x.woId)))],chunkSize=400;
+  for(let i=0;i<changedIds.length;i+=chunkSize){
    const batch=window.db.batch();
-   entries.slice(i,i+chunkSize).forEach(([woId,record])=>{
+   changedIds.slice(i,i+chunkSize).forEach(woId=>{
+    const record=local.records[woId];if(!record)return;
     const docId=btoa(unescape(encodeURIComponent(String(woId)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
     batch.set(window.db.collection('wo_import_records').doc(docId),{woId:String(woId),current:record.current,createdAt:record.createdAt||now,updatedAt:record.updatedAt||now,versions:record.versions||[],source:'official_wo_import',updatedByUid:window.currentUser.uid,updatedByEmail:window.currentUser.email||''},{merge:true});
    });
    await batch.commit();
   }
-  await window.db.collection('audit_logs').add({action:'wo_report_imported',entityType:'wo_import_records',entityId:'batch-'+now.replace(/[^0-9]/g,''),details:{...audit,recordCount:entries.length},actorUid:window.currentUser.uid,actorEmail:window.currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  await window.db.collection('audit_logs').add({action:'wo_report_imported',entityType:'wo_import_records',entityId:'batch-'+now.replace(/[^0-9]/g,''),details:{...audit,recordCount:changedIds.length},actorUid:window.currentUser.uid,actorEmail:window.currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   local.audit.unshift(audit);writeStore(local);pending=null;btn.disabled=true;
   $wo('woImportStatus').textContent='Impor berhasil disimpan ke Firebase. '+summaryHtml(Object.fromEntries(Object.entries(local.records).map(([k,v])=>[k,v.current])));
   renderSaved();alert('Impor berhasil. Data WO dan riwayat impor sudah tersimpan di Firebase.');
@@ -2328,12 +2337,20 @@ function setCloudRecords(cloudRows){
  (cloudRows||[]).forEach(row=>{if(!row||!row.woId||!row.current)return;const key=String(row.woId),existing=local.records[key];
   if(!existing||String(existing.updatedAt||'')<String(row.updatedAt||'')){local.records[key]={current:row.current,createdAt:row.createdAt||'',updatedAt:row.updatedAt||'',versions:Array.isArray(row.versions)?row.versions:[]};changed=true}
  });
- if(changed)writeStore(local);renderSaved();
+ if(changed){writeStore(local);renderSaved();}
 }
 window.mbkSetWoCloudRecords=setCloudRecords;
-function renderSaved(){const db=readStore(),all=Object.values(db.records).map(x=>x.current),totalTask=all.reduce((n,x)=>n+x.tasks.length,0),totalMat=all.reduce((n,x)=>n+x.materials.length,0),units=[...new Set(all.map(x=>x.equipmentCode).filter(Boolean))];$wo('woTotal').textContent=fmt(all.length);$wo('woTaskTotal').textContent=fmt(totalTask);$wo('woMaterialTotal').textContent=fmt(totalMat);$wo('woUnitTotal').textContent=fmt(units.length);
+function renderSaved(){
+ const db=readStore(),all=Object.values(db.records).map(x=>x.current);
+ const totalTask=all.reduce((n,x)=>n+(x.tasks||[]).length,0),totalMat=all.reduce((n,x)=>n+(x.materials||[]).length,0),units=new Set(all.map(x=>x.equipmentCode).filter(Boolean));
+ $wo('woTotal').textContent=fmt(all.length);$wo('woTaskTotal').textContent=fmt(totalTask);$wo('woMaterialTotal').textContent=fmt(totalMat);$wo('woUnitTotal').textContent=fmt(units.size);
  refreshWoUnitOptions();
- const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');$wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';renderAnalytics();renderUnitHistory();if(window.mbkReconcileRateSnapshots)window.mbkReconcileRateSnapshots();if(window.mbkRefreshRateAnalysis&&document.getElementById('rateAnalysisPage')&&!document.getElementById('rateAnalysisPage').hidden)window.mbkRefreshRateAnalysis();}
+ if(activeView==='woImport'){
+  const audits=db.audit.slice(0,30).map(a=>`<tr><td>${esc(new Date(a.at).toLocaleString('id-ID'))}</td><td>${esc(a.file)}</td><td>${a.total}</td><td>${a.new}</td><td>${a.updated}</td><td>${a.same}</td><td>${a.unmatched}</td></tr>`).join('');
+  $wo('woAuditHistory').innerHTML=audits?`<div class="wo-table-wrap"><table><thead><tr><th>Waktu</th><th>File</th><th>Total</th><th>Baru</th><th>Diubah</th><th>Sama</th><th>Unit belum dikenal</th></tr></thead><tbody>${audits}</tbody></table></div>`:'Belum ada riwayat impor.';
+ }
+ if(activeView==='woAnalysis'){renderAnalytics();renderUnitHistory();}
+}
 function dateKey(value,fallbackYear){
  const raw=String(value??'').trim();if(!raw)return '';
  // Terima ISO, dd/mm/yyyy, dd-mm-yyyy, dan tanggal berformat Indonesia/Inggris.
@@ -2483,7 +2500,7 @@ function renderAnalytics(){
  const visibleUnits=units.filter(([code])=>woSearchMatchesRecord({equipmentCode:code},q));
  const unitResults=!q?'<p class="wo-empty">Ketik kode atau nama unit untuk menampilkan WO per unit.</p>':(visibleUnits.map(([u,n])=>{const master=findMasterUnitForEquipmentCode(u);const label=master?`${master.c} — ${master.d||unitCategoryLabel(master.t)}`:u;return `<p>${esc(label)} <small>(${esc(u)})</small> <strong>— ${fmt(n)} WO</strong></p>`}).join('')||'<p class="wo-empty">Tidak ada unit yang cocok dengan pencarian.</p>');
  $wo('woAnalytics').innerHTML=`<div class="wo-kpi-grid"><div class="wo-kpi"><small>Total WO tersimpan</small><strong>${fmt(a.length)}</strong></div><div class="wo-kpi"><small>Total Task</small><strong>${fmt(a.reduce((n,x)=>n+x.tasks.length,0))}</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong>${fmt(units.length)}</strong></div></div><div class="wo-tools" style="margin-top:14px"><strong>WO per Unit</strong><input id="woAnalyticsUnitFilter" type="search" placeholder="Cari kode (A23), kategori, atau nama unit..." aria-label="Filter WO per unit" value="${esc(q)}"></div>${unitResults}<h4>Task paling sering</h4>${tasks.map(([t,n])=>`<p>${esc(t)} <strong>— ${fmt(n)} kali</strong></p>`).join('')||'<p class="wo-empty">Belum ada data Task.</p>'}`;
- const search=$wo('woAnalyticsUnitFilter');if(search)search.addEventListener('input',()=>{const pos=search.selectionStart;renderAnalytics();const next=$wo('woAnalyticsUnitFilter');next.focus();next.setSelectionRange(pos,pos)});
+ const search=$wo('woAnalyticsUnitFilter');if(search)search.addEventListener('input',()=>{const pos=search.selectionStart;clearTimeout(window.__mbkWoAnalyticsTimer);window.__mbkWoAnalyticsTimer=setTimeout(()=>{if(activeView!=='woAnalysis')return;renderAnalytics();const next=$wo('woAnalyticsUnitFilter');if(next){next.focus();next.setSelectionRange(pos,pos)}},220)});
 }
 function renderUnitHistory(){
  const u=$wo('woUnitFilter').value,cat=$wo('woCategoryFilter').value;
