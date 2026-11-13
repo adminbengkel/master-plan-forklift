@@ -1244,7 +1244,7 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
    if(role==='admin')workflowUnsubs.push(db.collection('daily_service_records').orderBy('serviceDate','desc').limit(500).onSnapshot(sn=>{dailyServiceRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderDailyServiceList();setFirestoreMessage('dailyServiceStatus','Rekap servis berhasil disinkronkan.','success')},err=>{console.error('Rekap servis listener:',err);const msg='Gagal membaca rekap servis: '+firestoreErrorText(err);if($('dailyServiceList'))$('dailyServiceList').innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>';setFirestoreMessage('dailyServiceStatus',msg,'error')}));
    workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Data breakdown berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Breakdown listener:',err);const msg='Gagal membaca laporan breakdown: '+firestoreErrorText(err);['breakdownList','breakdownHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('breakdownDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
    workflowUnsubs.push(db.collection('pm_reschedule_requests').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{rescheduleRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('rescheduleDbStatus','Data pengajuan berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Reschedule listener:',err);const msg='Gagal membaca pengajuan PM: '+firestoreErrorText(err);['rescheduleList','rescheduleHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('rescheduleDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
-  }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses.')}
+  }catch(err){console.error(err);await auth.signOut();showAuth('Tidak dapat memeriksa hak akses. ('+((err&&(err.code||err.message))||'tidak diketahui')+')')}
  });
  }catch(err){showAuth('Firebase gagal dimulai: '+err.message)}}
 banner();
@@ -2231,6 +2231,7 @@ setInterval(()=>{
  tickClock();
  if(new Date().getSeconds()===0&&activeView==='dashboard'&&!unitDonutAnimating)renderDashboardNotifications();
 },1000);
+const escNotif=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toMs(t){if(!t)return 0;if(t.toDate)return t.toDate().getTime();if(t instanceof Date)return t.getTime();const v=Date.parse(t);return isNaN(v)?0:v}
 function agoText(ms){
  if(!ms)return 'Saat ini';
@@ -2262,7 +2263,7 @@ function renderDashboardNotifications(){
  const icon={info:'circle-info',ok:'circle-check',warn:'triangle-exclamation'};
  const shown=items.slice(0,4);
  if(!shown.length)shown.push({k:'ok',t:'Tidak ada notifikasi baru',ts:0});
- list.innerHTML=shown.map(i=>'<li class="dn-item"><span class="dn-ico dn-'+i.k+'"><i class="fa-solid fa-'+icon[i.k]+'"></i></span><span class="dn-text">'+esc(i.t)+'</span><span class="dn-time">'+(i.ts?agoText(i.ts):'')+'</span></li>').join('');
+ list.innerHTML=shown.map(i=>'<li class="dn-item"><span class="dn-ico dn-'+i.k+'"><i class="fa-solid fa-'+icon[i.k]+'"></i></span><span class="dn-text">'+escNotif(i.t)+'</span><span class="dn-time">'+(i.ts?agoText(i.ts):'')+'</span></li>').join('');
 }
 function renderUnitDirectory(){
  const query=($('unitDirectorySearch').value||'').trim().toLowerCase(),cat=$('unitDirectoryFilter').value;
