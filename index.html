@@ -1112,8 +1112,15 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </section>
 
   <section class="card" id="unitDirectoryCard" data-view="units" hidden>
-    <div class="overview-head"><div><h2><i class="fa-solid fa-truck"></i> Master Data Unit</h2><div class="overview-meta">Daftar unit yang saat ini tersedia di master plan.</div></div><span class="table-chip" id="unitDirectoryCount">0 unit</span></div>
-    <div class="directory-tools"><input id="unitDirectorySearch" type="search" placeholder="Cari kode unit atau departemen…" aria-label="Cari data unit"><select id="unitDirectoryFilter" aria-label="Filter jenis unit"><option value="ALL">Semua jenis unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select></div>
+    <div class="ud-head">
+      <span class="ud-head-icon"><i class="fa-solid fa-truck"></i></span>
+      <div class="ud-head-text"><h2>Daftar Unit</h2><p>Cari dan lihat data unit yang tersedia di master.</p></div>
+      <span class="table-chip ud-total" id="unitDirectoryCount">0 unit</span>
+    </div>
+    <div class="ud-toolbar">
+      <label class="ud-search"><i class="fa-solid fa-magnifying-glass"></i><input id="unitDirectorySearch" type="search" placeholder="Cari kode unit atau departemen…" aria-label="Cari data unit" autocomplete="off"></label>
+      <div class="ud-select"><select id="unitDirectoryFilter" aria-label="Filter jenis unit"><option value="ALL">Semua Jenis Unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><i class="fa-solid fa-chevron-down"></i></div>
+    </div>
     <div id="unitDirectoryTable"></div>
     <p class="workflow-note">Loader, L300, R3, dan unit lain yang belum dimasukkan ke master data belum muncul di daftar ini.</p>
   </section>
@@ -1216,7 +1223,7 @@ function showApp(user,role){
  $('logoutBtn').title=$('userBadge').textContent;
  window.mbkWelcome='Selamat datang, '+_roleLabel;if(activeView==='dashboard'){const _s=$('activeViewSubtitle');_s.textContent=window.mbkWelcome;_s.classList.add('welcome-line')}
  banner(); render();
- document.body.classList.add('app-open');document.body.classList.toggle('dash-light',activeView==='dashboard');
+ document.body.classList.add('app-open');document.body.classList.toggle('dash-light',activeView==='dashboard'||activeView==='units');
  if(activeView==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -2156,7 +2163,7 @@ let activeView='dashboard';
 function setActiveView(view){
  if(!VIEW_META[view])view='dashboard';activeView=view;
  $('appShell').dataset.activeView=view;
- document.body.classList.toggle('dash-light',view==='dashboard');
+ document.body.classList.toggle('dash-light',view==='dashboard'||view==='units');
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];const _sub=$('activeViewSubtitle'),_wel=view==='dashboard'&&window.mbkWelcome;_sub.textContent=_wel||VIEW_META[view][1];_sub.classList.toggle('welcome-line',!!_wel);
  document.querySelectorAll('#appMain [data-view]').forEach(el=>{
@@ -2265,16 +2272,29 @@ function renderDashboardNotifications(){
  if(!shown.length)shown.push({k:'ok',t:'Tidak ada notifikasi baru',ts:0});
  list.innerHTML=shown.map(i=>'<li class="dn-item"><span class="dn-ico dn-'+i.k+'"><i class="fa-solid fa-'+icon[i.k]+'"></i></span><span class="dn-text">'+escNotif(i.t)+'</span><span class="dn-time">'+(i.ts?agoText(i.ts):'')+'</span></li>').join('');
 }
+const UD_PAGE_SIZE=8;let unitDirPages={};
+function unitKindOf(r){return r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':r.t==='W'?'Wheel Loader':'Forklift Diesel'}
 function renderUnitDirectory(){
  const query=($('unitDirectorySearch').value||'').trim().toLowerCase(),cat=$('unitDirectoryFilter').value;
  const groups=[{key:'D',title:'Forklift Diesel'},{key:'W',title:'Wheel Loader'},{key:'B',title:'Forklift Baterai'},{key:'T',title:'Traktor'}];
- const filtered=DATA.filter(r=>{const kind=r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':r.t==='W'?'Wheel Loader':'Forklift Diesel';const hay=(r.c+' '+(r.d||'')+' '+(r.model||'')+' '+(r.equipment||'')+' '+kind).toLowerCase();return (!query||hay.includes(query))&&(cat==='ALL'||(cat==='D'?(r.t!=='B'&&r.t!=='T'&&r.t!=='W'):r.t===cat))});
+ const catKey=r=>r.t==='B'?'B':r.t==='T'?'T':r.t==='W'?'W':'D';
+ const filtered=DATA.filter(r=>{const hay=(r.c+' '+(r.d||'')+' '+(r.model||'')+' '+(r.equipment||'')+' '+unitKindOf(r)).toLowerCase();return (!query||hay.includes(query))&&(cat==='ALL'||catKey(r)===cat)});
  $('unitDirectoryCount').textContent=filtered.length.toLocaleString('id-ID')+' unit';
- const tableFor=rows=>'<table><thead><tr><th>Kode Unit</th><th>Jenis</th><th>Type</th><th>Departemen</th><th>Interval PM</th><th>Aksi</th></tr></thead><tbody>'+rows.map(r=>'<tr><td><strong>'+escapeHtml(r.c)+'</strong></td><td>'+(r.t==='T'?'Traktor':r.t==='B'?'Forklift Baterai':r.t==='W'?'Wheel Loader':'Forklift Diesel')+'</td><td class="l">'+escapeHtml(r.model||'-')+'</td><td class="l">'+escapeHtml(r.d||'-')+'</td><td>'+(r.h||200)+' HM</td><td><button type="button" class="unit-directory-detail" data-unit="'+escapeHtml(r.c)+'">Lihat detail</button></td></tr>').join('')+'</tbody></table>';
- $('unitDirectoryTable').innerHTML=filtered.length?groups.map(g=>{const rows=filtered.filter(r=>g.key==='D'?(r.t!=='B'&&r.t!=='T'):r.t===g.key);return rows.length?'<section class="directory-group"><h3>'+g.title+' <span class="directory-group-meta">'+rows.length+' unit</span></h3>'+tableFor(rows)+'</section>':''}).join(''):'<div class="workflow-empty">Tidak ada unit yang sesuai dengan filter.</div>';
- $('unitDirectoryTable').querySelectorAll('[data-unit]').forEach(b=>b.addEventListener('click',()=>{$('q').value=b.dataset.unit;setActiveView('schedule');render();window.scrollTo({top:0,behavior:'smooth'})}));
+ const host=$('unitDirectoryTable');
+ const html=groups.map(g=>{
+  const rows=filtered.filter(r=>catKey(r)===g.key);if(!rows.length)return '';
+  const pages=Math.max(1,Math.ceil(rows.length/UD_PAGE_SIZE));
+  let pg=Math.min(Math.max(1,unitDirPages[g.key]||1),pages);unitDirPages[g.key]=pg;
+  const start=(pg-1)*UD_PAGE_SIZE,shown=rows.slice(start,start+UD_PAGE_SIZE);
+  const body=shown.map((r,i)=>'<tr><td class="ud-no">'+(start+i+1)+'</td><td class="ud-unit">'+escapeHtml(r.c)+'</td><td>'+unitKindOf(r)+'</td><td>'+escapeHtml(r.model||'-')+'</td><td>'+escapeHtml(r.d||'-')+'</td><td>'+(r.h||200)+' HM</td><td class="ud-act"><button type="button" class="ud-detail-btn" data-unit="'+escapeHtml(r.c)+'">Lihat Detail <i class="fa-solid fa-chevron-right"></i></button></td></tr>').join('');
+  let nums='';for(let n=1;n<=pages;n++)nums+='<button type="button" class="ud-page'+(n===pg?' on':'')+'" data-ud-group="'+g.key+'" data-ud-page="'+n+'">'+n+'</button>';
+  return '<section class="ud-group"><div class="ud-group-head"><i class="fa-solid fa-list-check"></i><h3>'+g.title+'</h3><span class="ud-chip">'+rows.length.toLocaleString('id-ID')+' Unit</span></div><div class="ud-table-wrap"><table class="ud-table"><thead><tr><th>No</th><th>Unit</th><th>Jenis</th><th>Type</th><th>Departemen</th><th>Interval PM</th><th>Aksi</th></tr></thead><tbody>'+body+'</tbody></table></div><div class="ud-pager"><span>Menampilkan '+(start+1)+' - '+(start+shown.length)+' dari '+rows.length+' data</span><div class="ud-pager-btns"><button type="button" class="ud-page" data-ud-group="'+g.key+'" data-ud-page="'+(pg-1)+'" '+(pg===1?'disabled':'')+' aria-label="Halaman sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>'+nums+'<button type="button" class="ud-page" data-ud-group="'+g.key+'" data-ud-page="'+(pg+1)+'" '+(pg===pages?'disabled':'')+' aria-label="Halaman berikutnya"><i class="fa-solid fa-chevron-right"></i></button></div></div></section>';
+ }).join('');
+ host.innerHTML=html||'<div class="ud-group"><div class="workflow-empty" style="margin:18px">Tidak ada unit yang sesuai dengan filter.</div></div>';
+ host.querySelectorAll('[data-unit]').forEach(b=>b.addEventListener('click',()=>{$('q').value=b.dataset.unit;setActiveView('schedule');render();window.scrollTo({top:0,behavior:'smooth'})}));
+ host.querySelectorAll('[data-ud-page]').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;unitDirPages[b.dataset.udGroup]=+b.dataset.udPage;renderUnitDirectory()}));
 }
-$('unitDirectorySearch').addEventListener('input',renderUnitDirectory);$('unitDirectoryFilter').addEventListener('change',renderUnitDirectory);
+$('unitDirectorySearch').addEventListener('input',()=>{unitDirPages={};renderUnitDirectory()});$('unitDirectoryFilter').addEventListener('change',()=>{unitDirPages={};renderUnitDirectory()});
 initWorkflowForms();
 initUnitReportOptions();
 setActiveView('dashboard');
@@ -2883,6 +2903,54 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
  body.dash-light #appShell .app-header{gap:8px}
 }
 
+</style>
+<style id="units-theme-and-dashboard-zoom">
+/* Dashboard tampil seperti zoom 75% */
+#appShell[data-active-view="dashboard"] #appMain{zoom:.75}
+/* Menu Daftar Unit: tema cerah */
+#appShell[data-active-view="units"] .view-heading{display:none}
+#unitDirectoryCard{background:transparent;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a}
+.ud-head{display:flex;align-items:center;gap:22px;margin:0 0 22px;flex-wrap:wrap}
+.ud-head-icon{flex:none;width:92px;height:84px;border-radius:20px;display:grid;place-items:center;color:#fff;font-size:38px;background:linear-gradient(135deg,#2f6df6,#1d4fd8);box-shadow:0 12px 26px rgba(37,99,235,.3)}
+.ud-head-text{flex:1;min-width:220px}
+.ud-head-text h2{margin:0;font-size:40px;line-height:1.1;font-weight:800;color:#0b1220;letter-spacing:-.02em;display:block}
+.ud-head-text p{margin:6px 0 0;font-size:18px;color:#64748b}
+.ud-total{background:#fff;color:#334155;border-color:#dbe3f0}
+.ud-toolbar{display:flex;gap:16px;align-items:center;background:#fff;border:1px solid #e6ecf6;border-radius:18px;padding:16px;margin-bottom:20px;box-shadow:0 8px 24px rgba(30,58,138,.06)}
+.ud-search{position:relative;flex:1;min-width:0;display:block}
+.ud-search i{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:#2563eb;font-size:18px;pointer-events:none}
+.ud-search input{width:100%;height:50px;padding:0 16px 0 52px;border:1px solid #dbe3f0;border-radius:12px;background:#f3f6fc;color:#0f172a;font:inherit;font-size:16px;outline:none}
+.ud-search input::placeholder{color:#94a3b8}
+.ud-search input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);background:#fff}
+.ud-select{position:relative;flex:none;width:230px}
+.ud-select select{appearance:none;-webkit-appearance:none;width:100%;height:50px;padding:0 42px 0 18px;border:1px solid #dbe3f0;border-radius:12px;background:#f3f6fc;color:#0f172a;font:inherit;font-size:16px;font-weight:600;cursor:pointer;outline:none}
+.ud-select select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.ud-select i{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#0f172a;pointer-events:none;font-size:13px}
+.ud-group{background:#fff;border:1px solid #e6ecf6;border-radius:18px;padding:20px 22px;margin-bottom:20px;box-shadow:0 8px 24px rgba(30,58,138,.06)}
+.ud-group-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.ud-group-head>i{color:#2563eb;font-size:22px}
+.ud-group-head h3{margin:0;font-size:26px;font-weight:800;color:#0b1220}
+.ud-chip{padding:5px 14px;border-radius:999px;background:#eef1f7;border:1px solid #dbe3f0;color:#475569;font-size:14px;font-weight:600}
+.ud-table-wrap{overflow-x:auto;border-radius:12px}
+.ud-table{width:100%;min-width:780px;border-collapse:collapse;font-size:15px}
+.ud-table thead th{background:#1e293b;color:#fff;padding:15px 16px;font-size:14px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;text-align:left;border:0}
+.ud-table thead th:first-child{border-top-left-radius:12px}.ud-table thead th:last-child{border-top-right-radius:12px;text-align:center}
+.ud-table td{padding:13px 16px;text-align:left;color:#1f2937;background:#fff;border-bottom:1px solid #e8edf6;font-weight:500;white-space:normal}
+.ud-table tbody tr:hover td{background:#f6f9ff}
+.ud-table td.ud-no{font-weight:600;width:64px}
+.ud-table td.ud-unit{font-weight:800;color:#0b1220}
+.ud-table td.ud-act{text-align:center}
+.ud-detail-btn{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:10px;border:1px solid #bcd0f7;background:#fff;color:#1d4fd8;font-size:13px;font-weight:700;cursor:pointer}
+.ud-detail-btn:hover{background:#eaf1ff;border-color:#2563eb}
+.ud-detail-btn i{font-size:11px}
+.ud-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;color:#64748b;font-size:15px}
+.ud-pager-btns{display:flex;gap:8px;align-items:center}
+.ud-page{min-width:40px;height:40px;padding:0 10px;border-radius:10px;border:1px solid #dbe3f0;background:#fff;color:#334155;font-size:15px;font-weight:700;cursor:pointer}
+.ud-page:hover:not(:disabled){background:#eaf1ff;border-color:#2563eb}
+.ud-page.on{background:#1d4fd8;border-color:#1d4fd8;color:#fff}
+.ud-page:disabled{opacity:.4;cursor:not-allowed}
+#unitDirectoryCard>.workflow-note{color:#64748b}
+@media(max-width:700px){.ud-head-icon{width:64px;height:60px;font-size:26px;border-radius:16px}.ud-head-text h2{font-size:28px}.ud-head-text p{font-size:14px}.ud-toolbar{flex-direction:column;align-items:stretch}.ud-select{width:100%}.ud-group{padding:14px}.ud-group-head h3{font-size:20px}}
 </style>
 </body>
 </html>
