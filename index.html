@@ -540,6 +540,8 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #appShell[data-active-view="units"] #appMain [data-view]:not([data-view="units"]),
 #appShell[data-active-view="history"] #appMain [data-view]:not([data-view="history"]),
 #appShell[data-active-view="woImport"] #appMain [data-view]:not([data-view="woImport"]) {display:none!important}
+#appShell[data-active-view="woAnalysis"] #appMain [data-view]:not([data-view="woAnalysis"]) {display:none!important}
+#appShell[data-active-view="users"] #appMain [data-view]:not([data-view="users"]) {display:none!important}
 #appShell[data-active-view="rateAnalysis"] #appMain [data-view]:not([data-view="rateAnalysis"]) {display:none!important}
 /* Navigation and simulator start compact; expand only on user request */
 #appShell.sidebar-collapsed .app-layout{grid-template-columns:68px minmax(0,1fr)}
@@ -675,44 +677,44 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
 <style id="wo-simple-layout">
 /* Penyederhanaan khusus menu Impor & Analisa WO; tidak mengubah halaman lain */
-#woImportPage .wo-grid{grid-template-columns:1fr;gap:14px}
-#woImportPage .wo-panel{padding:16px;border:1px solid #dbe3ee;border-radius:14px;background:#fff}
-#woImportPage .wo-unit-group{border:1px solid #dbe3ee;border-radius:12px;margin:12px 0;overflow:hidden;background:#fff}
-#woImportPage .wo-unit-head{padding:12px 15px;background:#f3f7fc;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-#woImportPage .wo-unit-head h4{margin:0;font-size:15px}
-#woImportPage .wo-record{padding:13px 15px;border-top:1px solid #e8edf4}
-#woImportPage .wo-record-head{display:grid;grid-template-columns:minmax(120px,1fr) minmax(130px,1fr) minmax(120px,1fr) auto;gap:12px;align-items:center}
-#woImportPage .wo-meta small{display:block;color:#64748b;margin-bottom:3px}
-#woImportPage .wo-detail-toggle{border:1px solid #2563eb;color:#1d4ed8;background:#eff6ff;border-radius:8px;padding:8px 13px;font-weight:600;cursor:pointer}
-#woImportPage .wo-detail-body{margin-top:13px;padding:14px;background:#f8fafc;border-radius:10px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-#woImportPage .wo-detail-body[hidden]{display:none}
-#woImportPage .wo-detail-block{min-width:0}
-#woImportPage .wo-detail-block h5{margin:0 0 7px;color:#334155}
-#woImportPage .wo-detail-block p{white-space:pre-wrap;margin:5px 0;line-height:1.5}
-#woImportPage .wo-hm{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:7px;background:#fff7ed;color:#9a3412;font-weight:700;margin:5px 0}
-#woImportPage .wo-empty{color:#64748b;font-style:italic}
-@media(max-width:720px){#woImportPage .wo-record-head{grid-template-columns:1fr 1fr}#woImportPage .wo-detail-body{grid-template-columns:1fr}}
+:is(#woImportPage,#woAnalysisPage) .wo-grid{grid-template-columns:1fr;gap:14px}
+:is(#woImportPage,#woAnalysisPage) .wo-panel{padding:16px;border:1px solid #dbe3ee;border-radius:14px;background:#fff}
+:is(#woImportPage,#woAnalysisPage) .wo-unit-group{border:1px solid #dbe3ee;border-radius:12px;margin:12px 0;overflow:hidden;background:#fff}
+:is(#woImportPage,#woAnalysisPage) .wo-unit-head{padding:12px 15px;background:#f3f7fc;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+:is(#woImportPage,#woAnalysisPage) .wo-unit-head h4{margin:0;font-size:15px}
+:is(#woImportPage,#woAnalysisPage) .wo-record{padding:13px 15px;border-top:1px solid #e8edf4}
+:is(#woImportPage,#woAnalysisPage) .wo-record-head{display:grid;grid-template-columns:minmax(120px,1fr) minmax(130px,1fr) minmax(120px,1fr) auto;gap:12px;align-items:center}
+:is(#woImportPage,#woAnalysisPage) .wo-meta small{display:block;color:#64748b;margin-bottom:3px}
+:is(#woImportPage,#woAnalysisPage) .wo-detail-toggle{border:1px solid #2563eb;color:#1d4ed8;background:#eff6ff;border-radius:8px;padding:8px 13px;font-weight:600;cursor:pointer}
+:is(#woImportPage,#woAnalysisPage) .wo-detail-body{margin-top:13px;padding:14px;background:#f8fafc;border-radius:10px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+:is(#woImportPage,#woAnalysisPage) .wo-detail-body[hidden]{display:none}
+:is(#woImportPage,#woAnalysisPage) .wo-detail-block{min-width:0}
+:is(#woImportPage,#woAnalysisPage) .wo-detail-block h5{margin:0 0 7px;color:#334155}
+:is(#woImportPage,#woAnalysisPage) .wo-detail-block p{white-space:pre-wrap;margin:5px 0;line-height:1.5}
+:is(#woImportPage,#woAnalysisPage) .wo-hm{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:7px;background:#fff7ed;color:#9a3412;font-weight:700;margin:5px 0}
+:is(#woImportPage,#woAnalysisPage) .wo-empty{color:#64748b;font-style:italic}
+@media(max-width:720px){:is(#woImportPage,#woAnalysisPage) .wo-record-head{grid-template-columns:1fr 1fr}:is(#woImportPage,#woAnalysisPage) .wo-detail-body{grid-template-columns:1fr}}
 </style>
 
 <style id="wo-import-dark-only">
 /* Hanya tema menu Impor & Analisa WO; tidak mengubah autentikasi atau menu lain. */
-#woImportPage { color: #e5e7eb; }
-#woImportPage .wo-panel { background:#0b1220 !important; border-color:#334155 !important; color:#e5e7eb !important; }
-#woImportPage .wo-unit-group { background:#111c30 !important; border-color:#334155 !important; color:#e5e7eb !important; }
-#woImportPage .wo-unit-head { background:#172338 !important; color:#f8fafc !important; }
-#woImportPage .wo-record { border-top-color:#334155 !important; }
-#woImportPage .wo-meta small, #woImportPage .wo-empty, #woImportPage .wo-note, #woImportPage .wo-status { color:#aab8ca !important; }
-#woImportPage .wo-meta strong, #woImportPage .wo-unit-head h4, #woImportPage .wo-detail-block h5 { color:#f8fafc !important; }
-#woImportPage .wo-detail-body { background:#111c30 !important; color:#e2e8f0 !important; }
-#woImportPage .wo-detail-block p { color:#e2e8f0 !important; }
-#woImportPage .wo-detail-toggle { background:#1e3a5f !important; color:#bfdbfe !important; border-color:#3b82f6 !important; }
-#woImportPage .wo-hm { background:#422006 !important; color:#fcd34d !important; }
-#woImportPage .wo-tools input, #woImportPage .wo-tools select, #woImportPage input[type="file"] { background:#080f1c !important; color:#f8fafc !important; border:1px solid #475569 !important; }
-#woImportPage .wo-table-wrap { border-color:#334155 !important; }
-#woImportPage table { color:#e2e8f0 !important; }
-#woImportPage th { background:#172338 !important; color:#f8fafc !important; }
-#woImportPage td { background:#0f172a !important; color:#e2e8f0 !important; border-color:#334155 !important; }
-#woImportPage .wo-pill { background:#172338 !important; color:#cbd5e1 !important; }
+:is(#woImportPage,#woAnalysisPage) { color: #e5e7eb; }
+:is(#woImportPage,#woAnalysisPage) .wo-panel { background:#0b1220 !important; border-color:#334155 !important; color:#e5e7eb !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-unit-group { background:#111c30 !important; border-color:#334155 !important; color:#e5e7eb !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-unit-head { background:#172338 !important; color:#f8fafc !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-record { border-top-color:#334155 !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-meta small, :is(#woImportPage,#woAnalysisPage) .wo-empty, :is(#woImportPage,#woAnalysisPage) .wo-note, :is(#woImportPage,#woAnalysisPage) .wo-status { color:#aab8ca !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-meta strong, :is(#woImportPage,#woAnalysisPage) .wo-unit-head h4, :is(#woImportPage,#woAnalysisPage) .wo-detail-block h5 { color:#f8fafc !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-detail-body { background:#111c30 !important; color:#e2e8f0 !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-detail-block p { color:#e2e8f0 !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-detail-toggle { background:#1e3a5f !important; color:#bfdbfe !important; border-color:#3b82f6 !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-hm { background:#422006 !important; color:#fcd34d !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-tools input, :is(#woImportPage,#woAnalysisPage) .wo-tools select, :is(#woImportPage,#woAnalysisPage) input[type="file"] { background:#080f1c !important; color:#f8fafc !important; border:1px solid #475569 !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-table-wrap { border-color:#334155 !important; }
+:is(#woImportPage,#woAnalysisPage) table { color:#e2e8f0 !important; }
+:is(#woImportPage,#woAnalysisPage) th { background:#172338 !important; color:#f8fafc !important; }
+:is(#woImportPage,#woAnalysisPage) td { background:#0f172a !important; color:#e2e8f0 !important; border-color:#334155 !important; }
+:is(#woImportPage,#woAnalysisPage) .wo-pill { background:#172338 !important; color:#cbd5e1 !important; }
 </style>
 <style id="rate-analysis-layout-controls">
 #rateAnalysisPage .rate-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -776,31 +778,38 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div class="sidebar-topline"><div class="sidebar-label">Navigasi</div><button type="button" id="sidebarCollapseBtn" class="sidebar-collapse-btn" aria-label="Tampilkan menu navigasi" title="Tampilkan menu navigasi"><i class="fa-solid fa-angles-right"></i></button></div>
       <nav class="sidebar-nav" id="mainNavigation">
         <button type="button" class="active" data-view-target="dashboard" title="Dashboard"><i class="fa-solid fa-house"></i><span class="nav-text">Dashboard</span></button>
-        <div class="nav-group is-collapsed" data-nav-group="assets">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-truck"></i><span class="nav-text">Manajemen Unit</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+        <div class="nav-group is-collapsed" data-nav-group="master">
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-database"></i><span class="nav-text">1. MASTER DATA</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Daftar Unit</span></button>
+            <button type="button" data-view-target="users" title="Manajemen Pengguna"><i class="fa-solid fa-user"></i><span class="nav-text">Manajemen Pengguna</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="planning">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">Perencanaan PM</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">2. PERENCANAAN MAINTENANCE</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="schedule" title="Jadwal PM"><i class="fa-solid fa-calendar-days"></i><span class="nav-text">Jadwal PM</span></button>
-            <button type="button" data-view-target="rateAnalysis" title="Analisa Laju Kerja"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Analisa Laju Kerja</span></button>
+            <button type="button" data-view-target="schedule" title="Jadwal Preventive Maintenance"><i class="fa-solid fa-calendar-days"></i><span class="nav-text">Jadwal Preventive Maintenance</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="operations">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">Operasional Servis</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">3. OPERASIONAL MAINTENANCE</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="breakdown" title="Pencatatan Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Pencatatan Breakdown</span></button>
-            <button type="button" data-view-target="woImport" title="Impor &amp; Analisis WO"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor &amp; Analisis WO</span></button>
+            <button type="button" data-view-target="woImport" title="Impor Data Work Order"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor Data Work Order</span></button>
+          </div>
+        </div>
+        <div class="nav-group is-collapsed" data-nav-group="monitoring">
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-chart-line"></i><span class="nav-text">4. MONITORING &amp; ANALISIS</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <div class="nav-group-items">
+            <button type="button" data-view-target="rateAnalysis" title="Analisa Laju Kerja Unit"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Analisa Laju Kerja Unit</span></button>
+            <button type="button" data-view-target="woAnalysis" title="Analisis Work Order"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Analisis Work Order</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="approvals">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan &amp; Riwayat</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">5. PERSETUJUAN &amp; AUDIT</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="reschedule" title="Pengajuan Perubahan PM"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Pengajuan Perubahan PM</span></button>
-            <button type="button" data-view-target="history" title="Histori Servis &amp; Laporan"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-text">Histori Servis &amp; Laporan</span></button>
+            <button type="button" data-view-target="reschedule" title="Persetujuan"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan</span></button>
+            <button type="button" data-view-target="history" title="Riwayat Aktivitas"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-text">Riwayat Aktivitas</span></button>
           </div>
         </div>
       </nav>
@@ -1014,7 +1023,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
 
   <section class="card workflow-page" id="woImportPage" data-view="woImport" hidden aria-labelledby="woImportTitle">
-    <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-file-import"></i></span><div class="ud-head-text"><h2 id="woImportTitle">Impor &amp; Analisis WO</h2><p>Impor report WO selesai dari sistem resmi, lalu lakukan analisis kinerja dan riwayat unit.</p></div></div>
+    <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-file-import"></i></span><div class="ud-head-text"><h2 id="woImportTitle">Impor Data Work Order</h2><p>Unggah report WO selesai dari sistem resmi, periksa pratinjau, lalu simpan hasil impor.</p></div></div>
     <div class="rate-info"><i class="fa-solid fa-circle-info"></i><span>Data hanya disimpan lokal di browser untuk tahap uji; belum menulis ke Firebase.</span></div>
     <div class="wo-panel wo-upload">
       <h3>1. Unggah report Excel WO selesai</h3>
@@ -1023,16 +1032,29 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div id="woImportStatus" class="wo-status" role="status" aria-live="polite">Belum ada file yang dibaca.</div>
       <div class="wo-actions"><button type="button" class="primary" id="woCommitBtn" disabled><i class="fa-solid fa-database"></i> Simpan hasil impor uji</button></div>
     </div>
-    <div class="wo-kpi-grid" id="woKpis">
+    <div class="wo-grid">
+      <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
+    </div>
+    <div class="wo-panel" style="margin-top:12px"><h3>3. Riwayat impor dan perubahan</h3><div id="woAuditHistory" class="wo-status">Belum ada riwayat impor.</div></div>
+    <p class="wo-note">Catatan: data biaya tidak tersedia pada report ini, sehingga tidak dihitung sebagai Rp0. Data WO aktual dipisahkan dari jadwal PM dan catatan operasional MBK. Penyimpanan prototipe menggunakan localStorage pada browser/perangkat ini; hapus data browser dapat menghilangkan data uji.</p>
+  </section>
+
+  <section class="card workflow-page" id="woAnalysisPage" data-view="woAnalysis" hidden aria-labelledby="woAnalysisTitle">
+    <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-chart-pie"></i></span><div class="ud-head-text"><h2 id="woAnalysisTitle">Analisis Work Order</h2><p>Analisis data WO tersimpan serta profil dan riwayat pekerjaan setiap unit.</p></div></div>
+    <div class="wo-kpi-grid" id="woKpis" style="margin-top:0">
       <div class="wo-kpi"><span class="wo-kpi-ico dk-blue"><i class="fa-solid fa-file-lines"></i></span><div class="wo-kpi-txt"><small>Total WO</small><strong id="woTotal">0</strong></div></div><div class="wo-kpi"><span class="wo-kpi-ico dk-green"><i class="fa-solid fa-list-check"></i></span><div class="wo-kpi-txt"><small>Total Task</small><strong id="woTaskTotal">0</strong></div></div><div class="wo-kpi"><span class="wo-kpi-ico dk-orange"><i class="fa-solid fa-screwdriver-wrench"></i></span><div class="wo-kpi-txt"><small>Total Material Detail</small><strong id="woMaterialTotal">0</strong></div></div><div class="wo-kpi"><span class="wo-kpi-ico dk-purple"><i class="fa-solid fa-truck"></i></span><div class="wo-kpi-txt"><small>Unit terlibat</small><strong id="woUnitTotal">0</strong></div></div>
     </div>
     <div class="wo-grid">
-      <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
-      <div class="wo-panel"><h3>3. Analisis data tersimpan</h3><div id="woAnalytics" class="wo-status">Belum ada data tersimpan.</div></div>
+      <div class="wo-panel"><h3>1. Analisis data tersimpan</h3><div id="woAnalytics" class="wo-status">Belum ada data tersimpan.</div></div>
     </div>
-    <div class="wo-panel" style="margin-top:12px"><h3>4. Profil &amp; riwayat unit (WO Aktual)</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button><label class="sr-only" for="woHistoryExportFormat">Format ekspor riwayat unit</label><select id="woHistoryExportFormat" aria-label="Format ekspor riwayat unit"><option value="excel">Excel</option><option value="pdf">PDF</option></select><button type="button" id="woHistoryExportBtn" title="Ekspor data sesuai filter aktif"><i class="fa-solid fa-file-export"></i> Export File</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
-    <div class="wo-panel" style="margin-top:12px"><h3>5. Riwayat impor dan perubahan</h3><div id="woAuditHistory" class="wo-status">Belum ada riwayat impor.</div></div>
+    <div class="wo-panel" style="margin-top:12px"><h3>2. Profil &amp; riwayat unit (WO Aktual)</h3><div class="wo-tools"><label class="search-label" for="woFrom">Dari</label><input type="date" id="woFrom"><label class="search-label" for="woTo">Sampai</label><input type="date" id="woTo"><select id="woCategoryFilter" aria-label="Filter kategori unit"><option value="">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><select id="woUnitFilter" aria-label="Filter kode unit"><option value="">Semua unit</option></select><button type="button" id="woRefreshBtn" title="Muat ulang data WO"><i class="fa-solid fa-rotate"></i> Refresh</button><label class="sr-only" for="woHistoryExportFormat">Format ekspor riwayat unit</label><select id="woHistoryExportFormat" aria-label="Format ekspor riwayat unit"><option value="excel">Excel</option><option value="pdf">PDF</option></select><button type="button" id="woHistoryExportBtn" title="Ekspor data sesuai filter aktif"><i class="fa-solid fa-file-export"></i> Export File</button></div><div id="woUnitHistory" class="wo-status">Belum ada data tersimpan.</div></div>
+    <div id="woAnalysisStatus" class="wo-status" role="status" aria-live="polite"></div>
     <p class="wo-note">Catatan: data biaya tidak tersedia pada report ini, sehingga tidak dihitung sebagai Rp0. Data WO aktual dipisahkan dari jadwal PM dan catatan operasional MBK. Penyimpanan prototipe menggunakan localStorage pada browser/perangkat ini; hapus data browser dapat menghilangkan data uji.</p>
+  </section>
+
+  <section class="card workflow-page" id="usersPage" data-view="users" hidden aria-labelledby="usersTitle">
+    <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-user"></i></span><div class="ud-head-text"><h2 id="usersTitle">Manajemen Pengguna</h2><p>Kelola akun dan peran pengguna aplikasi.</p></div></div>
+    <div class="rate-info"><i class="fa-solid fa-circle-info"></i><span>Fitur ini segera hadir. Untuk sementara, peran akun (admin, teknisi, supervisor, dll.) diatur melalui dokumen <b>users/{uid}</b> di Firebase.</span></div>
   </section>
 
   <section class="card workflow-page" id="rateAnalysisPage" data-view="rateAnalysis" hidden aria-labelledby="rateAnalysisTitle">
@@ -1176,7 +1198,7 @@ function showApp(user,role){
  $('logoutBtn').title=$('userBadge').textContent;
  window.mbkWelcome='Selamat datang, '+_roleLabel;if(activeView==='dashboard'){const _s=$('activeViewSubtitle');_s.textContent=window.mbkWelcome;_s.classList.add('welcome-line')}
  banner(); render();
- document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown','woImport'].includes(activeView));
+ document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown','woImport','woAnalysis','users'].includes(activeView));
  if(activeView==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -1937,7 +1959,9 @@ const VIEW_META={
  schedule:['Jadwal PM','Cari jadwal, filter kategori, dan buka detail unit.'],
  rateAnalysis:['Analisa Laju Kerja Unit','Perbarui dan bandingkan rata-rata HM operasional setiap bulan.'],
  breakdown:['Pencatatan Breakdown','Formulir dan daftar catatan breakdown saja.'],
- woImport:['Impor & Analisis WO','Impor report WO selesai, periksa perubahan, dan analisis riwayat pekerjaan unit.'],
+ woImport:['Impor Data Work Order','Unggah report WO selesai, periksa pratinjau, dan simpan hasil impor.'],
+ woAnalysis:['Analisis Work Order','Analisis data WO tersimpan serta profil dan riwayat unit.'],
+ users:['Manajemen Pengguna','Kelola akun dan peran pengguna aplikasi.'],
  reschedule:['Pengajuan Perubahan PM','Formulir dan daftar pengajuan perubahan PM saja.'],
  units:['Daftar Unit','Cari dan filter daftar unit yang tersedia di master.'],
  history:['Histori Servis & Laporan','Riwayat laporan breakdown dan pengajuan PM saja.']
@@ -1946,7 +1970,8 @@ let activeView='dashboard';
 function setActiveView(view){
  if(!VIEW_META[view])view='dashboard';activeView=view;
  $('appShell').dataset.activeView=view;
- document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown','woImport'].includes(view));
+ document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown','woImport','woAnalysis','users'].includes(view));
+ document.querySelectorAll('#mainNavigation .nav-group').forEach(g=>{if(g.querySelector('[data-view-target="'+view+'"]')){g.classList.remove('is-collapsed');const t=g.querySelector('.nav-group-toggle');if(t)t.setAttribute('aria-expanded','true')}});
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];const _sub=$('activeViewSubtitle'),_wel=view==='dashboard'&&window.mbkWelcome;_sub.textContent=_wel||VIEW_META[view][1];_sub.classList.toggle('welcome-line',!!_wel);
  document.querySelectorAll('#appMain [data-view]').forEach(el=>{
@@ -2519,23 +2544,23 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
   if(!latest||!latest.records||typeof latest.records!=='object')throw new Error('Format penyimpanan WO tidak valid.');
   refreshWoUnitOptions();
   renderSaved();
-  $wo('woImportStatus').textContent='Refresh berhasil: seluruh filter pencarian dikosongkan dan '+Object.keys(latest.records).length+' WO dimuat ulang dari penyimpanan browser.';
+  $wo('woAnalysisStatus').textContent='Refresh berhasil: seluruh filter pencarian dikosongkan dan '+Object.keys(latest.records).length+' WO dimuat ulang dari penyimpanan browser.';
  }catch(err){
-  $wo('woImportStatus').textContent='Refresh gagal: '+(err&&err.message?err.message:String(err));
+  $wo('woAnalysisStatus').textContent='Refresh gagal: '+(err&&err.message?err.message:String(err));
  }
 });
- document.querySelectorAll('#mainNavigation [data-view-target="woImport"]').forEach(b=>b.addEventListener('click',renderSaved));renderSaved();
+ document.querySelectorAll('#mainNavigation [data-view-target="woImport"],#mainNavigation [data-view-target="woAnalysis"]').forEach(b=>b.addEventListener('click',renderSaved));renderSaved();
 })();
 </script>
 <style id="wo-requested-layout-only">
 #ratePeriodState[data-state="provisional"]{background:#78350f;color:#fef3c7;border-color:#b45309}
 #ratePeriodState[data-state="final"]{background:#14532d;color:#dcfce7;border-color:#16a34a}
 #ratePeriodState[data-state="upcoming"]{background:#334155;color:#e2e8f0;border-color:#64748b}
-#woImportPage #woAnalyticsUnitFilter{min-width:220px;max-width:100%;background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px}
-#woImportPage #woRefreshBtn{background:#1e3a5f;color:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:9px 12px;cursor:pointer}
-#woImportPage #woHistoryExportBtn{background:#14532d;color:#dcfce7;border:1px solid #16a34a;border-radius:8px;padding:9px 12px;cursor:pointer}
-#woImportPage #woHistoryExportFormat{background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px;min-width:92px}
-@media(max-width:760px){#woImportPage #woFrom,#woImportPage #woTo,#woImportPage #woCategoryFilter,#woImportPage #woUnitFilter{flex:1 1 130px;min-width:120px}}
+:is(#woImportPage,#woAnalysisPage) #woAnalyticsUnitFilter{min-width:220px;max-width:100%;background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px}
+:is(#woImportPage,#woAnalysisPage) #woRefreshBtn{background:#1e3a5f;color:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:9px 12px;cursor:pointer}
+:is(#woImportPage,#woAnalysisPage) #woHistoryExportBtn{background:#14532d;color:#dcfce7;border:1px solid #16a34a;border-radius:8px;padding:9px 12px;cursor:pointer}
+:is(#woImportPage,#woAnalysisPage) #woHistoryExportFormat{background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px;min-width:92px}
+@media(max-width:760px){:is(#woImportPage,#woAnalysisPage) #woFrom,:is(#woImportPage,#woAnalysisPage) #woTo,:is(#woImportPage,#woAnalysisPage) #woCategoryFilter,:is(#woImportPage,#woAnalysisPage) #woUnitFilter{flex:1 1 130px;min-width:120px}}
 </style>
 <style id="rate-analysis-filter-style">
 #rateAnalysisPage #rateFilterTools select,#rateAnalysisPage #rateFilterTools input{width:100%;min-width:0;background:#080f1c;color:#f8fafc;border:1px solid #475569;border-radius:8px;padding:9px}
@@ -3101,68 +3126,68 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 </style>
 <style id="woimport-light-theme">
 /* ===== Menu Impor & Analisis WO: tema cerah (sama dengan Jadwal PM, Daftar Unit, Analisa Laju Kerja) ===== */
-#appShell[data-active-view="woImport"] #appMain{--bd:#e1e8f5;--card:#fff;--card-hover:#eef3fd;--in:#f3f6fc;--tx:#0f172a;--mu:#64748b;--ac:#2563eb;--ac-glow:rgba(37,99,235,.15)}
-#appShell[data-active-view="woImport"] .view-heading{display:none}
-#appShell[data-active-view="woImport"] #woImportPage{background:transparent!important;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a!important}
-#appShell[data-active-view="woImport"] #woImportPage .rate-info{margin:0 0 16px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) #appMain{--bd:#e1e8f5;--card:#fff;--card-hover:#eef3fd;--in:#f3f6fc;--tx:#0f172a;--mu:#64748b;--ac:#2563eb;--ac-glow:rgba(37,99,235,.15)}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) .view-heading{display:none}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage){background:transparent!important;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .rate-info{margin:0 0 16px}
 /* kartu panel */
-#appShell[data-active-view="woImport"] #woImportPage .wo-panel{background:#fff!important;border:1px solid #e6ecf6!important;border-radius:18px;padding:20px 22px;box-shadow:0 8px 24px rgba(30,58,138,.06);color:#0f172a!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-panel h3{margin:0 0 12px;color:#0b1220;font-size:18px;font-weight:800}
-#appShell[data-active-view="woImport"] #woImportPage .wo-panel h4{color:#0b1220;font-size:15px;font-weight:800;margin:16px 0 8px}
-#appShell[data-active-view="woImport"] #woImportPage .wo-grid{gap:16px;margin-top:16px}
-#appShell[data-active-view="woImport"] #woImportPage .wo-panel+.wo-panel,#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-grid+.wo-grid{margin-top:16px}
-#appShell[data-active-view="woImport"] #woImportPage .wo-note{color:#64748b!important;font-size:12.5px;line-height:1.6}
-#appShell[data-active-view="woImport"] #woImportPage .wo-status{color:#475569!important;font-size:13px}
-#appShell[data-active-view="woImport"] #woImportPage .wo-empty{color:#64748b!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-actions{margin-top:12px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-panel{background:#fff!important;border:1px solid #e6ecf6!important;border-radius:18px;padding:20px 22px;box-shadow:0 8px 24px rgba(30,58,138,.06);color:#0f172a!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-panel h3{margin:0 0 12px;color:#0b1220;font-size:18px;font-weight:800}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-panel h4{color:#0b1220;font-size:15px;font-weight:800;margin:16px 0 8px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-grid{gap:16px;margin-top:16px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-panel+.wo-panel,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-kpi-grid+.wo-grid{margin-top:16px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-note{color:#64748b!important;font-size:12.5px;line-height:1.6}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-status{color:#475569!important;font-size:13px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-empty{color:#64748b!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-actions{margin-top:12px}
 /* KPI */
-#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-grid{gap:18px;margin:16px 0 0}
-#appShell[data-active-view="woImport"] #woImportPage .wo-kpi{background:#fff;border:1px solid #edf1f8;border-radius:20px;padding:18px 20px;box-shadow:0 10px 30px rgba(30,58,138,.08)}
-#appShell[data-active-view="woImport"] #woImportPage .wo-kpi small{color:#64748b;font-size:12px;font-weight:700;text-transform:none;letter-spacing:0}
-#appShell[data-active-view="woImport"] #woImportPage .wo-kpi strong{color:#0b1220;font-size:28px;font-weight:800;margin-top:2px}
-#appShell[data-active-view="woImport"] #woImportPage #woKpis .wo-kpi{display:flex;align-items:center;gap:14px}
-#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-ico{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:0 8px 18px rgba(15,23,42,.15)}
-#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-txt{min-width:0}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-kpi-grid{gap:18px;margin:16px 0 0}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-kpi{background:#fff;border:1px solid #edf1f8;border-radius:20px;padding:18px 20px;box-shadow:0 10px 30px rgba(30,58,138,.08)}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-kpi small{color:#64748b;font-size:12px;font-weight:700;text-transform:none;letter-spacing:0}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-kpi strong{color:#0b1220;font-size:28px;font-weight:800;margin-top:2px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woKpis .wo-kpi{display:flex;align-items:center;gap:14px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-kpi-ico{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:0 8px 18px rgba(15,23,42,.15)}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-kpi-txt{min-width:0}
 /* form unggah & filter */
-#appShell[data-active-view="woImport"] #woImportPage .wo-tools{gap:12px;margin:14px 0}
-#appShell[data-active-view="woImport"] #woImportPage .wo-tools label.search-label{color:#111827;font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
-#appShell[data-active-view="woImport"] #woImportPage .wo-tools input,#appShell[data-active-view="woImport"] #woImportPage .wo-tools select,#appShell[data-active-view="woImport"] #woImportPage #woAnalyticsUnitFilter,#appShell[data-active-view="woImport"] #woImportPage #woHistoryExportFormat{height:44px;padding:0 14px;background:#fff!important;color:#0f172a!important;border:1px solid #dbe3f0!important;border-radius:12px;font-size:14px;font-weight:600;color-scheme:light;outline:none}
-#appShell[data-active-view="woImport"] #woImportPage .wo-tools input::placeholder{color:#94a3b8}
-#appShell[data-active-view="woImport"] #woImportPage .wo-tools input:focus,#appShell[data-active-view="woImport"] #woImportPage .wo-tools select:focus{border-color:#2563eb!important;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-#appShell[data-active-view="woImport"] #woImportPage input[type="file"]{flex:1 1 320px;height:auto!important;min-height:64px;padding:14px 16px!important;background:#f5f9ff!important;border:1.5px dashed #93b4f5!important;border-radius:14px!important;color:#334155!important;font-size:13px;cursor:pointer}
-#appShell[data-active-view="woImport"] #woImportPage input[type="file"]::file-selector-button{margin-right:14px;padding:9px 16px;border:0;border-radius:10px;background:#eaf1ff;color:#1d4fd8;font:inherit;font-weight:700;cursor:pointer}
-#appShell[data-active-view="woImport"] #woImportPage .wo-tools button,#appShell[data-active-view="woImport"] #woImportPage .wo-actions button{height:44px;padding:0 20px;border-radius:12px;background:#fff!important;color:#1d4fd8!important;border:1px solid #d5dff2!important;font-size:14px;font-weight:700;box-shadow:none;transform:none}
-#appShell[data-active-view="woImport"] #woImportPage .wo-tools button:hover,#appShell[data-active-view="woImport"] #woImportPage .wo-actions button:hover{background:#eaf1ff!important;border-color:#2563eb!important}
-#appShell[data-active-view="woImport"] #woImportPage #woPreviewBtn,#appShell[data-active-view="woImport"] #woImportPage #woCommitBtn,#appShell[data-active-view="woImport"] #woImportPage #woHistoryExportBtn{background:linear-gradient(135deg,#2f6df6,#1d4fd8)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px rgba(37,99,235,.28)}
-#appShell[data-active-view="woImport"] #woImportPage #woPreviewBtn:hover,#appShell[data-active-view="woImport"] #woImportPage #woCommitBtn:hover:not(:disabled),#appShell[data-active-view="woImport"] #woImportPage #woHistoryExportBtn:hover{background:linear-gradient(135deg,#4a82ff,#1a44bb)!important}
-#appShell[data-active-view="woImport"] #woImportPage #woCommitBtn:disabled{background:#cbd5e1!important;color:#64748b!important;box-shadow:none;cursor:not-allowed}
-#appShell[data-active-view="woImport"] #woImportPage #woClearPreview{background:#eef1f7!important;color:#111827!important;border:0!important}
-#appShell[data-active-view="woImport"] #woImportPage #woClearPreview:hover{background:#e1e7f2!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools{gap:12px;margin:14px 0}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools label.search-label{color:#111827;font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools input,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools select,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woAnalyticsUnitFilter,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woHistoryExportFormat{height:44px;padding:0 14px;background:#fff!important;color:#0f172a!important;border:1px solid #dbe3f0!important;border-radius:12px;font-size:14px;font-weight:600;color-scheme:light;outline:none}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools input::placeholder{color:#94a3b8}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools input:focus,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools select:focus{border-color:#2563eb!important;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) input[type="file"]{flex:1 1 320px;height:auto!important;min-height:64px;padding:14px 16px!important;background:#f5f9ff!important;border:1.5px dashed #93b4f5!important;border-radius:14px!important;color:#334155!important;font-size:13px;cursor:pointer}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) input[type="file"]::file-selector-button{margin-right:14px;padding:9px 16px;border:0;border-radius:10px;background:#eaf1ff;color:#1d4fd8;font:inherit;font-weight:700;cursor:pointer}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools button,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-actions button{height:44px;padding:0 20px;border-radius:12px;background:#fff!important;color:#1d4fd8!important;border:1px solid #d5dff2!important;font-size:14px;font-weight:700;box-shadow:none;transform:none}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-tools button:hover,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-actions button:hover{background:#eaf1ff!important;border-color:#2563eb!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woPreviewBtn,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woCommitBtn,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woHistoryExportBtn{background:linear-gradient(135deg,#2f6df6,#1d4fd8)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px rgba(37,99,235,.28)}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woPreviewBtn:hover,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woCommitBtn:hover:not(:disabled),#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woHistoryExportBtn:hover{background:linear-gradient(135deg,#4a82ff,#1a44bb)!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woCommitBtn:disabled{background:#cbd5e1!important;color:#64748b!important;box-shadow:none;cursor:not-allowed}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woClearPreview{background:#eef1f7!important;color:#111827!important;border:0!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) #woClearPreview:hover{background:#e1e7f2!important}
 /* tabel */
-#appShell[data-active-view="woImport"] #woImportPage .wo-table-wrap{background:#fff;border:1px solid #e1e8f5!important;border-radius:14px;margin-top:12px}
-#appShell[data-active-view="woImport"] #woImportPage table{color:#1f2937!important}
-#appShell[data-active-view="woImport"] #woImportPage th{background:#1e293b!important;color:#fff!important;font-size:12px;padding:13px 14px;text-align:left;border:0!important;letter-spacing:.03em}
-#appShell[data-active-view="woImport"] #woImportPage td{background:#fff!important;color:#1f2937!important;border:0!important;border-bottom:1px solid #e8edf6!important;padding:11px 14px;font-size:13.5px}
-#appShell[data-active-view="woImport"] #woImportPage tbody tr:hover td{background:#f6f9ff!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-table-wrap{background:#fff;border:1px solid #e1e8f5!important;border-radius:14px;margin-top:12px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) table{color:#1f2937!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) th{background:#1e293b!important;color:#fff!important;font-size:12px;padding:13px 14px;text-align:left;border:0!important;letter-spacing:.03em}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) td{background:#fff!important;color:#1f2937!important;border:0!important;border-bottom:1px solid #e8edf6!important;padding:11px 14px;font-size:13.5px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) tbody tr:hover td{background:#f6f9ff!important}
 /* pill status */
-#appShell[data-active-view="woImport"] #woImportPage .wo-pill{background:#f1f5f9!important;color:#475569!important;border:1px solid #dbe3f0;padding:3px 12px;font-size:11px}
-#appShell[data-active-view="woImport"] #woImportPage .wo-pill.new{background:#dcfce7!important;color:#15803d!important;border-color:#86efac}
-#appShell[data-active-view="woImport"] #woImportPage .wo-pill.updated{background:#fef3c7!important;color:#b45309!important;border-color:#fcd34d}
-#appShell[data-active-view="woImport"] #woImportPage .wo-pill.same{background:#f1f5f9!important;color:#64748b!important;border-color:#dbe3f0}
-#appShell[data-active-view="woImport"] #woImportPage .wo-pill.warn{background:#fee2e2!important;color:#b91c1c!important;border-color:#fca5a5}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-pill{background:#f1f5f9!important;color:#475569!important;border:1px solid #dbe3f0;padding:3px 12px;font-size:11px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-pill.new{background:#dcfce7!important;color:#15803d!important;border-color:#86efac}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-pill.updated{background:#fef3c7!important;color:#b45309!important;border-color:#fcd34d}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-pill.same{background:#f1f5f9!important;color:#64748b!important;border-color:#dbe3f0}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-pill.warn{background:#fee2e2!important;color:#b91c1c!important;border-color:#fca5a5}
 /* kelompok unit & kartu WO */
-#appShell[data-active-view="woImport"] #woImportPage .wo-unit-group{background:#fff!important;border:1px solid #e6ecf6!important;border-radius:16px;box-shadow:0 2px 8px rgba(30,58,138,.04);color:#0f172a!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-unit-head{background:#f3f6fc!important;color:#0b1220!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-unit-head h4{margin:0;color:#0b1220!important;font-size:16px}
-#appShell[data-active-view="woImport"] #woImportPage .wo-record{border-top:1px solid #e8edf6!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-meta small{color:#64748b!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-meta strong,#appShell[data-active-view="woImport"] #woImportPage .wo-detail-block h5{color:#0b1220!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-detail-body{background:#f8fafc!important;color:#334155!important;border:1px solid #e8edf6;border-radius:12px}
-#appShell[data-active-view="woImport"] #woImportPage .wo-detail-block p{color:#334155!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-detail-toggle{background:#fff!important;color:#1d4fd8!important;border:1px solid #d5dff2!important;border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700}
-#appShell[data-active-view="woImport"] #woImportPage .wo-detail-toggle:hover{background:#eaf1ff!important;border-color:#2563eb!important}
-#appShell[data-active-view="woImport"] #woImportPage .wo-hm{background:#fef3c7!important;color:#b45309!important}
-@media(max-width:760px){#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-unit-group{background:#fff!important;border:1px solid #e6ecf6!important;border-radius:16px;box-shadow:0 2px 8px rgba(30,58,138,.04);color:#0f172a!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-unit-head{background:#f3f6fc!important;color:#0b1220!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-unit-head h4{margin:0;color:#0b1220!important;font-size:16px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-record{border-top:1px solid #e8edf6!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-meta small{color:#64748b!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-meta strong,#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-detail-block h5{color:#0b1220!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-detail-body{background:#f8fafc!important;color:#334155!important;border:1px solid #e8edf6;border-radius:12px}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-detail-block p{color:#334155!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-detail-toggle{background:#fff!important;color:#1d4fd8!important;border:1px solid #d5dff2!important;border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-detail-toggle:hover{background:#eaf1ff!important;border-color:#2563eb!important}
+#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-hm{background:#fef3c7!important;color:#b45309!important}
+@media(max-width:760px){#appShell:is([data-active-view="woImport"],[data-active-view="woAnalysis"]) :is(#woImportPage,#woAnalysisPage) .wo-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 <style id="header-scale-and-search-fix">
 /* Top bar (header) tampil seperti zoom 75% */
@@ -3172,6 +3197,14 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 /* Kolom pencarian & filter Daftar Unit: putih (menimpa aturan #unitDirectorySearch bertema gelap) */
 #unitDirectorySearch,#unitDirectoryFilter{background:#fff;color:#0f172a;border:1px solid #dbe3f0;color-scheme:light}
 #unitDirectorySearch::placeholder{color:#94a3b8}
+</style>
+<style id="nav-regroup-and-users-page">
+/* Judul grup navigasi bernomor, huruf kapital */
+#appShell .nav-group-toggle .nav-text{text-transform:uppercase;letter-spacing:.02em;font-weight:800;font-size:12.5px}
+/* Halaman Manajemen Pengguna (placeholder): tema cerah */
+#appShell[data-active-view="users"] #appMain{--bd:#e1e8f5;--card:#fff;--mu:#64748b;--tx:#0f172a}
+#appShell[data-active-view="users"] .view-heading{display:none}
+#usersPage{background:transparent;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a}
 </style>
 </body>
 </html>
