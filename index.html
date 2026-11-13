@@ -965,11 +965,11 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
   <!-- Menu Laporan Breakdown: hanya formulir dan daftar breakdown -->
   <section class="card workflow-page" id="breakdownPage" data-view="breakdown" hidden aria-labelledby="breakdownPageTitle">
-    <div class="overview-head"><div><h2 id="breakdownPageTitle"><i class="fa-solid fa-triangle-exclamation"></i> Catat Breakdown</h2><div class="overview-meta">Catat breakdown berat atau pekerjaan khusus secara manual, misalnya overhaul engine. Breakdown rutin tetap mengikuti WO aktual hasil impor.</div></div></div>
-    <p class="workflow-note">Perbaikan breakdown tidak otomatis mereset atau mengubah jadwal PM.</p>
+    <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-triangle-exclamation"></i></span><div class="ud-head-text"><h2 id="breakdownPageTitle">Pencatatan Breakdown</h2><p>Catat breakdown berat atau pekerjaan khusus secara manual, misalnya overhaul engine. Breakdown rutin tetap mengikuti WO aktual hasil impor.</p></div></div>
+    <div class="rate-info"><i class="fa-solid fa-circle-info"></i><span>Perbaikan breakdown tidak otomatis mereset atau mengubah jadwal PM.</span></div>
     <div class="workflow-grid">
       <div>
-        <h2>Catat Breakdown</h2>
+        <h2><i class="fa-solid fa-clipboard-check"></i> Form Pencatatan Breakdown</h2>
         <form id="breakdownForm" class="workflow-form">
           <div class="field"><label for="bdUnitSearch">Cari kode/nama unit</label><input id="bdUnitSearch" type="search" list="bdUnitChoices" placeholder="Ketik kode unit, mis. A71" autocomplete="off"><datalist id="bdUnitChoices"></datalist><label for="bdUnit">Pilih Kode Unit</label><select id="bdUnit" required></select></div>
           <div class="field"><label for="bdDate">Tanggal Kejadian</label><input id="bdDate" type="date" required></div>
@@ -990,7 +990,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
         <div class="firestore-message" id="breakdownDbStatus" role="status" aria-live="polite"></div>
       </div>
       <div>
-        <div class="overview-head"><div><h2>Daftar Catatan Breakdown</h2><div class="overview-meta">Filter tanggal berlaku otomatis; ekspor mengikuti filter aktif.</div></div><div class="export-controls"><label for="bdFilterDate">Tanggal</label><input id="bdFilterDate" type="date" aria-label="Filter satu tanggal breakdown"><label class="sr-only" for="bdCategoryFilter">Filter kategori unit</label><select id="bdCategoryFilter" aria-label="Filter kategori unit"><option value="all">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><label class="sr-only" for="bdExportFormat">Format ekspor breakdown</label><select id="bdExportFormat" aria-label="Pilihan format ekspor"><option value="pdf">PDF</option><option value="excel">Excel</option></select><button type="button" class="reset-btn" id="bdExport"><i class="fa-solid fa-file-export"></i> Export File</button><button type="button" class="reset-btn" id="bdRefresh" title="Muat ulang daftar"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div></div>
+        <div class="overview-head"><div><h2><i class="fa-solid fa-clock-rotate-left"></i> Daftar Catatan Breakdown</h2><div class="overview-meta">Filter tanggal berlaku otomatis; ekspor mengikuti filter aktif.</div></div><div class="export-controls"><label for="bdFilterDate">Tanggal</label><input id="bdFilterDate" type="date" aria-label="Filter satu tanggal breakdown"><label class="sr-only" for="bdCategoryFilter">Filter kategori unit</label><select id="bdCategoryFilter" aria-label="Filter kategori unit"><option value="all">Semua kategori unit</option><option value="D">Forklift Diesel</option><option value="B">Forklift Baterai</option><option value="T">Traktor</option><option value="W">Wheel Loader</option></select><label class="sr-only" for="bdExportFormat">Format ekspor breakdown</label><select id="bdExportFormat" aria-label="Pilihan format ekspor"><option value="pdf">PDF</option><option value="excel">Excel</option></select><button type="button" class="reset-btn" id="bdExport"><i class="fa-solid fa-file-export"></i> Export File</button><button type="button" class="reset-btn" id="bdRefresh" title="Muat ulang daftar"><i class="fa-solid fa-rotate"></i> Muat Ulang</button></div></div>
         <div id="breakdownList" class="workflow-list"><div class="workflow-empty">Memuat data breakdown…</div></div>
       </div>
     </div>
@@ -1238,7 +1238,7 @@ function showApp(user,role){
  $('logoutBtn').title=$('userBadge').textContent;
  window.mbkWelcome='Selamat datang, '+_roleLabel;if(activeView==='dashboard'){const _s=$('activeViewSubtitle');_s.textContent=window.mbkWelcome;_s.classList.add('welcome-line')}
  banner(); render();
- document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis'].includes(activeView));
+ document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown'].includes(activeView));
  if(activeView==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -2182,7 +2182,7 @@ let activeView='dashboard';
 function setActiveView(view){
  if(!VIEW_META[view])view='dashboard';activeView=view;
  $('appShell').dataset.activeView=view;
- document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis'].includes(view));
+ document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown'].includes(view));
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];const _sub=$('activeViewSubtitle'),_wel=view==='dashboard'&&window.mbkWelcome;_sub.textContent=_wel||VIEW_META[view][1];_sub.classList.toggle('welcome-line',!!_wel);
  document.querySelectorAll('#appMain [data-view]').forEach(el=>{
@@ -3282,6 +3282,59 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 #appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-wide .rate-downtime-history{background:#fff;border:1px solid #e6ecf6;border-radius:18px;padding:14px 16px;box-shadow:0 8px 24px rgba(30,58,138,.06)}
 @media(max-width:1100px){#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-split{grid-template-columns:1fr}#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-down .rate-downtime-analysis table{min-width:640px}}
 @media(max-width:650px){#appShell[data-active-view="rateAnalysis"] #rateAnalysisPage .rt-chart .rate-chart-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<style id="breakdown-light-theme">
+/* ===== Menu Pencatatan Breakdown: tema cerah (sama dengan Jadwal PM, Daftar Unit, Analisa Laju Kerja) ===== */
+#appShell[data-active-view="breakdown"] #appMain{--bd:#e1e8f5;--card:#fff;--card-hover:#eef3fd;--in:#f3f6fc;--tx:#0f172a;--mu:#64748b;--ac:#2563eb;--ac-glow:rgba(37,99,235,.15)}
+#appShell[data-active-view="breakdown"] .view-heading{display:none}
+#appShell[data-active-view="breakdown"] #breakdownPage{background:transparent;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a}
+#appShell[data-active-view="breakdown"] #breakdownPage .rate-info{margin:0 0 16px}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid>div{background:#fff;border:1px solid #e6ecf6;border-radius:18px;padding:20px 22px;box-shadow:0 8px 24px rgba(30,58,138,.06);min-width:0}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid h2{margin:0 0 14px;color:#0b1220;font-size:20px;font-weight:800;gap:10px}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid h2 i,#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid h3 i{color:#1d4fd8}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid h3{color:#0b1220;font-size:15px;font-weight:800}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid .overview-head{padding:0 0 14px;border-bottom:0;flex-wrap:wrap;align-items:flex-start;gap:12px}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid .overview-head h2{margin:0}
+#appShell[data-active-view="breakdown"] #breakdownPage .overview-meta{color:#64748b;font-size:13px}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-note{color:#64748b;font-size:12px}
+/* formulir */
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form{gap:14px}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form label{color:#111827;font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form input,#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form select,#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form textarea{height:44px;padding:0 14px;background:#fff;color:#0f172a;border:1px solid #dbe3f0;border-radius:12px;font-size:14px;font-weight:500;color-scheme:light;outline:none}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form textarea{height:auto;min-height:84px;padding:10px 14px}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form input::placeholder,#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form textarea::placeholder{color:#94a3b8}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form input:focus,#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form select:focus,#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form textarea:focus,#appShell[data-active-view="breakdown"] #breakdownPage .export-controls input:focus,#appShell[data-active-view="breakdown"] #breakdownPage .export-controls select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form button{background:linear-gradient(135deg,#2f6df6,#1d4fd8);color:#fff;border:0;border-radius:12px;height:46px;padding:0 22px;font-size:15px;font-weight:700;box-shadow:0 8px 20px rgba(37,99,235,.28);transform:none}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-form button:hover{background:linear-gradient(135deg,#4a82ff,#1a44bb)}
+#appShell[data-active-view="breakdown"] #breakdownPage .reset-btn{background:#eef1f7!important;color:#111827!important;border:0!important;border-radius:12px;box-shadow:none!important}
+#appShell[data-active-view="breakdown"] #breakdownPage .reset-btn:hover{background:#e1e7f2!important}
+#appShell[data-active-view="breakdown"] #breakdownPage .firestore-message{color:#334155}
+#appShell[data-active-view="breakdown"] #breakdownPage .firestore-message.error{color:#b91c1c}
+#appShell[data-active-view="breakdown"] #breakdownPage .firestore-message.success{color:#15803d}
+/* filter & ekspor daftar */
+#appShell[data-active-view="breakdown"] #breakdownPage .export-controls{justify-content:flex-start;gap:8px}
+#appShell[data-active-view="breakdown"] #breakdownPage .export-controls label{color:#334155;font-size:12px;font-weight:800}
+#appShell[data-active-view="breakdown"] #breakdownPage .export-controls input,#appShell[data-active-view="breakdown"] #breakdownPage .export-controls select{height:40px;padding:0 12px;background:#fff;color:#0f172a;border:1px solid #dbe3f0;border-radius:10px;font:inherit;font-size:13px;font-weight:600;color-scheme:light;outline:none}
+#appShell[data-active-view="breakdown"] #breakdownPage .export-controls button{height:40px;padding:0 16px;font-size:13px;font-weight:700;border-radius:12px}
+#appShell[data-active-view="breakdown"] #breakdownPage #bdExport{background:linear-gradient(135deg,#2f6df6,#1d4fd8)!important;color:#fff!important;box-shadow:0 8px 20px rgba(37,99,235,.28)!important}
+#appShell[data-active-view="breakdown"] #breakdownPage #bdExport:hover{background:linear-gradient(135deg,#4a82ff,#1a44bb)!important}
+/* daftar catatan */
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-list{gap:12px}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item{background:#fff;border:1px solid #e6ecf6;border-radius:14px;padding:14px 16px;color:#334155;font-size:13px;box-shadow:0 2px 8px rgba(30,58,138,.04)}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item:hover{background:#f9fbff;border-color:#c9d8f3}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item-head strong{color:#0b1220;font-size:15px;font-weight:800}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item p{color:#475569}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item b{color:#0f172a}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-status{background:#eaf1ff;color:#1d4fd8;border:1px solid #cfe0fb;padding:4px 12px;font-size:11px}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-empty{background:#fff;border:1px dashed #c3cfe6;border-radius:14px;color:#64748b}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item .actions button{padding:7px 14px;border-radius:999px;background:#fff;border:1px solid #d5dff2;color:#1d4fd8;font-size:12px;font-weight:700}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item .actions button:hover{background:#eaf1ff;border-color:#2563eb}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item .actions .delete-breakdown{background:#fff;border:1px solid #fca5a5;color:#b91c1c}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item .actions .delete-breakdown:hover{background:#fee2e2;border-color:#ef4444}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item .breakdown-download-action .download-breakdown{background:#fff;color:#334155;border:1px solid #dbe3f0}
+#appShell[data-active-view="breakdown"] #breakdownPage .workflow-item .breakdown-download-action .download-breakdown:hover{background:#eaf1ff;border-color:#2563eb}
+@media(max-width:1100px){#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid{grid-template-columns:1fr}}
 </style>
 </body>
 </html>
