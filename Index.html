@@ -779,34 +779,34 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <nav class="sidebar-nav" id="mainNavigation">
         <button type="button" class="active" data-view-target="dashboard" title="Dashboard"><i class="fa-solid fa-house"></i><span class="nav-text">Dashboard</span></button>
         <div class="nav-group is-collapsed" data-nav-group="master">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-database"></i><span class="nav-text">Master Data</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-database"></i><span class="nav-text">MASTER DATA</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Daftar Unit</span></button>
+            <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Unit</span></button>
             <button type="button" data-view-target="users" title="Manajemen Pengguna"><i class="fa-solid fa-user"></i><span class="nav-text">Pengguna</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="planning">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">Perencanaan Maintenance</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-calendar-check"></i><span class="nav-text">PERENCANAAN</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="schedule" title="Jadwal Preventive Maintenance"><i class="fa-solid fa-calendar-days"></i><span class="nav-text">Jadwal PM</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="operations">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">Operasional Maintenance</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-text">OPERASIONAL</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="breakdown" title="Pencatatan Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Data Breakdown</span></button>
+            <button type="button" data-view-target="breakdown" title="Pencatatan Breakdown"><i class="fa-solid fa-triangle-exclamation"></i><span class="nav-text">Breakdown</span></button>
             <button type="button" data-view-target="woImport" title="Impor Data Work Order"><i class="fa-solid fa-file-import"></i><span class="nav-text">Impor WO</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="monitoring">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Monitoring &amp; Analisis</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-chart-line"></i><span class="nav-text">MONITORING</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
-            <button type="button" data-view-target="rateAnalysis" title="Analisa Laju Kerja Unit"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Analisis Laju Unit</span></button>
+            <button type="button" data-view-target="rateAnalysis" title="Analisa Laju Kerja Unit"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Laju Unit</span></button>
             <button type="button" data-view-target="woAnalysis" title="Analisis Work Order"><i class="fa-solid fa-chart-pie"></i><span class="nav-text">Analisis WO</span></button>
           </div>
         </div>
         <div class="nav-group is-collapsed" data-nav-group="approvals">
-          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan &amp; Audit</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
+          <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">PERSETUJUAN &amp; AUDIT</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="reschedule" title="Persetujuan"><i class="fa-solid fa-clipboard-check"></i><span class="nav-text">Persetujuan</span></button>
             <button type="button" data-view-target="history" title="Riwayat Aktivitas"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-text">Riwayat</span></button>
@@ -3298,6 +3298,22 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 }
 #appShell.sidebar-collapsed .nav-group-items{margin-left:0;padding-left:0;border-left:0}
 #appShell.sidebar-collapsed .nav-group-items button::before{display:none}
+</style>
+
+<style id="navigation-hierarchy-final-fix">
+/* Strong visual separation: submenu is a nested rail, never aligned with its parent row. */
+#appShell #mainNavigation{display:grid!important;grid-template-columns:minmax(0,1fr);gap:8px!important;align-items:stretch!important}
+#appShell #mainNavigation>.nav-group{display:grid!important;grid-template-columns:minmax(0,1fr);gap:7px!important;margin:3px 0 7px!important}
+#appShell #mainNavigation>.nav-group>.nav-group-toggle{display:flex!important;width:100%!important;min-height:42px!important;padding:11px 12px!important;margin:0!important;background:#172b45!important;border:1px solid #294765!important;border-left:4px solid #60a5fa!important;border-radius:9px!important;color:#f1f5f9!important;font-size:11px!important;font-weight:800!important;letter-spacing:.075em!important;text-transform:uppercase!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items{display:grid!important;grid-template-columns:minmax(0,1fr);gap:5px!important;margin:3px 0 0 38px!important;padding:8px 8px 8px 15px!important;width:calc(100% - 38px)!important;box-sizing:border-box!important;background:rgba(8,17,31,.62)!important;border:1px solid rgba(96,165,250,.20)!important;border-left:2px solid #64748b!important;border-radius:0 9px 9px 0!important}
+#appShell #mainNavigation>.nav-group.is-collapsed>.nav-group-items{display:none!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]{display:flex!important;align-items:center!important;gap:9px!important;width:100%!important;min-height:35px!important;margin:0!important;padding:8px 10px!important;box-sizing:border-box!important;background:transparent!important;border:1px solid transparent!important;border-radius:7px!important;color:#cbd5e1!important;font-size:12px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;line-height:1.3!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target] i{width:15px!important;flex:0 0 15px!important;color:#94a3b8!important;font-size:11px!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]:hover{background:rgba(96,165,250,.12)!important;border-color:rgba(96,165,250,.24)!important;color:#fff!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target].active{background:rgba(37,99,235,.25)!important;border-left:3px solid #60a5fa!important;color:#fff!important;font-weight:700!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target].active i{color:#bfdbfe!important}
+#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items{margin-left:0!important;width:100%!important;padding:5px!important;border:0!important;background:transparent!important}
+@media(max-width:900px){#appShell #mainNavigation>.nav-group>.nav-group-items{margin-left:30px!important;width:calc(100% - 30px)!important;padding-left:12px!important}}
 </style>
 </body>
 </html>
