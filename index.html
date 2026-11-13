@@ -1076,8 +1076,9 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </section>
 
   <section class="card workflow-page" id="woImportPage" data-view="woImport" hidden aria-labelledby="woImportTitle">
-    <div class="overview-head"><div><h2 id="woImportTitle"><i class="fa-solid fa-file-import"></i> Impor &amp; Analisis WO Selesai</h2><div class="overview-meta">Impor report WO selesai dari sistem resmi. Data hanya disimpan lokal di browser untuk tahap uji; belum menulis ke Firebase.</div></div></div>
-    <div class="wo-panel">
+    <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-file-import"></i></span><div class="ud-head-text"><h2 id="woImportTitle">Impor &amp; Analisis WO</h2><p>Impor report WO selesai dari sistem resmi, lalu lakukan analisis kinerja dan riwayat unit.</p></div></div>
+    <div class="rate-info"><i class="fa-solid fa-circle-info"></i><span>Data hanya disimpan lokal di browser untuk tahap uji; belum menulis ke Firebase.</span></div>
+    <div class="wo-panel wo-upload">
       <h3>1. Unggah report Excel WO selesai</h3>
       <div class="wo-tools"><input id="woExcelFile" type="file" accept=".xlsx,.xls,.csv"><button type="button" class="pdf-btn" id="woPreviewBtn"><i class="fa-solid fa-magnifying-glass"></i> Baca &amp; Pratinjau</button><button type="button" id="woClearPreview">Bersihkan pratinjau</button></div>
       <div class="wo-note">Gunakan report WO selesai dari sistem resmi. Identitas utama adalah WO ID. Baris Task dan Material yang tidak mengulang WO ID akan dikelompokkan ke WO induk. Periksa hasil pratinjau sebelum menyimpan.</div>
@@ -1085,7 +1086,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
       <div class="wo-actions"><button type="button" class="primary" id="woCommitBtn" disabled><i class="fa-solid fa-database"></i> Simpan hasil impor uji</button></div>
     </div>
     <div class="wo-kpi-grid" id="woKpis">
-      <div class="wo-kpi"><small>Total WO</small><strong id="woTotal">0</strong></div><div class="wo-kpi"><small>Total Task</small><strong id="woTaskTotal">0</strong></div><div class="wo-kpi"><small>Total Material Detail</small><strong id="woMaterialTotal">0</strong></div><div class="wo-kpi"><small>Unit terlibat</small><strong id="woUnitTotal">0</strong></div>
+      <div class="wo-kpi"><span class="wo-kpi-ico dk-blue"><i class="fa-solid fa-file-lines"></i></span><div class="wo-kpi-txt"><small>Total WO</small><strong id="woTotal">0</strong></div></div><div class="wo-kpi"><span class="wo-kpi-ico dk-green"><i class="fa-solid fa-list-check"></i></span><div class="wo-kpi-txt"><small>Total Task</small><strong id="woTaskTotal">0</strong></div></div><div class="wo-kpi"><span class="wo-kpi-ico dk-orange"><i class="fa-solid fa-screwdriver-wrench"></i></span><div class="wo-kpi-txt"><small>Total Material Detail</small><strong id="woMaterialTotal">0</strong></div></div><div class="wo-kpi"><span class="wo-kpi-ico dk-purple"><i class="fa-solid fa-truck"></i></span><div class="wo-kpi-txt"><small>Unit terlibat</small><strong id="woUnitTotal">0</strong></div></div>
     </div>
     <div class="wo-grid">
       <div class="wo-panel"><h3>2. Hasil pratinjau impor</h3><div id="woPreviewSummary" class="wo-status">Belum ada pratinjau.</div><div id="woPreviewTable" class="wo-table-wrap"></div></div>
@@ -1238,7 +1239,7 @@ function showApp(user,role){
  $('logoutBtn').title=$('userBadge').textContent;
  window.mbkWelcome='Selamat datang, '+_roleLabel;if(activeView==='dashboard'){const _s=$('activeViewSubtitle');_s.textContent=window.mbkWelcome;_s.classList.add('welcome-line')}
  banner(); render();
- document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown'].includes(activeView));
+ document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown','woImport'].includes(activeView));
  if(activeView==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -2182,7 +2183,7 @@ let activeView='dashboard';
 function setActiveView(view){
  if(!VIEW_META[view])view='dashboard';activeView=view;
  $('appShell').dataset.activeView=view;
- document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown'].includes(view));
+ document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown','woImport'].includes(view));
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];const _sub=$('activeViewSubtitle'),_wel=view==='dashboard'&&window.mbkWelcome;_sub.textContent=_wel||VIEW_META[view][1];_sub.classList.toggle('welcome-line',!!_wel);
  document.querySelectorAll('#appMain [data-view]').forEach(el=>{
@@ -3335,6 +3336,71 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 #appShell[data-active-view="breakdown"] #breakdownPage .workflow-item .breakdown-download-action .download-breakdown{background:#fff;color:#334155;border:1px solid #dbe3f0}
 #appShell[data-active-view="breakdown"] #breakdownPage .workflow-item .breakdown-download-action .download-breakdown:hover{background:#eaf1ff;border-color:#2563eb}
 @media(max-width:1100px){#appShell[data-active-view="breakdown"] #breakdownPage .workflow-grid{grid-template-columns:1fr}}
+</style>
+<style id="woimport-light-theme">
+/* ===== Menu Impor & Analisis WO: tema cerah (sama dengan Jadwal PM, Daftar Unit, Analisa Laju Kerja) ===== */
+#appShell[data-active-view="woImport"] #appMain{--bd:#e1e8f5;--card:#fff;--card-hover:#eef3fd;--in:#f3f6fc;--tx:#0f172a;--mu:#64748b;--ac:#2563eb;--ac-glow:rgba(37,99,235,.15)}
+#appShell[data-active-view="woImport"] .view-heading{display:none}
+#appShell[data-active-view="woImport"] #woImportPage{background:transparent!important;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a!important}
+#appShell[data-active-view="woImport"] #woImportPage .rate-info{margin:0 0 16px}
+/* kartu panel */
+#appShell[data-active-view="woImport"] #woImportPage .wo-panel{background:#fff!important;border:1px solid #e6ecf6!important;border-radius:18px;padding:20px 22px;box-shadow:0 8px 24px rgba(30,58,138,.06);color:#0f172a!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-panel h3{margin:0 0 12px;color:#0b1220;font-size:18px;font-weight:800}
+#appShell[data-active-view="woImport"] #woImportPage .wo-panel h4{color:#0b1220;font-size:15px;font-weight:800;margin:16px 0 8px}
+#appShell[data-active-view="woImport"] #woImportPage .wo-grid{gap:16px;margin-top:16px}
+#appShell[data-active-view="woImport"] #woImportPage .wo-panel+.wo-panel,#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-grid+.wo-grid{margin-top:16px}
+#appShell[data-active-view="woImport"] #woImportPage .wo-note{color:#64748b!important;font-size:12.5px;line-height:1.6}
+#appShell[data-active-view="woImport"] #woImportPage .wo-status{color:#475569!important;font-size:13px}
+#appShell[data-active-view="woImport"] #woImportPage .wo-empty{color:#64748b!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-actions{margin-top:12px}
+/* KPI */
+#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-grid{gap:18px;margin:16px 0 0}
+#appShell[data-active-view="woImport"] #woImportPage .wo-kpi{background:#fff;border:1px solid #edf1f8;border-radius:20px;padding:18px 20px;box-shadow:0 10px 30px rgba(30,58,138,.08)}
+#appShell[data-active-view="woImport"] #woImportPage .wo-kpi small{color:#64748b;font-size:12px;font-weight:700;text-transform:none;letter-spacing:0}
+#appShell[data-active-view="woImport"] #woImportPage .wo-kpi strong{color:#0b1220;font-size:28px;font-weight:800;margin-top:2px}
+#appShell[data-active-view="woImport"] #woImportPage #woKpis .wo-kpi{display:flex;align-items:center;gap:14px}
+#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-ico{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:0 8px 18px rgba(15,23,42,.15)}
+#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-txt{min-width:0}
+/* form unggah & filter */
+#appShell[data-active-view="woImport"] #woImportPage .wo-tools{gap:12px;margin:14px 0}
+#appShell[data-active-view="woImport"] #woImportPage .wo-tools label.search-label{color:#111827;font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+#appShell[data-active-view="woImport"] #woImportPage .wo-tools input,#appShell[data-active-view="woImport"] #woImportPage .wo-tools select,#appShell[data-active-view="woImport"] #woImportPage #woAnalyticsUnitFilter,#appShell[data-active-view="woImport"] #woImportPage #woHistoryExportFormat{height:44px;padding:0 14px;background:#fff!important;color:#0f172a!important;border:1px solid #dbe3f0!important;border-radius:12px;font-size:14px;font-weight:600;color-scheme:light;outline:none}
+#appShell[data-active-view="woImport"] #woImportPage .wo-tools input::placeholder{color:#94a3b8}
+#appShell[data-active-view="woImport"] #woImportPage .wo-tools input:focus,#appShell[data-active-view="woImport"] #woImportPage .wo-tools select:focus{border-color:#2563eb!important;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+#appShell[data-active-view="woImport"] #woImportPage input[type="file"]{flex:1 1 320px;height:auto!important;min-height:64px;padding:14px 16px!important;background:#f5f9ff!important;border:1.5px dashed #93b4f5!important;border-radius:14px!important;color:#334155!important;font-size:13px;cursor:pointer}
+#appShell[data-active-view="woImport"] #woImportPage input[type="file"]::file-selector-button{margin-right:14px;padding:9px 16px;border:0;border-radius:10px;background:#eaf1ff;color:#1d4fd8;font:inherit;font-weight:700;cursor:pointer}
+#appShell[data-active-view="woImport"] #woImportPage .wo-tools button,#appShell[data-active-view="woImport"] #woImportPage .wo-actions button{height:44px;padding:0 20px;border-radius:12px;background:#fff!important;color:#1d4fd8!important;border:1px solid #d5dff2!important;font-size:14px;font-weight:700;box-shadow:none;transform:none}
+#appShell[data-active-view="woImport"] #woImportPage .wo-tools button:hover,#appShell[data-active-view="woImport"] #woImportPage .wo-actions button:hover{background:#eaf1ff!important;border-color:#2563eb!important}
+#appShell[data-active-view="woImport"] #woImportPage #woPreviewBtn,#appShell[data-active-view="woImport"] #woImportPage #woCommitBtn,#appShell[data-active-view="woImport"] #woImportPage #woHistoryExportBtn{background:linear-gradient(135deg,#2f6df6,#1d4fd8)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px rgba(37,99,235,.28)}
+#appShell[data-active-view="woImport"] #woImportPage #woPreviewBtn:hover,#appShell[data-active-view="woImport"] #woImportPage #woCommitBtn:hover:not(:disabled),#appShell[data-active-view="woImport"] #woImportPage #woHistoryExportBtn:hover{background:linear-gradient(135deg,#4a82ff,#1a44bb)!important}
+#appShell[data-active-view="woImport"] #woImportPage #woCommitBtn:disabled{background:#cbd5e1!important;color:#64748b!important;box-shadow:none;cursor:not-allowed}
+#appShell[data-active-view="woImport"] #woImportPage #woClearPreview{background:#eef1f7!important;color:#111827!important;border:0!important}
+#appShell[data-active-view="woImport"] #woImportPage #woClearPreview:hover{background:#e1e7f2!important}
+/* tabel */
+#appShell[data-active-view="woImport"] #woImportPage .wo-table-wrap{background:#fff;border:1px solid #e1e8f5!important;border-radius:14px;margin-top:12px}
+#appShell[data-active-view="woImport"] #woImportPage table{color:#1f2937!important}
+#appShell[data-active-view="woImport"] #woImportPage th{background:#1e293b!important;color:#fff!important;font-size:12px;padding:13px 14px;text-align:left;border:0!important;letter-spacing:.03em}
+#appShell[data-active-view="woImport"] #woImportPage td{background:#fff!important;color:#1f2937!important;border:0!important;border-bottom:1px solid #e8edf6!important;padding:11px 14px;font-size:13.5px}
+#appShell[data-active-view="woImport"] #woImportPage tbody tr:hover td{background:#f6f9ff!important}
+/* pill status */
+#appShell[data-active-view="woImport"] #woImportPage .wo-pill{background:#f1f5f9!important;color:#475569!important;border:1px solid #dbe3f0;padding:3px 12px;font-size:11px}
+#appShell[data-active-view="woImport"] #woImportPage .wo-pill.new{background:#dcfce7!important;color:#15803d!important;border-color:#86efac}
+#appShell[data-active-view="woImport"] #woImportPage .wo-pill.updated{background:#fef3c7!important;color:#b45309!important;border-color:#fcd34d}
+#appShell[data-active-view="woImport"] #woImportPage .wo-pill.same{background:#f1f5f9!important;color:#64748b!important;border-color:#dbe3f0}
+#appShell[data-active-view="woImport"] #woImportPage .wo-pill.warn{background:#fee2e2!important;color:#b91c1c!important;border-color:#fca5a5}
+/* kelompok unit & kartu WO */
+#appShell[data-active-view="woImport"] #woImportPage .wo-unit-group{background:#fff!important;border:1px solid #e6ecf6!important;border-radius:16px;box-shadow:0 2px 8px rgba(30,58,138,.04);color:#0f172a!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-unit-head{background:#f3f6fc!important;color:#0b1220!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-unit-head h4{margin:0;color:#0b1220!important;font-size:16px}
+#appShell[data-active-view="woImport"] #woImportPage .wo-record{border-top:1px solid #e8edf6!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-meta small{color:#64748b!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-meta strong,#appShell[data-active-view="woImport"] #woImportPage .wo-detail-block h5{color:#0b1220!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-detail-body{background:#f8fafc!important;color:#334155!important;border:1px solid #e8edf6;border-radius:12px}
+#appShell[data-active-view="woImport"] #woImportPage .wo-detail-block p{color:#334155!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-detail-toggle{background:#fff!important;color:#1d4fd8!important;border:1px solid #d5dff2!important;border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700}
+#appShell[data-active-view="woImport"] #woImportPage .wo-detail-toggle:hover{background:#eaf1ff!important;border-color:#2563eb!important}
+#appShell[data-active-view="woImport"] #woImportPage .wo-hm{background:#fef3c7!important;color:#b45309!important}
+@media(max-width:760px){#appShell[data-active-view="woImport"] #woImportPage .wo-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </body>
 </html>
