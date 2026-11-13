@@ -3316,20 +3316,66 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 #appShell.sidebar-collapsed .nav-group-items button::before{display:none}
 </style>
 
-<style id="navigation-hierarchy-final-fix">
-/* Strong visual separation: submenu is a nested rail, never aligned with its parent row. */
-#appShell #mainNavigation{display:grid!important;grid-template-columns:minmax(0,1fr);gap:8px!important;align-items:stretch!important}
-#appShell #mainNavigation>.nav-group{display:grid!important;grid-template-columns:minmax(0,1fr);gap:7px!important;margin:3px 0 7px!important}
-#appShell #mainNavigation>.nav-group>.nav-group-toggle{display:flex!important;width:100%!important;min-height:42px!important;padding:11px 12px!important;margin:0!important;background:#172b45!important;border:1px solid #294765!important;border-left:4px solid #60a5fa!important;border-radius:9px!important;color:#f1f5f9!important;font-size:11px!important;font-weight:800!important;letter-spacing:.075em!important;text-transform:uppercase!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items{display:grid!important;grid-template-columns:minmax(0,1fr);gap:5px!important;margin:3px 0 0 38px!important;padding:8px 8px 8px 15px!important;width:calc(100% - 38px)!important;box-sizing:border-box!important;background:rgba(8,17,31,.62)!important;border:1px solid rgba(96,165,250,.20)!important;border-left:2px solid #64748b!important;border-radius:0 9px 9px 0!important}
+
+<style id="nav-two-level-clear">
+/* ===== Navigasi dua tingkat: MENU UTAMA = kartu tebal + ikon; SUBMENU = daftar ringan + garis & titik ===== */
+#appShell #mainNavigation{display:grid!important;grid-template-columns:minmax(0,1fr);gap:6px!important;align-items:stretch!important}
+
+/* --- Tingkat 1: Dashboard & judul grup (kartu solid, huruf kapital, ikon dalam kotak) --- */
+#appShell #mainNavigation>button[data-view-target],
+#appShell #mainNavigation>.nav-group>.nav-group-toggle{
+  display:flex!important;align-items:center!important;gap:11px!important;width:100%!important;min-height:46px!important;
+  margin:0!important;padding:8px 12px!important;box-sizing:border-box!important;
+  background:#1a2f4e!important;border:1px solid #2f4d77!important;border-radius:11px!important;
+  color:#fff!important;font-size:12px!important;font-weight:800!important;letter-spacing:.08em!important;text-transform:uppercase!important;
+  text-align:left!important;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.22)!important}
+#appShell #mainNavigation>button[data-view-target] .nav-text,
+#appShell #mainNavigation>.nav-group>.nav-group-toggle .nav-text{flex:1;font-size:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important;text-transform:inherit!important}
+#appShell #mainNavigation>button[data-view-target]>i:first-child,
+#appShell #mainNavigation>.nav-group>.nav-group-toggle>i:first-child{
+  flex:0 0 17px!important;width:17px!important;height:17px!important;display:inline-block!important;
+  color:#93c5fd!important;font-size:17px!important}
+#appShell #mainNavigation>.nav-group>.nav-group-toggle .group-chevron{flex:0 0 12px!important;width:12px!important;height:12px!important;color:#93c5fd!important;font-size:12px!important;margin-left:auto}
+#appShell #mainNavigation>button[data-view-target]:hover,
+#appShell #mainNavigation>.nav-group>.nav-group-toggle:hover{background:#22406a!important;border-color:#4b78b4!important}
+#appShell #mainNavigation>.nav-group{display:grid!important;grid-template-columns:minmax(0,1fr);gap:0!important;margin:8px 0 0!important}
+/* grup yang submenunya sedang aktif / terbuka diberi penanda di sisi kiri kartu */
+#appShell #mainNavigation>.nav-group:not(.is-collapsed)>.nav-group-toggle,
+#appShell #mainNavigation>.nav-group:has(.nav-group-items button.active)>.nav-group-toggle{border-color:#60a5fa!important;box-shadow:inset 4px 0 0 #60a5fa,0 2px 6px rgba(0,0,0,.22)!important}
+/* Dashboard saat aktif */
+#appShell #mainNavigation>button[data-view-target].active{background:linear-gradient(135deg,#2f6df6,#2459d8)!important;border-color:#60a5fa!important;box-shadow:0 8px 20px rgba(37,99,235,.35)!important}
+#appShell #mainNavigation>button[data-view-target].active>i:first-child{color:#fff!important}
+
+/* --- Tingkat 2: submenu (tanpa kotak, tanpa ikon, indentasi + garis panduan + titik) --- */
 #appShell #mainNavigation>.nav-group.is-collapsed>.nav-group-items{display:none!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]{display:flex!important;align-items:center!important;gap:9px!important;width:100%!important;min-height:35px!important;margin:0!important;padding:8px 10px!important;box-sizing:border-box!important;background:transparent!important;border:1px solid transparent!important;border-radius:7px!important;color:#cbd5e1!important;font-size:12px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;line-height:1.3!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target] i{width:15px!important;flex:0 0 15px!important;color:#94a3b8!important;font-size:11px!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]:hover{background:rgba(96,165,250,.12)!important;border-color:rgba(96,165,250,.24)!important;color:#fff!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target].active{background:rgba(37,99,235,.25)!important;border-left:3px solid #60a5fa!important;color:#fff!important;font-weight:700!important}
-#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target].active i{color:#bfdbfe!important}
-#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items{margin-left:0!important;width:100%!important;padding:5px!important;border:0!important;background:transparent!important}
-@media(max-width:900px){#appShell #mainNavigation>.nav-group>.nav-group-items{margin-left:30px!important;width:calc(100% - 30px)!important;padding-left:12px!important}}
+#appShell #mainNavigation>.nav-group>.nav-group-items{
+  display:grid!important;grid-template-columns:minmax(0,1fr);gap:2px!important;
+  margin:6px 0 2px 22px!important;padding:2px 0 2px 10px!important;width:calc(100% - 22px)!important;box-sizing:border-box!important;
+  background:transparent!important;border:0!important;border-left:2px solid #35557f!important;border-radius:0!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]{
+  position:relative!important;display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;min-height:36px!important;
+  margin:0!important;padding:7px 10px!important;box-sizing:border-box!important;
+  background:transparent!important;border:0!important;border-radius:8px!important;box-shadow:none!important;
+  color:#a9b8cf!important;font-size:12.5px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important;line-height:1.3!important;text-align:left!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]::before{
+  content:""!important;position:static!important;left:auto!important;top:auto!important;border:0!important;
+  flex:0 0 7px;width:7px!important;height:7px;border-radius:50%;background:#5a7499}
+#appShell:not(.sidebar-collapsed) #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]>i:first-child{display:none!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]:hover{background:rgba(96,165,250,.12)!important;color:#fff!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]:hover::before{background:#93c5fd}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target].active{background:rgba(37,99,235,.30)!important;color:#fff!important;font-weight:700!important}
+#appShell #mainNavigation>.nav-group>.nav-group-items>button[data-view-target].active::before{background:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.28)}
+
+/* --- Sidebar diciutkan: hanya ikon --- */
+#appShell.sidebar-collapsed #mainNavigation>button[data-view-target],
+#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-toggle{justify-content:center!important;padding:8px 4px!important;min-height:42px!important}
+#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items{margin:4px 0 0!important;width:100%!important;padding:0!important;border-left:0!important}
+#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]{justify-content:center!important;padding:8px 4px!important}
+#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]::before{display:none!important}
+#appShell.sidebar-collapsed #mainNavigation>.nav-group>.nav-group-items>button[data-view-target]>i:first-child{display:inline-block!important;width:15px!important;height:15px!important;font-size:15px!important;color:#93a8c8!important}
+
+/* --- Layar kecil --- */
+@media(max-width:900px){#appShell #mainNavigation>.nav-group>.nav-group-items{margin-left:18px!important;width:calc(100% - 18px)!important}}
 </style>
 </body>
 </html>
