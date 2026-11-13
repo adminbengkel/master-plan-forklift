@@ -1998,9 +1998,33 @@ function setActiveView(view){
  if(view==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>b.addEventListener('click',()=>setActiveView(b.dataset.viewTarget)));
-// Navigation groups and collapsible sidebar; no data or workflow changes.
+// Navigation groups: hover opens one group at a time on desktop;
+// click remains available for touch/mobile and keyboard users.
+const mainNavigation=document.getElementById('mainNavigation');
+const navGroups=()=>Array.from(mainNavigation?.querySelectorAll('.nav-group')||[]);
+function setOpenNavGroup(target){
+ navGroups().forEach(group=>{
+  const open=!!target&&group===target;
+  group.classList.toggle('is-collapsed',!open);
+  const toggle=group.querySelector('.nav-group-toggle');
+  if(toggle)toggle.setAttribute('aria-expanded',String(open));
+ });
+}
+if(mainNavigation){
+ mainNavigation.addEventListener('pointerover',event=>{
+  if(event.pointerType==='touch'||document.getElementById('appShell')?.classList.contains('sidebar-collapsed'))return;
+  const group=event.target.closest('.nav-group');
+  if(group&&mainNavigation.contains(group))setOpenNavGroup(group);
+ });
+ mainNavigation.addEventListener('pointerleave',event=>{
+  if(event.pointerType==='touch')return;
+  setOpenNavGroup(null);
+ });
+}
 document.querySelectorAll('#mainNavigation .nav-group-toggle').forEach(toggle=>toggle.addEventListener('click',()=>{
- const group=toggle.closest('.nav-group');const collapsed=group.classList.toggle('is-collapsed');toggle.setAttribute('aria-expanded',String(!collapsed));
+ const group=toggle.closest('.nav-group');
+ const isOpen=!group.classList.contains('is-collapsed');
+ setOpenNavGroup(isOpen?null:group);
 }));
 const sidebarCollapseBtn=document.getElementById('sidebarCollapseBtn');
 if(sidebarCollapseBtn)sidebarCollapseBtn.addEventListener('click',()=>{
