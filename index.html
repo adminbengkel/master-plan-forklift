@@ -1091,12 +1091,13 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
   </section>
 
   <section class="card" id="batteryCard" data-view="batteries" hidden>
-    <div class="ud-head">
-      <span class="ud-head-icon"><i class="fa-solid fa-car-battery"></i></span>
-      <div class="ud-head-text"><h2>Data Baterai</h2><p>Cari dan lihat data baterai forklift beserta kondisinya.</p></div>
-      <span class="table-chip ud-total" id="batteryCount">0 baterai</span>
+    <div class="bat-top">
+      <div class="bat-summary" id="batterySummary"></div>
+      <div class="bat-top-right">
+        <span class="table-chip ud-total" id="batteryCount">0 baterai</span>
+        <button type="button" class="bat-add-btn" id="batteryAdd" title="Tambah data baterai"><i class="fa-solid fa-plus"></i> Tambah Baterai</button>
+      </div>
     </div>
-    <div class="bat-summary" id="batterySummary"></div>
     <div class="ud-toolbar">
       <label class="ud-search"><i class="fa-solid fa-magnifying-glass"></i><input id="batterySearch" type="search" placeholder="Cari kode, type, serial, atau keterangan…" aria-label="Cari data baterai" autocomplete="off"></label>
       <button type="button" class="ud-reset-btn" id="batteryReset" title="Reset pencarian dan filter"><i class="fa-solid fa-rotate-left"></i> Reset</button>
@@ -2719,7 +2720,12 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 </style>
 <style id="battery-master-style">
 #batteryCard{background:transparent;border:0;box-shadow:none;padding:0;margin:0;color:#0f172a}
-.bat-summary{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.bat-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 16px}
+.bat-top-right{display:flex;align-items:center;gap:12px}
+.bat-add-btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-radius:12px;border:0;background:linear-gradient(135deg,#2f6df6,#1d4fd8);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.28)}
+.bat-add-btn:hover{filter:brightness(1.08)}
+.bat-new{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:#dbeafe;color:#1d4fd8;font-size:10px;font-weight:800;letter-spacing:.04em;vertical-align:middle}
+.bat-summary{display:flex;gap:10px;flex-wrap:wrap;margin:0}
 .bat-sum{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;border:1px solid transparent}
 .bat-sum b{margin-left:6px;font-size:16px}
 .bat-ok{background:#e7f8ee;color:#15803d;border-color:#b7e8cb}
@@ -2744,7 +2750,7 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 <script src="export-pdf-forklift.js?v=1"></script>
 <!-- Master Data > Data Baterai: data dan logika dipisah ke file tersendiri -->
 <script src="data-baterai.js?v=1"></script>
-<script src="baterai-master.js?v=2"></script>
+<script src="baterai-master.js?v=3"></script>
 <!-- Sesi login: auto-logout 3 jam, Ingat Saya, tampilan halaman login -->
 <script src="auth-session.js?v=1"></script>
 
