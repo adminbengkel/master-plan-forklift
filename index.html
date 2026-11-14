@@ -542,6 +542,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 #appShell[data-active-view="woImport"] #appMain [data-view]:not([data-view="woImport"]) {display:none!important}
 #appShell[data-active-view="woAnalysis"] #appMain [data-view]:not([data-view="woAnalysis"]) {display:none!important}
 #appShell[data-active-view="users"] #appMain [data-view]:not([data-view="users"]) {display:none!important}
+#appShell[data-active-view="batteries"] #appMain [data-view]:not([data-view="batteries"]) {display:none!important}
 #appShell[data-active-view="rateAnalysis"] #appMain [data-view]:not([data-view="rateAnalysis"]) {display:none!important}
 /* Navigation and simulator start compact; expand only on user request */
 #appShell.sidebar-collapsed .app-layout{grid-template-columns:68px minmax(0,1fr)}
@@ -782,6 +783,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
           <button type="button" class="nav-group-toggle" aria-expanded="false"><i class="fa-solid fa-database"></i><span class="nav-text">Master Data</span><i class="fa-solid fa-chevron-down group-chevron"></i></button>
           <div class="nav-group-items">
             <button type="button" data-view-target="units" title="Daftar Unit"><i class="fa-solid fa-truck"></i><span class="nav-text">Daftar Unit</span></button>
+            <button type="button" data-view-target="batteries" title="Data Baterai"><i class="fa-solid fa-car-battery"></i><span class="nav-text">Data Baterai</span></button>
             <button type="button" data-view-target="users" title="Manajemen Pengguna"><i class="fa-solid fa-user"></i><span class="nav-text">Pengguna</span></button>
           </div>
         </div>
@@ -1088,6 +1090,22 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     <p class="workflow-note">Loader, L300, R3, dan unit lain yang belum dimasukkan ke master data belum muncul di daftar ini.</p>
   </section>
 
+  <section class="card" id="batteryCard" data-view="batteries" hidden>
+    <div class="ud-head">
+      <span class="ud-head-icon"><i class="fa-solid fa-car-battery"></i></span>
+      <div class="ud-head-text"><h2>Data Baterai</h2><p>Cari dan lihat data baterai forklift beserta kondisinya.</p></div>
+      <span class="table-chip ud-total" id="batteryCount">0 baterai</span>
+    </div>
+    <div class="bat-summary" id="batterySummary"></div>
+    <div class="ud-toolbar">
+      <label class="ud-search"><i class="fa-solid fa-magnifying-glass"></i><input id="batterySearch" type="search" placeholder="Cari kode, type, serial, atau keterangan…" aria-label="Cari data baterai" autocomplete="off"></label>
+      <button type="button" class="ud-reset-btn" id="batteryReset" title="Reset pencarian dan filter"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+      <div class="ud-select"><select id="batteryFilterMerk" aria-label="Filter merk"><option value="ALL">Semua Merk</option></select><i class="fa-solid fa-chevron-down"></i></div>
+      <div class="ud-select"><select id="batteryFilterKondisi" aria-label="Filter kondisi"><option value="ALL">Semua Kondisi</option><option value="Normal">Normal</option><option value="Drop">Drop</option><option value="Rusak">Rusak</option></select><i class="fa-solid fa-chevron-down"></i></div>
+    </div>
+    <div id="batteryTable"></div>
+  </section>
+
   </main>
     </div>
   </div>
@@ -1198,7 +1216,7 @@ function showApp(user,role){
  $('logoutBtn').title=$('userBadge').textContent;
  window.mbkWelcome='Selamat datang, '+_roleLabel;if(activeView==='dashboard'){const _s=$('activeViewSubtitle');_s.textContent=window.mbkWelcome;_s.classList.add('welcome-line')}
  banner(); render();
- document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown','woImport','woAnalysis','users'].includes(activeView));
+ document.body.classList.add('app-open');document.body.classList.toggle('dash-light',['dashboard','units','batteries','schedule','rateAnalysis','breakdown','woImport','woAnalysis','users'].includes(activeView));
  if(activeView==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 function friendlyAuthError(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Email atau password salah.','auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Email atau password salah.','auth/too-many-requests':'Terlalu banyak percobaan. Coba lagi nanti.','auth/invalid-email':'Format email tidak valid.','auth/network-request-failed':'Jaringan bermasalah. Periksa koneksi internet.'})[c]||('Gagal: '+(e&&e.message||'kesalahan tidak diketahui'));}
@@ -1217,7 +1235,7 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
    if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
    showApp(user,role);
    db.collection('downtime').onSnapshot(sn=>{shared={};sn.docs.forEach(d=>{shared[d.id]=d.data()});render()},err=>{console.error('Firestore downtime:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection downtime: '+firestoreErrorText(err),'error')});
-   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});applyUnitInfoOverrides();render();if(activeView==='units')renderUnitDirectory()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
+   db.collection('laju').onSnapshot(sn=>{lshared={};sn.docs.forEach(d=>{lshared[d.id]=d.data()});applyUnitInfoOverrides();render();if(activeView==='units')renderUnitDirectory();if(activeView==='batteries'&&window.mbkRenderBatteries)window.mbkRenderBatteries()},err=>{console.error('Firestore laju:',err);setFirestoreMessage('historyDbStatus','Gagal membaca collection laju: '+firestoreErrorText(err),'error')});
    workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];
    // Sinkronisasi WO ditunda sampai menu Impor/Analisis dibuka.
    // Listener tetap realtime dan hanya dibuat satu kali per sesi login.
@@ -1968,13 +1986,14 @@ const VIEW_META={
  users:['Manajemen Pengguna','Kelola akun dan peran pengguna aplikasi.'],
  reschedule:['Pengajuan Perubahan PM','Formulir dan daftar pengajuan perubahan PM saja.'],
  units:['Daftar Unit','Cari dan filter daftar unit yang tersedia di master.'],
+ batteries:['Data Baterai','Master data baterai forklift: merk, type, serial, dan kondisi.'],
  history:['Histori Servis & Laporan','Riwayat laporan breakdown dan pengajuan PM saja.']
 };
 let activeView='dashboard';
 function setActiveView(view){
  if(!VIEW_META[view])view='dashboard';activeView=view;
  $('appShell').dataset.activeView=view;
- document.body.classList.toggle('dash-light',['dashboard','units','schedule','rateAnalysis','breakdown','woImport','woAnalysis','users'].includes(view));
+ document.body.classList.toggle('dash-light',['dashboard','units','batteries','schedule','rateAnalysis','breakdown','woImport','woAnalysis','users'].includes(view));
  document.querySelectorAll('#mainNavigation .nav-group').forEach(g=>{if(g.querySelector('[data-view-target="'+view+'"]')){g.classList.remove('is-collapsed');const t=g.querySelector('.nav-group-toggle');if(t)t.setAttribute('aria-expanded','true')}});
  document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>{const active=b.dataset.viewTarget===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
  $('activeViewTitle').textContent=VIEW_META[view][0];const _sub=$('activeViewSubtitle'),_wel=view==='dashboard'&&window.mbkWelcome;_sub.textContent=_wel||VIEW_META[view][1];_sub.classList.toggle('welcome-line',!!_wel);
@@ -1993,6 +2012,7 @@ function setActiveView(view){
   if(typeof window.mbkRenderWoSaved==='function')window.mbkRenderWoSaved();
  }
  if(view==='units')renderUnitDirectory();
+ if(view==='batteries'&&window.mbkRenderBatteries)window.mbkRenderBatteries();
  if(view==='dashboard'){renderDashboardNotifications();renderUnitDonut(true);}
 }
 document.querySelectorAll('#mainNavigation [data-view-target]').forEach(b=>b.addEventListener('click',()=>setActiveView(b.dataset.viewTarget)));
@@ -2697,8 +2717,33 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
 #rateAnalysisPage #rateFilterTools button{background:#1e293b;color:#e2e8f0;border:1px solid #475569;border-radius:8px;padding:9px 12px;cursor:pointer}
 @media(max-width:720px){#rateAnalysisPage #rateFilterTools>div{flex:1 1 100%;min-width:100%!important}}
 </style>
+<style id="battery-master-style">
+.bat-summary{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.bat-sum{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;border:1px solid transparent}
+.bat-sum b{margin-left:6px;font-size:16px}
+.bat-ok{background:#e7f8ee;color:#15803d;border-color:#b7e8cb}
+.bat-warn{background:#fff4de;color:#b45309;border-color:#f6d9a0}
+.bat-bad{background:#fde8e8;color:#b91c1c;border-color:#f5bcbc}
+.bat-na{background:#eef1f7;color:#475569;border-color:#dbe3f0}
+.bat-kondisi{display:inline-block;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid transparent}
+.bat-table{min-width:1100px}
+.bat-table thead th:last-child{text-align:left}
+.bat-table td{white-space:nowrap}.bat-table td:nth-child(8){white-space:normal;min-width:150px}
+#batteryCard .ud-toolbar{flex-wrap:wrap}
+#batteryCard .ud-select{width:200px}
+.bat-edit-box{max-width:640px;max-height:92vh;overflow:auto}
+.bat-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.bat-edit-grid .bat-full{grid-column:1/-1}
+.bat-edit-grid select{width:100%;height:42px;padding:0 12px;border:1px solid #dbe3f0;border-radius:10px;background:#f3f6fc;color:#0f172a;font:inherit;font-size:14px}
+.bat-edited{color:#f59e0b;font-size:10px;margin-left:4px}
+@media(max-width:560px){.bat-edit-grid{grid-template-columns:1fr}}
+@media(max-width:700px){#batteryCard .ud-select{width:100%}}
+</style>
 <!-- Unduh laporan PDF: logika dipisah ke file tersendiri -->
 <script src="export-pdf-forklift.js?v=1"></script>
+<!-- Master Data > Data Baterai: data dan logika dipisah ke file tersendiri -->
+<script src="data-baterai.js?v=1"></script>
+<script src="baterai-master.js?v=2"></script>
 <!-- Sesi login: auto-logout 3 jam, Ingat Saya, tampilan halaman login -->
 <script src="auth-session.js?v=1"></script>
 
