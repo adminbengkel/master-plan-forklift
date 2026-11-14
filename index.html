@@ -1024,7 +1024,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
   <section class="card workflow-page" id="woImportPage" data-view="woImport" hidden aria-labelledby="woImportTitle">
     <div class="ud-head"><span class="ud-head-icon"><i class="fa-solid fa-file-import"></i></span><div class="ud-head-text"><h2 id="woImportTitle">Impor Data Work Order</h2><p>Unggah report WO selesai dari sistem resmi, periksa pratinjau, lalu simpan hasil impor.</p></div></div>
-    <div class="rate-info"><i class="fa-solid fa-circle-info"></i><span>Hasil impor disimpan ke Firebase (koleksi <b>wo_import_records</b>) beserta riwayat impornya, sehingga dapat dilihat dari perangkat lain. Salinan juga disimpan di browser sebagai cache. Penyimpanan hanya bisa dilakukan oleh akun admin atau teknisi.</span></div>
+    <div class="rate-info"><i class="fa-solid fa-circle-info"></i><span>Hasil impor disimpan ke Firebase (koleksi <b>wo_import_records</b>) beserta riwayat impornya, sehingga dapat dilihat dari perangkat lain. Data juga di-cache otomatis di browser agar cepat dibuka dan tetap bisa dilihat saat sinyal lemah. Penyimpanan hanya bisa dilakukan oleh akun admin atau teknisi.</span></div>
     <div class="wo-panel wo-upload">
       <h3>1. Unggah report Excel WO selesai</h3>
       <div class="wo-tools"><input id="woExcelFile" type="file" accept=".xlsx,.xls,.csv"><button type="button" class="pdf-btn" id="woPreviewBtn"><i class="fa-solid fa-magnifying-glass"></i> Baca &amp; Pratinjau</button><button type="button" id="woClearPreview">Bersihkan pratinjau</button></div>
@@ -1209,8 +1209,10 @@ $('logoutBtn').addEventListener('click',()=>auth.signOut());
 
 if(!firebaseConfigReady){showAuth('Setup diperlukan: konfigurasi Firebase belum diisi.');banner();}
 else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();
+ // Cache bawaan Firestore (IndexedDB): data WO tidak lagi disalin ke localStorage yang dibatasi ±5 MB.
+ try{db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn('Cache offline Firestore tidak aktif:',(e&&e.code)||e))}catch(e){console.warn('Cache offline Firestore tidak aktif:',e)}
  auth.onAuthStateChanged(async user=>{
-  if(!user){workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];window.__mbkWoCloudUnsub=null;window.mbkEnsureWoCloudSync=null;breakdownRows=[];rescheduleRows=[];currentUser=null;currentRole=null;window.currentUser=null;window.currentRole=null;window.db=db;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
+  if(!user){if(window.mbkResetWoStore)window.mbkResetWoStore();workflowUnsubs.forEach(fn=>{try{fn()}catch(e){}});workflowUnsubs=[];window.__mbkWoCloudUnsub=null;window.mbkEnsureWoCloudSync=null;breakdownRows=[];rescheduleRows=[];currentUser=null;currentRole=null;window.currentUser=null;window.currentRole=null;window.db=db;canWrite=false;shared={};lshared={};$('appShell').hidden=true;showAuth();return}
   try{const profile=await db.collection('users').doc(user.uid).get();const role=profile.exists?profile.data().role:null;
    if(!['admin','technician','supervisor','head_bengkel','kepala_bengkel','viewer'].includes(role)){showAuth('Akun belum diberi peran akses.');return}
    showApp(user,role);
@@ -1223,7 +1225,7 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
     if(window.__mbkWoCloudUnsub||!window.mbkSetWoCloudRecords)return;
     window.__mbkWoCloudUnsub=db.collection('wo_import_records').onSnapshot(sn=>{
      const cloudRecords=sn.docs.map(d=>({id:d.id,...d.data()}));
-     window.mbkSetWoCloudRecords(cloudRecords);
+     window.mbkSetWoCloudRecords(cloudRecords,{fromCache:!!(sn.metadata&&sn.metadata.fromCache)});
     },err=>{console.error('WO import listener:',err);setFirestoreMessage('woImportStatus','Gagal membaca data WO dari Firebase: '+firestoreErrorText(err),'error')});
     workflowUnsubs.push(window.__mbkWoCloudUnsub);
    };
@@ -1761,19 +1763,13 @@ function rateDowntimeForMonth(repairs,month){
  repairs.forEach(r=>{const a=Math.max(start,r.startMs),b=Math.min(end,r.finishMs);if(b<=a)return;const h=(b-a)/3600000;hours+=h;overlaps.push({...r,monthHours:h,overlapStart:new Date(a).toISOString(),overlapEnd:new Date(b).toISOString()})});
  return {downtimeHours:hours,downtimeDays:hours/24,repairWoCount:overlaps.length,repairHistory:overlaps};
 }
-// Cache lokal untuk mencegah parsing JSON dan pemindaian WO berulang saat grafik 12 bulan dirender.
-// Cache otomatis dibuang ketika isi localStorage berubah (misalnya setelah impor WO).
-let rateWoSourceRaw=null,rateWoSourceStore={records:{}},rateMonthlyRowsCache=new Map();
+// Data WO kini dibaca dari memori aplikasi (disinkronkan dari Firebase), bukan dari localStorage.
+// Cache baris bulanan dibuang otomatis setiap kali isi data WO berubah (nomor versi naik).
+let rateWoSourceVer=-1,rateMonthlyRowsCache=new Map();
 function getRateWoSourceStore(){
- let raw='';
- try{raw=localStorage.getItem('mbk_wo_import_local_v1')||'{"records":{}}'}
- catch(err){console.warn('Data WO lokal tidak dapat dibaca untuk analisa laju kerja:',err);return {records:{}}}
- if(raw!==rateWoSourceRaw){
-  rateWoSourceRaw=raw;rateMonthlyRowsCache.clear();
-  try{rateWoSourceStore=JSON.parse(raw)||{records:{}}}
-  catch(err){console.warn('Data WO lokal tidak dapat dibaca untuk analisa laju kerja:',err);rateWoSourceStore={records:{}}}
- }
- return rateWoSourceStore;
+ const v=window.mbkWoStoreVersion||0;
+ if(v!==rateWoSourceVer){rateWoSourceVer=v;rateMonthlyRowsCache.clear();}
+ return window.mbkGetWoStore?window.mbkGetWoStore():{records:{}};
 }
 function collectMonthlyRateRows(month){
  const cached=rateMonthlyRowsCache.get(month);if(cached)return cached;
@@ -1846,6 +1842,7 @@ function renderRateAnalysis(){
  else if(period.key==='final'&&!snap)$('rateStatus').textContent='Belum ada snapshot final '+rateMonthLabel(month)+'. Tabel menampilkan pratinjau dari data WO yang tersedia; klik “Hitung Rekap Final” untuk menyimpan rekap.';
  else if(period.key==='final'&&snap)$('rateStatus').textContent='Rekap final '+rateMonthLabel(month)+' tersimpan · Versi '+(snap.version||1)+' · '+((snap.revisions||[]).length)+' revisi sebelumnya. WO susulan akan memicu perhitungan ulang otomatis saat impor disimpan.';
  else $('rateStatus').textContent='Periode belum dimulai.';
+ if(!window.mbkWoStoreReady&&period.key!=='upcoming')$('rateStatus').textContent='Memuat data WO dari Firebase… tabel akan diperbarui otomatis setelah data tiba.';
  const revisionHost=$('rateRevisionHistory');if(revisionHost){const revisions=Array.isArray(snap?.revisions)?snap.revisions:[];revisionHost.innerHTML=revisions.length?'<details><summary>Riwayat revisi snapshot ('+revisions.length+' versi sebelumnya)</summary><ol>'+revisions.slice().reverse().map(r=>'<li><b>Versi '+(r.version||'—')+'</b> · '+escapeHtml(r.updatedAt?new Date(r.updatedAt).toLocaleString('id-ID'):'waktu tidak tersedia')+'<br>'+escapeHtml(r.reason||'Snapshot sebelumnya')+' · '+((r.rows||[]).length)+' unit tersimpan</li>').join('')+'</ol></details>':'';}
  $('rateUnitCount').textContent=rows.filter(x=>x.status==='Valid').length;
  $('rateInsufficientCount').textContent=rows.filter(x=>x.status!=='Valid').length;
@@ -1903,6 +1900,7 @@ function renderRateTrend(){
 }
 async function saveMonthlyRateSnapshot(month,reason='Pembaruan manual'){
  const period=ratePeriodState(month);if(period.key==='upcoming')return false;
+ if(!window.mbkWoStoreReady){console.warn('Data WO belum selesai dimuat dari Firebase; rekap laju kerja tidak disimpan.');return false;}
  const rows=collectMonthlyRateRows(month),snapshots=readRateSnapshots(),old=snapshots[month];
  if(!rows.length)return false;
  if(old?.rows)rows.forEach(row=>{if(row.status!=='Valid'){const prev=old.rows.find(x=>x.unitCode===row.unitCode&&x.status==='Valid');if(prev)row.previousValidRate=prev.rate}});
@@ -1924,7 +1922,7 @@ async function updateMonthlyRateSnapshot(){
 }
 let rateReconcileRunning=false;
 async function reconcileRateSnapshots(){
- if(rateReconcileRunning)return;rateReconcileRunning=true;
+ if(rateReconcileRunning||!window.mbkWoStoreReady)return;rateReconcileRunning=true;
  try{
   const snapshots=readRateSnapshots(),months=Object.keys(snapshots).filter(m=>ratePeriodState(m).key==='final').sort();
   for(const month of months){const old=snapshots[month];if(!old?.rows)continue;const fresh=collectMonthlyRateRows(month);
@@ -1989,7 +1987,7 @@ function setActiveView(view){
   else el.style.setProperty('display','none','important');
  });
  if(view==='schedule'){render();}
- if(view==='rateAnalysis'){renderRateAnalysis();}
+ if(view==='rateAnalysis'){if(window.mbkEnsureWoCloudSync)window.mbkEnsureWoCloudSync();renderRateAnalysis();}
  if(view==='woImport'||view==='woAnalysis'){
   if(window.mbkEnsureWoCloudSync)window.mbkEnsureWoCloudSync();
   if(typeof window.mbkRenderWoSaved==='function')window.mbkRenderWoSaved();
@@ -2229,8 +2227,89 @@ const $wo=id=>document.getElementById(id), STORE='mbk_wo_import_local_v1';
 let pending=null;
 const norm=s=>String(s??'').trim().toLowerCase().replace(/[\s_./()-]+/g,'');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const readStore=()=>{try{return JSON.parse(localStorage.getItem(STORE)||'{"records":{},"audit":[]}')}catch(e){return {records:{},audit:[]}}};
-const writeStore=x=>localStorage.setItem(STORE,JSON.stringify(x));
+// ===== Penyimpanan data WO =====
+// Data WO dipegang di memori (sumber: Firebase + cache Firestore), tidak lagi ditulis ke localStorage.
+// localStorage hanya menyimpan riwayat impor yang kecil. Kunci lama (mbk_wo_import_local_v1) dimigrasikan dengan aman.
+const LEGACY_KEY=STORE,AUDIT_KEY='mbk_wo_audit_v2',AUDIT_MAX=1000,VERSION_MAX=5;
+let MEM={records:{},audit:[]},memVer=0,legacyCache,legacyOnlyIds=[],legacyConfirmed=false;
+window.mbkWoStoreReady=false;window.mbkWoStoreVersion=0;
+const bumpStore=()=>{memVer++;window.mbkWoStoreVersion=memVer};
+const expandAudit=a=>({...a,changes:(a.changes||[]).map(x=>typeof x==='string'?{woId:x}:x)});
+function saveAudit(list){
+ const compact=(list||[]).slice(0,AUDIT_MAX).map(a=>({...a,changes:(a.changes||[]).map(x=>typeof x==='string'?x:String(x.woId))}));
+ try{localStorage.setItem(AUDIT_KEY,JSON.stringify(compact))}
+ catch(e){try{localStorage.setItem(AUDIT_KEY,JSON.stringify(compact.map((a,i)=>i<30?a:{...a,changes:[]})))}catch(e2){console.warn('Riwayat impor lokal tidak dapat disimpan:',e2)}}
+}
+function loadAudit(){
+ try{const raw=localStorage.getItem(AUDIT_KEY);if(raw){const a=JSON.parse(raw);if(Array.isArray(a))return a.map(expandAudit)}}catch(e){}
+ try{const old=JSON.parse(localStorage.getItem(LEGACY_KEY)||'null');if(old&&Array.isArray(old.audit)&&old.audit.length){saveAudit(old.audit);return old.audit.map(expandAudit)}}catch(e){}
+ return [];
+}
+MEM.audit=loadAudit();
+const readStore=()=>MEM;
+const writeStore=x=>{MEM=x;bumpStore();saveAudit(MEM.audit||[])};
+const docIdFor=woId=>btoa(unescape(encodeURIComponent(String(woId)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const toRec=row=>({current:row.current,createdAt:row.createdAt||'',updatedAt:row.updatedAt||'',versions:Array.isArray(row.versions)?row.versions.slice(-VERSION_MAX):[]});
+function mergeRows(target,rows){(rows||[]).forEach(row=>{if(!row||!row.woId||!row.current)return;const key=String(row.woId),ex=target[key];if(!ex||String(ex.updatedAt||'')<String(row.updatedAt||''))target[key]=toRec(row)})}
+// Hanya mengambil WO yang ada di file impor (bukan seluruh koleksi). Wajib ke server agar hasil pemeriksaan akurat.
+async function fetchCloudForIds(ids){
+ const docIds=[...new Set(ids.map(docIdFor))],FP=firebase.firestore.FieldPath.documentId(),rows=[];
+ for(let i=0;i<docIds.length;i+=10){
+  const sn=await window.db.collection('wo_import_records').where(FP,'in',docIds.slice(i,i+10)).get({source:'server'});
+  sn.docs.forEach(d=>rows.push(d.data()));
+ }
+ return rows;
+}
+// ----- Migrasi data lama di browser -----
+function loadLegacy(){
+ if(legacyCache!==undefined)return legacyCache;
+ legacyCache=null;
+ try{const raw=localStorage.getItem(LEGACY_KEY);if(raw){const o=JSON.parse(raw);if(o&&o.records&&typeof o.records==='object')legacyCache=o.records}}
+ catch(e){console.warn('Data WO lama di browser tidak dapat dibaca:',e)}
+ return legacyCache;
+}
+function mergeLegacy(next,confirmed){
+ legacyOnlyIds=[];legacyConfirmed=!!confirmed;
+ const legacy=loadLegacy();if(!legacy)return;
+ for(const [id,rec] of Object.entries(legacy)){
+  if(!rec||!rec.current)continue;
+  const cur=next[id];
+  if(!cur||String(cur.updatedAt||'')<String(rec.updatedAt||'')){next[id]=toRec(rec);legacyOnlyIds.push(id)}
+ }
+ // Kunci lama dihapus (membebaskan ruang localStorage) hanya bila semua isinya sudah ada di Firebase.
+ if(confirmed&&!legacyOnlyIds.length){try{localStorage.removeItem(LEGACY_KEY)}catch(e){}legacyCache=null}
+}
+function updateLegacyNotice(){
+ const host=$wo('woCommitBtn')&&$wo('woCommitBtn').parentElement;if(!host)return;
+ let btn=document.getElementById('woLegacyUploadBtn');
+ if(!legacyOnlyIds.length||!legacyConfirmed){if(btn)btn.remove();return}
+ if(!btn){btn=document.createElement('button');btn.type='button';btn.id='woLegacyUploadBtn';btn.addEventListener('click',uploadLegacy);host.appendChild(btn)}
+ btn.title='WO ini hanya tersimpan di browser ini (dari tahap uji sebelumnya) dan belum ada di Firebase.';
+ btn.innerHTML='<i class="fa-solid fa-database"></i> Unggah '+fmt(legacyOnlyIds.length)+' WO dari browser ke Firebase';
+}
+async function uploadLegacy(){
+ if(!legacyOnlyIds.length)return;
+ if(!window.db||!window.currentUser){alert('Sesi Firebase belum aktif. Silakan login ulang.');return}
+ if(!['admin','technician'].includes(window.currentRole)){alert('Hanya admin atau teknisi yang dapat mengunggah data WO ke Firebase.');return}
+ const ids=legacyOnlyIds.slice(),btn=document.getElementById('woLegacyUploadBtn'),now=new Date().toISOString();
+ if(btn)btn.disabled=true;
+ try{
+  for(let i=0;i<ids.length;i+=400){
+   const batch=window.db.batch();
+   ids.slice(i,i+400).forEach(id=>{const rec=MEM.records[id];if(!rec)return;batch.set(window.db.collection('wo_import_records').doc(docIdFor(id)),{woId:String(id),current:rec.current,createdAt:rec.createdAt||now,updatedAt:rec.updatedAt||now,versions:rec.versions||[],source:'official_wo_import',updatedByUid:window.currentUser.uid,updatedByEmail:window.currentUser.email||''},{merge:true})});
+   await batch.commit();
+  }
+  await window.db.collection('audit_logs').add({action:'wo_report_imported',entityType:'wo_import_records',entityId:'local-'+now.replace(/[^0-9]/g,''),details:{at:now,file:'(data lama dari browser)',total:ids.length,new:ids.length,updated:0,same:0,unmatched:0,errors:0,recordCount:ids.length,changes:[]},actorUid:window.currentUser.uid,actorEmail:window.currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  try{localStorage.removeItem(LEGACY_KEY)}catch(e){}
+  legacyCache=null;legacyOnlyIds=[];updateLegacyNotice();
+  alert(fmt(ids.length)+' WO dari browser ini berhasil diunggah ke Firebase.');
+ }catch(err){
+  console.error('Unggah WO lama ke Firebase:',err);
+  alert('Unggah belum berhasil.\n'+(err.code||'')+' '+(err.message||String(err)));
+ }finally{if(btn)btn.disabled=false}
+}
+window.mbkGetWoStore=()=>MEM;
+window.mbkResetWoStore=()=>{MEM={records:{},audit:MEM.audit};legacyOnlyIds=[];legacyConfirmed=false;window.mbkWoStoreReady=false;bumpStore();try{updateLegacyNotice();renderSaved()}catch(e){}};
 const fmt=n=>Number(n||0).toLocaleString('id-ID');
 const headerMap={woid:['woid','workorderid','nomorwo','nowo'],wocategory:['wocategory','workcategory','maintenancecategory','category','kategori','jenispekerjaan','worktype'],equipmentcode:['equipmentcode','kodeunit','equipment'],slot:['slot'],location:['location','lokasi'],description:['description','deskripsi'],diagnosa:['diagnosa','diagnosis'],startdiagnosa:['startdiagnosa'],finishdiagnosa:['finishdiagnosa'],ordercreate:['ordercreate','tanggalbuatwo'],orderapproved:['orderapproved'],assignedto:['assignedto'],actualorderstart:['actualorderstart'],actualorderfinish:['actualorderfinish','actualfinish','tanggalwofinish'],actualorderfinishapproved:['actualorderfinishapproved'],actualordertime:['actualordertime'],planorderstart:['planorderstart'],planorderfinish:['planorderfinish'],totaltasktime:['totaltasktime'],planvsactual:['planvsactual'],taskcode:['taskcode'],taskdesc:['taskdesc','taskdescription'],taskstart:['taskstart'],taskfinish:['taskfinish'],taskstartvstaskfinish:['taskstartvstaskfinish'],estimatedtime:['estimatedtime'],estimatedtimevsactualfinish:['estimatedtimevsactualfinish'],partcode:['partcode'],item:['item','material'],qty:['qty','quantity']};
 function pick(row,aliases){for(const k of Object.keys(row)){if(aliases.includes(norm(k)))return row[k]}return ''}
@@ -2314,7 +2393,8 @@ function renderWoCards(records,statusFor){
  }).join('');
 }
 function wireWoDetailButtons(root){if(root.dataset.woDetailsWired)return;root.dataset.woDetailsWired='1';root.addEventListener('click',e=>{const b=e.target.closest('.wo-detail-toggle');if(!b)return;const panel=document.getElementById(b.getAttribute('aria-controls'));if(!panel)return;const open=panel.hidden;panel.hidden=!open;b.setAttribute('aria-expanded',String(open));b.textContent=open?'Tutup rincian':'Rincian';});}
-function preview(){const f=$wo('woExcelFile').files[0];if(!f){alert('Pilih file Excel terlebih dahulu.');return}if(!window.XLSX){$wo('woImportStatus').textContent='Memuat library Excel…';window.mbkLoadXLSX().then(()=>preview()).catch(()=>{$wo('woImportStatus').textContent='Library pembaca Excel gagal dimuat. Periksa koneksi internet lalu coba lagi.'});return}
+function preview(){const f=$wo('woExcelFile').files[0];if(!f){alert('Pilih file Excel terlebih dahulu.');return}
+if(!window.mbkWoStoreReady){if(window.mbkEnsureWoCloudSync)window.mbkEnsureWoCloudSync();$wo('woImportStatus').textContent='Data WO dari Firebase masih dimuat. Tunggu sebentar lalu klik Pratinjau lagi.';return}if(!window.XLSX){$wo('woImportStatus').textContent='Memuat library Excel…';window.mbkLoadXLSX().then(()=>preview()).catch(()=>{$wo('woImportStatus').textContent='Library pembaca Excel gagal dimuat. Periksa koneksi internet lalu coba lagi.'});return}
  const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});const parsed=parseRows(rows,f.name);pending=parsed;const c=classify(parsed.records);$wo('woImportStatus').textContent=`File: ${f.name}\nSheet: ${wb.SheetNames[0]} · Baris data: ${parsed.sourceRows}\n${summaryHtml(parsed.records)}\nBaris tanpa WO induk: ${parsed.errors.length}`;$wo('woPreviewSummary').innerHTML=`<span class="wo-pill new">${fmt(c.fresh.length)} WO baru</span> <span class="wo-pill updated">${fmt(c.updated.length)} WO berubah</span> <span class="wo-pill same">${fmt(c.same.length)} tidak berubah</span> <span class="wo-pill warn">${fmt(c.unmatched.length)} unit belum terdaftar</span><br><br>${parsed.errors.slice(0,8).map(esc).join('<br>')||'Tidak ditemukan baris tanpa WO induk.'}`;
  $wo('woPreviewTable').innerHTML=renderWoCards(parsed.records, r=>c.fresh.some(x=>x.woId===r.woId)?'Baru':c.updated.some(x=>x.record.woId===r.woId)?'Berubah':'Sama');wireWoDetailButtons($wo('woPreviewTable'));$wo('woCommitBtn').disabled=false;
  
@@ -2324,15 +2404,17 @@ async function commit(){
  if(!pending)return;
  if(!window.db||!window.currentUser){alert('Sesi Firebase belum aktif. Silakan login ulang sebelum menyimpan impor.');return}
  if(!['admin','technician'].includes(window.currentRole)){alert('Hanya admin atau teknisi yang dapat menyimpan impor WO ke Firebase.');return}
- const local=readStore();
+ // Salinan kerja: data di memori baru diganti setelah Firebase menerima semua perubahan.
+ const local={records:{...MEM.records},audit:MEM.audit.slice()};
  const btn=$wo('woCommitBtn');btn.disabled=true;$wo('woImportStatus').textContent='Memeriksa data WO yang sudah ada di Firebase…';
  try{
-  const cloudSnapshot=await window.db.collection('wo_import_records').get();
-  cloudSnapshot.docs.forEach(doc=>{const row=doc.data();if(!row||!row.woId||!row.current)return;const key=String(row.woId),existing=local.records[key];if(!existing||String(existing.updatedAt||'')<String(row.updatedAt||'')){local.records[key]={current:row.current,createdAt:row.createdAt||'',updatedAt:row.updatedAt||'',versions:Array.isArray(row.versions)?row.versions:[]}}});
+  // Hanya WO yang ada di file ini yang diperiksa, bukan seluruh koleksi.
+  mergeRows(local.records,await fetchCloudForIds(Object.keys(pending.records)));
  }catch(readErr){btn.disabled=false;$wo('woImportStatus').textContent='Tidak dapat membaca data WO di Firebase: '+(window.firestoreErrorText?window.firestoreErrorText(readErr):readErr.message);alert('Impor dibatalkan karena data lama di Firebase tidak dapat dibaca. Tidak ada data yang ditulis. Periksa izin baca collection wo_import_records.');return}
  const c=classify(pending.records,local),now=new Date().toISOString(),changes=[];
- for(const r of c.fresh){local.records[r.woId]={current:r,createdAt:now,updatedAt:now,versions:[{at:now,source:'import',data:r}]};changes.push({woId:r.woId,type:'baru'})}
- for(const x of c.updated){const rec=local.records[x.record.woId];rec.current=x.record;rec.updatedAt=now;rec.versions=rec.versions||[];rec.versions.push({at:now,source:'import',data:x.record});changes.push({woId:x.record.woId,type:'diperbarui'})}
+ for(const r of c.fresh){local.records[r.woId]={current:r,createdAt:now,updatedAt:now,versions:[]};changes.push({woId:r.woId,type:'baru'})}
+ // Riwayat versi menyimpan kondisi WO sebelum diubah, maksimal VERSION_MAX terakhir.
+ for(const x of c.updated){const old=local.records[x.record.woId]||{};local.records[x.record.woId]={current:x.record,createdAt:old.createdAt||now,updatedAt:now,versions:[...(old.versions||[]),{at:now,source:'import',data:old.current}].slice(-VERSION_MAX)};changes.push({woId:x.record.woId,type:'diperbarui'})}
  const audit={at:now,file:$wo('woExcelFile').files[0]?.name||'File Excel',period:'Berdasarkan Actual Order Finish',total:Object.keys(pending.records).length,new:c.fresh.length,updated:c.updated.length,same:c.same.length,unmatched:c.unmatched.length,errors:pending.errors.length,changes};
  $wo('woImportStatus').textContent='Menyimpan '+changes.length+' WO baru/berubah ke Firebase…';
  try{
@@ -2341,14 +2423,14 @@ async function commit(){
    const batch=window.db.batch();
    changedIds.slice(i,i+chunkSize).forEach(woId=>{
     const record=local.records[woId];if(!record)return;
-    const docId=btoa(unescape(encodeURIComponent(String(woId)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-    batch.set(window.db.collection('wo_import_records').doc(docId),{woId:String(woId),current:record.current,createdAt:record.createdAt||now,updatedAt:record.updatedAt||now,versions:record.versions||[],source:'official_wo_import',updatedByUid:window.currentUser.uid,updatedByEmail:window.currentUser.email||''},{merge:true});
+    batch.set(window.db.collection('wo_import_records').doc(docIdFor(woId)),{woId:String(woId),current:record.current,createdAt:record.createdAt||now,updatedAt:record.updatedAt||now,versions:record.versions||[],source:'official_wo_import',updatedByUid:window.currentUser.uid,updatedByEmail:window.currentUser.email||''},{merge:true});
    });
    await batch.commit();
   }
   await window.db.collection('audit_logs').add({action:'wo_report_imported',entityType:'wo_import_records',entityId:'batch-'+now.replace(/[^0-9]/g,''),details:{...audit,recordCount:changedIds.length},actorUid:window.currentUser.uid,actorEmail:window.currentUser.email||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  const shown=window.mbkWoStoreReady?Object.fromEntries(Object.entries(local.records).map(([k,v])=>[k,v.current])):pending.records;
   local.audit.unshift(audit);writeStore(local);pending=null;btn.disabled=true;
-  $wo('woImportStatus').textContent='Impor berhasil disimpan ke Firebase. '+summaryHtml(Object.fromEntries(Object.entries(local.records).map(([k,v])=>[k,v.current])));
+  $wo('woImportStatus').textContent='Impor berhasil disimpan ke Firebase. '+summaryHtml(shown);
   renderSaved();alert('Impor berhasil. Data WO dan riwayat impor sudah tersimpan di Firebase.');
  }catch(err){
   console.error('Simpan impor WO ke Firebase:',err);btn.disabled=false;
@@ -2356,12 +2438,14 @@ async function commit(){
   alert('Impor belum tersimpan ke Firebase.\n'+(err.code||'')+' '+(err.message||String(err))+'\nPeriksa Firestore Rules. Pratinjau tetap tersedia, silakan perbaiki akses lalu coba Simpan lagi.');
  }
 }
-function setCloudRecords(cloudRows){
- const local=readStore();let changed=false;
- (cloudRows||[]).forEach(row=>{if(!row||!row.woId||!row.current)return;const key=String(row.woId),existing=local.records[key];
-  if(!existing||String(existing.updatedAt||'')<String(row.updatedAt||'')){local.records[key]={current:row.current,createdAt:row.createdAt||'',updatedAt:row.updatedAt||'',versions:Array.isArray(row.versions)?row.versions:[]};changed=true}
- });
- if(changed){writeStore(local);renderSaved();}
+function setCloudRecords(cloudRows,meta){
+ const next={},confirmed=!(meta&&meta.fromCache);
+ mergeRows(next,cloudRows);
+ if(confirmed||Object.keys(next).length>0)window.mbkWoStoreReady=true;
+ mergeLegacy(next,confirmed);
+ MEM={records:next,audit:MEM.audit};bumpStore();
+ renderSaved();updateLegacyNotice();
+ if(typeof activeView!=='undefined'&&activeView==='rateAnalysis'&&window.mbkRefreshRateAnalysis)window.mbkRefreshRateAnalysis();
 }
 window.mbkSetWoCloudRecords=setCloudRecords;
 window.mbkRenderWoSaved=renderSaved;
@@ -2589,7 +2673,7 @@ $wo('woRefreshBtn').addEventListener('click',()=>{
   if(!latest||!latest.records||typeof latest.records!=='object')throw new Error('Format penyimpanan WO tidak valid.');
   refreshWoUnitOptions();
   renderSaved();
-  $wo('woAnalysisStatus').textContent='Refresh berhasil: seluruh filter pencarian dikosongkan dan '+Object.keys(latest.records).length+' WO dimuat ulang dari penyimpanan browser.';
+  $wo('woAnalysisStatus').textContent='Refresh berhasil: seluruh filter pencarian dikosongkan dan '+Object.keys(latest.records).length+' WO dimuat ulang dari data Firebase yang sudah tersinkron.';
  }catch(err){
   $wo('woAnalysisStatus').textContent='Refresh gagal: '+(err&&err.message?err.message:String(err));
  }
