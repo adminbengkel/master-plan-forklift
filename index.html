@@ -1070,7 +1070,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div class="rate-info"><i class="fa-solid fa-circle-info"></i><div id="rateStatus" class="firestore-message" role="status" aria-live="polite">Pilih periode lalu hitung laju kerja dari catatan HM WO Aktual.</div></div><div id="rateRevisionHistory" class="rate-revision-history"></div>
     <div class="wo-kpi-grid" id="rateKpis"><div class="wo-kpi rk"><span class="rk-icon rk-blue"><i class="fa-solid fa-truck"></i></span><div class="rk-body"><small>Unit berhasil dihitung</small><strong id="rateUnitCount">0</strong></div><i class="fa-solid fa-truck rk-wm"></i></div><div class="wo-kpi rk"><span class="rk-icon rk-orange"><i class="fa-solid fa-circle-exclamation"></i></span><div class="rk-body"><small>Belum cukup data</small><strong id="rateInsufficientCount">0</strong></div><i class="fa-solid fa-circle-exclamation rk-wm"></i></div><div class="wo-kpi rk"><span class="rk-icon rk-green"><i class="fa-solid fa-clipboard-check"></i></span><div class="rk-body"><small>WO dengan HM valid</small><strong id="rateReadingCount">0</strong></div><i class="fa-solid fa-clipboard-check rk-wm"></i></div><div class="wo-kpi rk"><span class="rk-icon rk-purple"><i class="fa-solid fa-calendar-days"></i></span><div class="rk-body"><small>Periode</small><strong id="ratePeriodLabel">—</strong></div><i class="fa-solid fa-calendar-days rk-wm"></i></div></div>
-    <div class="wo-panel rate-results-panel"><div class="rate-section-heading"><h3><i class="fa-solid fa-chart-column"></i> Hasil pembaruan periode</h3><button type="button" id="rateResultsToggle" class="rate-collapse-btn" aria-expanded="false" aria-controls="rateResultsBody"><i class="fa-solid fa-chevron-down"></i> Maksimalkan</button></div><div id="rateResultsBody" hidden><div id="rateResults" class="wo-table-wrap"><div class="workflow-empty">Belum ada hasil perhitungan.</div></div></div></div>
+    <div class="wo-panel rate-results-panel"><div class="rate-section-heading"><h3><i class="fa-solid fa-chart-column"></i> Hasil pembaruan periode</h3><button type="button" id="rateResultsToggle" class="rate-collapse-btn" aria-expanded="false" aria-controls="rateResultsBody"><i class="fa-solid fa-chevron-down"></i> Maksimalkan</button><div class="export-controls rate-export-controls"><label class="sr-only" for="rateExportFormat">Format ekspor laju kerja</label><select id="rateExportFormat" aria-label="Pilihan format ekspor"><option value="excel">Excel</option><option value="pdf">PDF</option></select><button type="button" class="rate-collapse-btn" id="rateExportBtn" title="Ekspor hasil periode sesuai filter aktif"><i class="fa-solid fa-file-export"></i> Export File</button></div></div><div id="rateResultsBody" hidden><div id="rateResults" class="wo-table-wrap"><div class="workflow-empty">Belum ada hasil perhitungan.</div></div></div></div>
     <div class="wo-panel rate-trend-panel" style="margin-top:12px"><h3><i class="fa-solid fa-chart-line"></i> Grafik tren laju kerja bulanan</h3><div class="overview-meta" style="margin-bottom:10px">Pilih satu unit melalui pencarian kode unit untuk menampilkan grafiknya.</div><div id="rateTrendCharts" class="rate-trend-charts"><div class="workflow-empty">Pilih kode unit untuk menampilkan grafik tren laju kerja bulanan.</div></div><h3 style="margin-top:18px">Rincian tren bulanan</h3><div id="rateTrend" class="wo-table-wrap"><div class="workflow-empty">Pilih kode unit untuk menampilkan rincian tren bulanan.</div></div></div>
     <p class="wo-note">Metode: HM harus tercatat eksplisit pada deskripsi WO. Minimal dua pencatatan HM valid dalam bulan yang sama. Garis biru = ΔHM ÷ hari kalender; garis kuning = ΔHM ÷ waktu pengukuran setelah dikurangi downtime WO kategori Perbaikan. Downtime dihitung dari Actual Order Start sampai Actual Order Finish dan dibagi ke setiap bulan berdasarkan jam aktual. Jika downtime mencapai 80% atau lebih, tampilkan peringatan; jika satu bulan 100% downtime, laju waktu tersedia ditampilkan N/A. Selama bulan berjalan, hasil berstatus <b>Sementara</b> dan dapat diperbarui setiap kali data WO baru diimpor. Setelah bulan berakhir, periode berubah menjadi <b>Final</b>. Unit tanpa pencatatan HM tetap ditampilkan; data yang belum cukup tidak dianggap bernilai nol.</p>
   </section>
@@ -1244,8 +1244,9 @@ else {try {firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=fireba
     if(window.__mbkWoCloudUnsub||!window.mbkSetWoCloudRecords)return;
     window.__mbkWoCloudUnsub=db.collection('wo_import_records').onSnapshot(sn=>{
      const cloudRecords=sn.docs.map(d=>({id:d.id,...d.data()}));
+     window.mbkWoCloudMeta={fromCache:!!(sn.metadata&&sn.metadata.fromCache),count:cloudRecords.length,error:''};
      window.mbkSetWoCloudRecords(cloudRecords,{fromCache:!!(sn.metadata&&sn.metadata.fromCache)});
-    },err=>{console.error('WO import listener:',err);setFirestoreMessage('woImportStatus','Gagal membaca data WO dari Firebase: '+firestoreErrorText(err),'error')});
+    },err=>{console.error('WO import listener:',err);window.__mbkWoCloudUnsub=null;window.mbkWoCloudMeta={fromCache:false,count:0,error:firestoreErrorText(err)};setFirestoreMessage('woImportStatus','Gagal membaca data WO dari Firebase: '+firestoreErrorText(err),'error');if(typeof renderRateAnalysis==='function'&&activeView==='rateAnalysis')renderRateAnalysis()});
     workflowUnsubs.push(window.__mbkWoCloudUnsub);
    };
    workflowUnsubs.push(db.collection('breakdown_reports').orderBy('createdAt','desc').limit(100).onSnapshot(sn=>{breakdownRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderWorkflowLists();setFirestoreMessage('breakdownDbStatus','Data breakdown berhasil disinkronkan.','success');setFirestoreMessage('historyDbStatus','Riwayat berhasil disinkronkan.','success')},err=>{console.error('Breakdown listener:',err);const msg='Gagal membaca laporan breakdown: '+firestoreErrorText(err);['breakdownList','breakdownHistoryList'].forEach(id=>{if($(id))$(id).innerHTML='<div class="workflow-empty">'+workflowEsc(msg)+'</div>'});setFirestoreMessage('breakdownDbStatus',msg,'error');setFirestoreMessage('historyDbStatus',msg,'error')}));
@@ -1862,6 +1863,12 @@ function renderRateAnalysis(){
  else if(period.key==='final'&&snap)$('rateStatus').textContent='Rekap final '+rateMonthLabel(month)+' tersimpan · Versi '+(snap.version||1)+' · '+((snap.revisions||[]).length)+' revisi sebelumnya. WO susulan akan memicu perhitungan ulang otomatis saat impor disimpan.';
  else $('rateStatus').textContent='Periode belum dimulai.';
  if(!window.mbkWoStoreReady&&period.key!=='upcoming')$('rateStatus').textContent='Memuat data WO dari Firebase… tabel akan diperbarui otomatis setelah data tiba.';
+ {const meta=window.mbkWoCloudMeta,st=getRateWoSourceStore(),n=Object.keys(st.records||{}).length;
+  if(period.key!=='upcoming'){
+   if(meta&&meta.error)$('rateStatus').textContent='GAGAL membaca data WO dari Firebase: '+meta.error;
+   else if(window.mbkWoStoreReady&&n===0)$('rateStatus').textContent+=' ⚠ Tidak ada data WO yang termuat dari Firebase'+(meta&&meta.fromCache?' (baru dari cache, menunggu server)':'')+'. Impor WO terlebih dahulu atau periksa izin baca koleksi wo_import_records.';
+   else if(window.mbkWoStoreReady)$('rateStatus').textContent+=' [WO termuat: '+n.toLocaleString('id-ID')+(meta?(meta.fromCache?', sumber: cache — menunggu server':', sumber: server'):'')+']';
+  }}
  const revisionHost=$('rateRevisionHistory');if(revisionHost){const revisions=Array.isArray(snap?.revisions)?snap.revisions:[];revisionHost.innerHTML=revisions.length?'<details><summary>Riwayat revisi snapshot ('+revisions.length+' versi sebelumnya)</summary><ol>'+revisions.slice().reverse().map(r=>'<li><b>Versi '+(r.version||'—')+'</b> · '+escapeHtml(r.updatedAt?new Date(r.updatedAt).toLocaleString('id-ID'):'waktu tidak tersedia')+'<br>'+escapeHtml(r.reason||'Snapshot sebelumnya')+' · '+((r.rows||[]).length)+' unit tersimpan</li>').join('')+'</ol></details>':'';}
  $('rateUnitCount').textContent=rows.filter(x=>x.status==='Valid').length;
  $('rateInsufficientCount').textContent=rows.filter(x=>x.status!=='Valid').length;
@@ -1976,6 +1983,45 @@ $('rateSearch').addEventListener('input',()=>{
 });
 $('rateFilterReset').addEventListener('click',()=>{$('rateCategoryFilter').value='';$('rateSearch').value='';refreshRateFilterOptions();$('rateUnitFilter').value='';renderRateAnalysis()});
 window.mbkRefreshRateAnalysis=renderRateAnalysis;
+// ===== Export Analisa Laju Kerja (Excel / PDF) =====
+function rateExportNum(v,d=2){return v==null||!Number.isFinite(Number(v))?'':Number(Number(v).toFixed(d))}
+function buildRateExport(){
+ const month=$('rateMonth').value||'',period=ratePeriodState(month),snap=readRateSnapshots()[month];
+ const all=period.key==='upcoming'?[]:(period.key==='provisional'?collectMonthlyRateRows(month):(snap?.rows||collectMonthlyRateRows(month)));
+ const rows=rateFilteredRows(all);
+ const typeSel=$('rateCategoryFilter').value,unitSel=$('rateUnitFilter').value,q=String($('rateSearch').value||'').trim();
+ const filters='Periode: '+rateMonthLabel(month)+' ('+period.label+') | Jenis unit: '+(typeSel?rateTypeLabel(typeSel):'Semua')+' | Unit: '+(unitSel||'Semua')+(q?' | Pencarian: '+q:'');
+ const headers=['No.','Kode Unit','Nama Unit','Jenis Unit','HM Awal','HM Akhir','Tanggal HM Awal','Tanggal HM Akhir','Rentang Hari','Jumlah Catatan HM','Laju Kalender (HM/hari)','Laju Waktu Tersedia (HM/hari)','Downtime (jam)','Downtime (%)','WO Perbaikan','Status'];
+ const data=rows.map((x,i)=>[i+1,x.unitCode,x.unitName||'',rateTypeLabel(x.category),x.firstHM??'',x.lastHM??'',x.firstDate||'',x.lastDate||'',x.days||0,x.readingCount||0,rateExportNum(x.rate),x.availabilityRate==null?(x.availabilityStatus||''):rateExportNum(x.availabilityRate),rateExportNum(x.downtimeHours,1),rateExportNum(x.downtimePercent,1),x.repairWoCount||0,x.status]);
+ // Tren 12 bulan hanya jika filter mengerucut ke satu unit.
+ const codes=[...new Set(rows.map(r=>r.unitCode))];
+ const trendHeaders=['Periode','Kode Unit','Laju Kalender (HM/hari)','Laju Waktu Tersedia (HM/hari)','Downtime (jam)','Downtime (%)','WO Perbaikan','Status'];
+ const trend=[];
+ if(codes.length===1){
+  for(let i=11;i>=0;i--){const d=new Date(Number(month.slice(0,4)),Number(month.slice(5,7))-1-i,1),m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+   if(ratePeriodState(m).key==='upcoming')continue;
+   const r=collectMonthlyRateRows(m).find(x=>x.unitCode===codes[0]);
+   trend.push([rateMonthLabel(m),codes[0],r?rateExportNum(r.rate):'',r?(r.availabilityRate==null?(r.availabilityStatus||''):rateExportNum(r.availabilityRate)):'',r?rateExportNum(r.downtimeHours,1):'',r?rateExportNum(r.downtimePercent,1):'',r?r.repairWoCount||0:'',r?r.status:'Belum ada data']);}
+ }
+ return {month,filters,headers,data,trendHeaders,trend,valid:rows.filter(x=>x.status==='Valid').length};
+}
+function exportRateAnalysis(){
+ const fmtSel=$('rateExportFormat').value,ex=buildRateExport();
+ if(!ex.data.length){alert('Tidak ada data laju kerja sesuai filter aktif untuk diekspor.');return}
+ const title='ANALISA LAJU KERJA UNIT — MBK',summary='Total unit: '+ex.data.length+' | Unit valid: '+ex.valid+' | Belum cukup data: '+(ex.data.length-ex.valid);
+ if(fmtSel==='excel'){
+  if(!window.XLSX){window.mbkLoadXLSX().then(exportRateAnalysis).catch(()=>alert('Fitur Excel belum siap. Periksa koneksi internet lalu coba lagi.'));return}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([[title],[ex.filters],[summary],[],ex.headers,...ex.data]);
+  ws['!cols']=[6,12,24,16,10,10,14,14,10,12,16,18,12,12,12,28].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,'Hasil Periode');
+  if(ex.trend.length){const wt=XLSX.utils.aoa_to_sheet([[title+' — Tren 12 Bulan'],[ex.filters],[],ex.trendHeaders,...ex.trend]);wt['!cols']=[18,12,18,20,14,12,12,28].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,wt,'Tren 12 Bulan');}
+  XLSX.writeFile(wb,'Analisa-Laju-Kerja-MBK-'+ex.month+'.xlsx');return;
+ }
+ const w=window.open('','_blank');if(!w){alert('Popup diblokir browser. Izinkan popup untuk membuat PDF.');return}
+ const tbl=(h,d)=>'<table><thead><tr>'+h.map(x=>'<th>'+escapeHtml(x)+'</th>').join('')+'</tr></thead><tbody>'+d.map(r=>'<tr>'+r.map(v=>'<td>'+escapeHtml(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ w.document.open();w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+title+'</title><style>body{font:9px Arial,sans-serif;color:#111;margin:0;padding:8mm}h1{font-size:15px;margin:0 0 4px}h2{font-size:11px;margin:12px 0 4px}.meta{font-size:9px;margin-bottom:6px}table{border-collapse:collapse;width:100%;font-size:8px;margin:4px 0}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #888;padding:3px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e9edf2}@page{size:A4 landscape;margin:8mm}</style></head><body><h1>'+title+'</h1><div class="meta">'+escapeHtml(ex.filters)+'<br>'+escapeHtml(summary)+' | Dicetak: '+escapeHtml(new Date().toLocaleString('id-ID'))+'</div>'+tbl(ex.headers,ex.data)+(ex.trend.length?'<h2>Tren 12 bulan — '+escapeHtml(ex.trend[0][1])+'</h2>'+tbl(ex.trendHeaders,ex.trend):'')+'<div class="meta">Catatan: kolom kosong berarti data belum cukup, bukan bernilai nol.</div><script>window.onload=function(){setTimeout(function(){window.print()},300)};<\/script></body></html>');w.document.close();
+}
+$('rateExportBtn').addEventListener('click',exportRateAnalysis);
 
 const VIEW_META={
  dashboard:['Dashboard','Ringkasan kondisi PM dan notifikasi penting.'],
