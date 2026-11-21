@@ -771,6 +771,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
 
 <div id="appShell" class="date-home" hidden>
   <span id="userBadge" hidden></span>
+  <div id="mobileNavBackdrop" class="mobile-nav-backdrop"></div>
 
   <div class="app-layout">
     <div class="sidebar-col">
@@ -819,6 +820,7 @@ body { max-width: 1600px; background: radial-gradient(ellipse at 20% 0%, #172235
     </div>
     <div class="app-content">
     <div class="app-header">
+      <button type="button" id="mobileNavBtn" class="mobile-nav-btn" aria-label="Buka menu navigasi" aria-controls="appSidebar" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
       <div class="brand-left">
         <div class="sync-badge" id="sync">Tersinkron Database</div>
         <div class="top-clock" id="topClock" aria-label="Tanggal dan jam saat ini"><i class="fa-regular fa-clock"></i><span id="topClockText">--/--/---- - --:--:--</span></div>
@@ -3581,6 +3583,98 @@ body.dash-light .view-heading p.welcome-line{font-size:22px;font-weight:500;colo
 #appShell.sidebar-collapsed .nav-group-items{margin-left:0;padding-left:0;border-left:0}
 #appShell.sidebar-collapsed .nav-group-items button::before{display:none}
 </style>
+<style id="mobile-overrides">
+/* ===== Tampilan HP / tablet kecil =====
+   Semua aturan di bawah hanya aktif pada layar <= 900px. Desktop tidak terpengaruh. */
+.mobile-nav-btn,.mobile-nav-backdrop{display:none}
+@media(max-width:900px){
+ html{-webkit-text-size-adjust:100%}
+ body.mobile-nav-lock{overflow:hidden}
+ /* Desktop memakai zoom 80%/75%; di HP zoom dikembalikan ke 100% agar teks terbaca */
+ #appShell,#appShell[data-active-view="dashboard"] #appMain,#appShell .app-header,#appShell .view-heading,#appShell .ud-head{zoom:1}
+
+ /* Menu samping menjadi laci (drawer) yang dibuka dengan tombol ☰ */
+ #appShell .app-layout{display:block!important}
+ #appShell .sidebar-col{position:fixed!important;top:0;left:0;bottom:0;z-index:1200;width:min(86vw,320px);height:100dvh!important;min-height:0;padding:14px 12px calc(18px + env(safe-area-inset-bottom))!important;overflow-y:auto;overscroll-behavior:contain;background:#0b1324;transform:translateX(-105%);transition:transform .22s ease;box-shadow:none;gap:10px}
+ #appShell.mobile-nav-open .sidebar-col{transform:none;box-shadow:0 0 44px rgba(2,6,23,.55)}
+ #appShell .sidebar-col .app-sidebar{min-height:0;padding:0;background:none;border:0;box-shadow:none}
+ #appShell .sidebar-nav{grid-template-columns:minmax(0,1fr)!important}
+ #appShell #sidebarCollapseBtn{display:none}
+ #appShell #mainNavigation button{min-height:44px}
+ #appShell .mobile-nav-backdrop{display:block;position:fixed;inset:0;z-index:1190;background:rgba(2,6,23,.55);opacity:0;pointer-events:none;transition:opacity .2s ease}
+ #appShell.mobile-nav-open .mobile-nav-backdrop{opacity:1;pointer-events:auto}
+
+ /* Bar atas satu baris, menempel di atas saat menggulir */
+ #appShell .app-header,body.dash-light #appShell .app-header{position:sticky;top:0;z-index:1000;display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:8px 12px;margin:0 -14px 14px}
+ #appShell .mobile-nav-btn{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;padding:0;border-radius:12px;border:1px solid #dfe6f2;background:#fff;color:#0f172a;font-size:17px;cursor:pointer}
+ #appShell .brand-left{flex:1 1 auto;min-width:0;flex-wrap:nowrap;gap:8px}
+ body.dash-light #appShell .brand-left{gap:8px}
+ #appShell .sync-badge,body.dash-light #appShell .sync-badge{min-width:0;padding:6px 10px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #appShell .stats-right{flex:0 0 auto;flex-wrap:nowrap}
+ #appShell .top-logout>span:nth-child(2){display:none}
+ #appShell .top-clock{font-size:11px}
+ #appShell .top-clock i{display:none}
+
+ /* Konten */
+ #appShell .app-content{padding:0 14px calc(24px + env(safe-area-inset-bottom))}
+ #appShell .app-main{min-width:0}
+ #appMain input,#appMain select,#appMain textarea{font-size:16px}
+ #appMain button{min-height:40px}
+ #appShell .view-heading h2,#appShell .ud-head-text h2{font-size:24px}
+ #appShell .view-heading p,#appShell .ud-head-text p{font-size:13px}
+ #appMain .overview-table-wrap,#appMain .wo-table-wrap,#appMain [class*="table-wrap"]{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ #appMain .ud-table:not(.bat-table){min-width:600px;font-size:13px}
+ #appMain .ud-table:not(.bat-table) thead th{padding:11px 10px;font-size:11px}
+ #appMain .ud-table:not(.bat-table) td{padding:10px;font-size:13px}
+ #appMain .ud-table-wrap:not(:has(.bat-table))::before{content:"Geser ke samping untuk melihat kolom lain \2192";display:block;position:sticky;left:0;padding:0 2px 8px;font-size:11px;color:#64748b}
+ #appMain .ud-pager{justify-content:center;font-size:13px}
+ #appMain .ud-pager-btns{flex-wrap:wrap;justify-content:center}
+ #appMain .ud-page{min-width:36px;height:36px;padding:0 8px;font-size:13px}
+ #appShell #unitDirectorySearch{padding-left:50px!important}
+ #appMain .pagination-bar{flex-wrap:wrap;gap:8px}
+ #appMain .pagination-controls{flex-wrap:wrap}
+}
+@media(max-width:520px){
+ #appShell .top-clock{display:none}
+}
+
+/* Jadwal Servis Mendatang: baris tabel menjadi kartu agar tidak terpotong di HP */
+@media(max-width:700px){
+ #upcomingServicesCard .overview-table-wrap{overflow-x:visible}
+ #upcomingServicesCard table,#upcomingServicesCard tbody,#appShell[data-active-view="schedule"] #overviewTable table{display:block;width:100%;min-width:0}
+ #upcomingServicesCard thead{display:none}
+ #upcomingServicesCard .overview-head{flex-wrap:wrap;gap:8px}
+ #upcomingServicesCard .overview-head h2{font-size:17px;line-height:1.25}
+ #upcomingServicesCard tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"d p" "u m" "dp k" "a a";gap:10px 10px;padding:12px;margin:0 0 10px;border:1px solid #e3e9f4;border-radius:14px;background:#fff}
+ #upcomingServicesCard tbody td{display:block;padding:0!important;border:0!important;min-width:0;white-space:normal}
+ #upcomingServicesCard .sch-date{white-space:nowrap}
+ #upcomingServicesCard tbody td:nth-child(1){grid-area:d}
+ #upcomingServicesCard tbody td:nth-child(2){grid-area:u}
+ #upcomingServicesCard tbody td:nth-child(3){grid-area:dp;font-size:13px;color:#475569}
+ #upcomingServicesCard tbody td:nth-child(3)::before{content:"Dept: ";font-weight:700;color:#64748b}
+ #upcomingServicesCard tbody td:nth-child(4){grid-area:k;font-size:13px;color:#475569;text-align:right}
+ #upcomingServicesCard tbody td:nth-child(4)::before{content:"Kategori: ";font-weight:700;color:#64748b}
+ #upcomingServicesCard tbody td:nth-child(5){grid-area:m;text-align:right}
+ #upcomingServicesCard tbody td:nth-child(6){grid-area:p;text-align:right}
+ #upcomingServicesCard tbody td:nth-child(7){grid-area:a}
+ #upcomingServicesCard .action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ #upcomingServicesCard .action-buttons button{justify-content:center;width:100%}
+}
+</style>
+<script>
+(function(){
+ var shell=document.getElementById('appShell'),btn=document.getElementById('mobileNavBtn'),bd=document.getElementById('mobileNavBackdrop'),nav=document.getElementById('mainNavigation');
+ if(!shell||!btn||!bd)return;
+ var mq=window.matchMedia('(max-width:900px)');
+ function set(open){shell.classList.toggle('mobile-nav-open',!!open);document.body.classList.toggle('mobile-nav-lock',!!open);btn.setAttribute('aria-expanded',String(!!open));btn.setAttribute('aria-label',open?'Tutup menu navigasi':'Buka menu navigasi')}
+ btn.addEventListener('click',function(){set(!shell.classList.contains('mobile-nav-open'))});
+ bd.addEventListener('click',function(){set(false)});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false)});
+ if(nav)nav.addEventListener('click',function(e){if(mq.matches&&e.target.closest('[data-view-target]'))set(false)});
+ var off=function(e){if(!e.matches)set(false)};
+ if(mq.addEventListener)mq.addEventListener('change',off);else if(mq.addListener)mq.addListener(off);
+})();
+</script>
 </body>
 </html>
 
